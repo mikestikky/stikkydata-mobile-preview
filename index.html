@@ -16,6 +16,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="StikkyData">
+  <meta name="theme-color" content="#1a7a1c">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
   <title>StikkyData — 1,000 ATMs in your pocket</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="window.__noLeaflet=true">
@@ -527,6 +531,12 @@ body {
 .scroll { padding-bottom: env(safe-area-inset-bottom, 0); }
 .asset-list { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0)); }
 .peek-list { padding-bottom: calc(16px + env(safe-area-inset-bottom, 0)); }
+
+/* Installed as a home-screen app (full-screen): drop the fake status bar, clear the real one */
+@media all and (display-mode: standalone) {
+  .os-bar { display: none; }
+  .appbar { padding-top: calc(10px + env(safe-area-inset-top, 0)); }
+}
   </style>
 </head>
 <body>
