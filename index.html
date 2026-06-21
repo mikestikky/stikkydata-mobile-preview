@@ -686,7 +686,7 @@ body {
         <h2>Add to ATM&#8209;4471</h2>
         <div class="sheet-sub">Leave a note, snap what you're seeing, or open a ticket</div>
         <div class="sheet-divider"></div>
-        <div class="chooser-row" onclick="openCamera()"><div class="chooser-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div class="chooser-tx"><div class="t">Take a photo</div><div class="s">Snap it, circle the problem, add a line</div></div><span class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+        <label class="chooser-row" for="cam" style="cursor:pointer"><div class="chooser-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div class="chooser-tx"><div class="t">Take a photo</div><div class="s">Snap it, circle the problem, add a line</div></div><span class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></label>
         <div class="chooser-row" onclick="openSheet('notecompose')"><div class="chooser-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></div><div class="chooser-tx"><div class="t">Write a note</div><div class="s">A quick note on this ATM</div></div><span class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
         <div class="chooser-row" onclick="openSheet('ticket')"><div class="chooser-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg></div><div class="chooser-tx"><div class="t">Create a ticket</div><div class="s">Send it to a vendor or team to fix</div></div><span class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
       </div>
@@ -707,7 +707,7 @@ body {
         <div class="sheet-sub">ATM&#8209;4471</div>
         <div class="sheet-divider"></div>
         <textarea class="form-textarea" style="min-height:120px" placeholder="A quick note on this ATM…"></textarea>
-        <button class="btn btn-secondary" style="width:100%; margin-top:12px; justify-content:center" onclick="openCamera()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Attach a photo</button>
+        <label class="btn btn-secondary" for="cam" style="width:100%; margin-top:12px; justify-content:center; cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Attach a photo</label>
         <div class="sheet-actions"><button class="btn btn-secondary" onclick="openSheet('note')">Back</button><button class="btn btn-primary" onclick="openSheet('ticket')">Make a ticket</button></div>
       </div>
 
@@ -729,6 +729,17 @@ body {
 
     <!-- opens the phone camera (rear); falls back to file picker on desktop -->
     <input type="file" accept="image/*" capture="environment" id="cam" style="position:absolute; left:-9999px; top:0; width:1px; height:1px; opacity:0;">
+
+    <!-- Directions: pick Apple or Google Maps -->
+    <div class="sheet-overlay" id="maps-overlay" onclick="closeMaps()"></div>
+    <div class="sheet" id="sheet-maps">
+      <div class="sheet-grip"></div>
+      <h2>Get directions</h2>
+      <div class="sheet-sub">Open in your maps app</div>
+      <div class="sheet-divider"></div>
+      <div class="chooser-row" onclick="openApple()"><div class="chooser-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></div><div class="chooser-tx"><div class="t">Apple Maps</div><div class="s">Navigate with Apple Maps</div></div><span class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+      <div class="chooser-row" onclick="openGoogle()"><div class="chooser-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="chooser-tx"><div class="t">Google Maps</div><div class="s">Navigate with Google Maps</div></div><span class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span></div>
+    </div>
 
     <div class="toast" id="toast"></div>
   </div>
@@ -763,8 +774,13 @@ body {
     function goBack() { showView(prevView === 'asset' ? 'map' : prevView); }
 
     /* ---- real maps handoff ---- */
-    function openMaps(lat, lng) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank'); }
+    /* Directions → let the user pick Apple or Google Maps */
+    let mapsDest = { lat: ASSET.lat, lng: ASSET.lng };
+    function openMaps(lat, lng) { mapsDest = { lat, lng }; document.getElementById('maps-overlay').classList.add('show'); document.getElementById('sheet-maps').classList.add('show'); }
     function directions() { openMaps(ASSET.lat, ASSET.lng); }
+    function closeMaps() { document.getElementById('maps-overlay').classList.remove('show'); document.getElementById('sheet-maps').classList.remove('show'); }
+    function openApple() { window.open(`https://maps.apple.com/?daddr=${mapsDest.lat},${mapsDest.lng}&dirflg=d`, '_blank'); closeMaps(); }
+    function openGoogle() { window.open(`https://www.google.com/maps/dir/?api=1&destination=${mapsDest.lat},${mapsDest.lng}`, '_blank'); closeMaps(); }
 
     /* ---- images ---- */
     function paintImages(root) { (root||document).querySelectorAll('img.atm-img:not([src])').forEach(i => i.src = ATM); }
@@ -870,14 +886,14 @@ body {
     }
     function setupAnno(sheetId) { const s = document.getElementById(sheetId); if (s) initCanvas(s.querySelector('.anno-canvas')); }
 
-    /* "Take a photo" opens the phone camera; the captured shot becomes the photo you annotate */
-    function openCamera() { const inp = document.getElementById('cam'); inp.value = ''; inp.click(); }
+    /* "Take a photo" is a <label for="cam"> — iOS opens the camera natively; the captured shot loads here */
     document.getElementById('cam').addEventListener('change', e => {
       const f = e.target.files && e.target.files[0]; if (!f) return;
       const img = document.getElementById('take-photo-img');
       img.src = URL.createObjectURL(f);
       img.style.objectFit = 'cover'; img.style.objectPosition = 'center';
       openSheet('takephoto');
+      e.target.value = ''; /* allow taking another shot next time */
     });
     function clearAnno(btn) { const cv = btn.closest('.note-photo').querySelector('.anno-canvas'); if (cv && cv._ctx) cv._ctx.clearRect(0, 0, cv.width, cv.height); const h = cv.parentElement.querySelector('.anno-hint'); if (h) h.style.opacity = ''; }
 
