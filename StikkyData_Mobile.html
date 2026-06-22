@@ -510,6 +510,7 @@ body {
 .tg-bar { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--border-light); }
 .tg-bar-fill { height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
 .tg-stage { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; padding: 16px; gap: 14px; }
+.tg-stage > * { flex-shrink: 0; } /* keep natural height so the stage SCROLLS instead of compressing cards (which clipped rows) */
 
 /* triage landing — the dashboard's department > issue-type groups */
 .tg-hint { font-size: 13px; color: var(--accent-dark); background: var(--accent-light); border: 1px solid #fed7aa; border-radius: 10px; padding: 11px 13px; line-height: 1.45; }
