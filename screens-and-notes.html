@@ -133,9 +133,9 @@
         <h2><span class="num">5</span>Camera → capture &amp; note <span class="tag build">new build</span></h2>
         <div class="route">Camera icon (header)</div>
         <ul>
-          <li><b>The one genuinely new interaction.</b> The Camera icon opens the <b>device camera</b>; the shot lands here.</li>
-          <li><b>Draw on the photo</b> (orange) to circle the problem + Clear, and a <b>note</b> field.</li>
-          <li>Two exits: <b>Make a ticket</b> or <b>Send</b>.</li>
+          <li><b>The one genuinely new interaction.</b> The Camera icon opens the <b>device camera</b>; the shot lands here with a <b>note</b> field.</li>
+          <li><b>One exit: Send</b> → choose <b>Share with someone</b> or <b>Save to this ATM</b> (screen 6).</li>
+          <li><b>Cut per Claire (2026-06-22):</b> the draw-on-photo canvas is removed (not worth the build time), and <b>Make a ticket</b> is removed (v2 ticketing isn't done — pulled for now).</li>
           <li><b>Implementation:</b> camera trigger = a transparent file input <i>laid over the button</i> (iOS-reliable). NOT display:none + .click(), NOT an off-screen label. Shown here with the placeholder photo.</li>
         </ul>
       </div>
@@ -180,21 +180,26 @@
     </div>
 
     <div class="screen">
-      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="ticket" onload="drive(this)"></iframe></div></div>
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="triage" onload="drive(this)"></iframe></div></div>
       <div class="notes">
-        <h2><span class="num">9</span>Make a ticket <span class="tag build">wire to v2</span></h2>
-        <div class="route">compose → Make a ticket</div>
+        <h2><span class="num">9</span>Triage — "Hot or Not" <span class="tag build">new build · its own door</span></h2>
+        <div class="route">"N to review" chip in the top controls</div>
         <ul>
-          <li>From the capture screen, <b>Make a ticket</b> → Assign to / Priority / note, carrying the photo + asset.</li>
-          <li>Ticketing is v2's last feature in flight — these fields are a <b>placeholder</b>; swap the real schema and wire <b>Create ticket</b> to the v2 endpoint.</li>
-          <li>A ticket always belongs to its asset (no orphan tickets, no global ticket queue in the mobile UI).</li>
+          <li><b>A separate mode, NOT part of map/asset.</b> Browse stays calm and asset-first; issue lists never bleed onto the map or asset screens. Reached from the <b>"N to review" chip</b> in the top Zillow-style controls (no bottom nav). Opens as a full-screen takeover with a Done (✕) back to the map.</li>
+          <li><b>Purpose:</b> clear the standing flagged-issue backlog in ~10–15 min/month. Most flags are noise (e.g. ~35 monitor flags, ~2 real) — today that triage is a phone call; this replaces it with thumb-swipes.</li>
+          <li><b>Card stack, one issue at a time.</b> Each card: big photo of the flagged condition + one-line context (issue type · ATM id · address · default vendor). A progress bar runs along the top.</li>
+          <li><b>Three actions:</b> <b>Excuse</b> (dismiss as not-real — v2's existing "excuse" action), <b>Escalate</b> (keep it / route to that issue's default vendor), <b>Skip for now</b> (defer, never stall on an ambiguous one). Tapping <b>auto-advances</b> to the next card.</li>
+          <li><b>Undo:</b> a brief "Excused · Undo" (~2s) after each action — fat-finger safety on a live backlog.</li>
+          <li><b>Escalate = an email at the end</b> (per Michael — it's how monitors go to Diebold today). Escalations batch per vendor; the end-of-pass summary shows one <b>"Email Diebold · N units"</b> button per vendor → opens a <b>pre-filled email the user sends from their own mail</b> (nothing auto-sends). Sidesteps needing v2 route-to-default; if v2 later supports it, swap the email for a direct route.</li>
+          <li><b>Dispositions EXISTING issues only</b> — never creates new action items (that's deferred web-side work).</li>
         </ul>
       </div>
     </div>
 
     <div class="foot">
       <b>Transitions:</b> view changes cross-fade (~0.2s); the peek sheet drags &amp; snaps collapsed/expanded; bottom sheets slide up over a dimmed overlay; the photo viewer toggles chrome on tap. (Motion only shows on a real device.)<br><br>
-      <b>Still to build / placeholders:</b> real ATM photos (swap into the per-slot arrays); large-fleet handling for big customers (background-stream the map pins, infinite-scroll + virtualize the list — no clustering); wire the ticket to v2 ticketing. <br>
+      <b>Cut for now (Claire, 2026-06-22):</b> draw-on-photo (not worth the build time) and ticketing (v2 ticketing isn't done) — both removed; no Tickets/Reports tab on mobile.<br>
+      <b>Still to build / placeholders:</b> real ATM photos (swap into the per-slot arrays); large-fleet handling for big customers (background-stream the map pins, infinite-scroll + virtualize the list — no clustering); confirm v2's "excuse" action + vendor emails for Triage (§8); wire Escalate to v2 route-to-default later if/when it exists (email is the interim). <br>
       <b>Out of scope on mobile:</b> Reports, fleet-wide dashboards/filters, any StikkySurveys project/board patterns, system-sent email (Send goes from the user's own phone).<br><br>
       Live reference: <b>mikestikky.github.io/stikkydata-mobile-preview/</b>
     </div>
@@ -216,7 +221,7 @@
             send: () => { w.openAsset('map'); w.openSheet('sendchoice'); },
             share: () => { w.openAsset('map'); w.openSheet('send'); },
             directions: () => { w.openAsset('map'); w.directions(); },
-            ticket: () => { w.openAsset('map'); w.openSheet('ticket'); },
+            triage: () => w.openTriage(),
           };
           (R[st] || R.map)();
         } catch (e) { /* ignore */ }
