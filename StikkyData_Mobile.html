@@ -512,7 +512,7 @@ body {
 .tg-prog { font-size: 12px; font-weight: 600; color: var(--text-muted); }
 .tg-bar { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--border-light); }
 .tg-bar-fill { height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
-.tg-stage { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; padding: 16px; gap: 14px; }
+.tg-stage { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; padding: 14px 16px; gap: 10px; }
 .tg-stage > * { flex-shrink: 0; } /* keep natural height so the stage SCROLLS instead of compressing cards (which clipped rows) */
 
 /* triage landing — the dashboard's department > issue-type groups */
@@ -538,10 +538,13 @@ body {
 .tg-type-row.all .tg-type-nm, .tg-type-row.all .tg-type-n { color: var(--accent-dark); }
 
 .tg-card { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(15,23,42,0.06); }
-.tg-photo { position: relative; width: 100%; aspect-ratio: 4/3; background: #0f172a; }
+.tg-photo { position: relative; width: 100%; aspect-ratio: 3/2; background: #0f172a; }
+.tg-dots { display: flex; justify-content: center; gap: 5px; padding: 9px 0 1px; }
+.tg-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--border-outline); transition: width .15s, background .15s; }
+.tg-dots i.on { width: 16px; border-radius: 3px; background: var(--accent); }
 .tg-photo img { width: 100%; height: 100%; object-fit: cover; }
 .tg-flag { position: absolute; left: 12px; top: 12px; background: rgba(15,23,42,0.82); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 7px; }
-.tg-ctx { padding: 14px 16px 16px; }
+.tg-ctx { padding: 4px 16px 14px; }
 .tg-type { font-size: 17px; font-weight: 800; color: var(--text-primary); }
 .tg-meta { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
 .tg-vendor { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
@@ -557,8 +560,7 @@ body {
 
 /* multi-photo affordances on the triage card */
 .tg-photo { cursor: pointer; }
-.tg-photo-count { position: absolute; right: 12px; top: 12px; display: inline-flex; align-items: center; gap: 5px; background: rgba(15,23,42,0.82); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 9px; border-radius: 7px; }
-.tg-photo-count svg { width: 13px; height: 13px; }
+.tg-photo-count { position: absolute; right: 12px; top: 12px; min-width: 22px; height: 22px; padding: 0 7px; display: inline-flex; align-items: center; justify-content: center; background: rgba(15,23,42,0.82); color: #fff; font-size: 12px; font-weight: 800; border-radius: 11px; }
 .tg-photo-expand { position: absolute; right: 12px; bottom: 12px; width: 30px; height: 30px; border-radius: 8px; background: rgba(15,23,42,0.7); color: #fff; display: flex; align-items: center; justify-content: center; }
 .tg-photo-expand svg { width: 15px; height: 15px; }
 .tg-atm { background: none; border: none; padding: 0; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--accent-dark); cursor: pointer; text-decoration: underline; }
@@ -1167,19 +1169,20 @@ body {
       const it = tgDeck[tgIdx], label = tgTypeName || it.type, multi = it.photos.length > 1;
       document.getElementById('tg-top').innerHTML =
         `<button class="icon-btn" aria-label="Back to teams" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${label} <span class="tg-prog">${tgIdx + 1} of ${tgDeck.length}</span></div><div class="tg-bar"><div class="tg-bar-fill" style="width:${Math.round(tgIdx / tgDeck.length * 100)}%"></div></div>`;
-      const countBadge = multi ? `<span class="tg-photo-count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>${it.photos.length}</span>` : '';
+      const countBadge = multi ? `<span class="tg-photo-count">${it.photos.length}</span>` : '';
+      const dots = multi ? `<div class="tg-dots">${it.photos.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>` : '';
       document.getElementById('tg-stage').innerHTML =
         `<div class="tg-card" id="tg-card">
           <span class="tg-swipe-stamp excuse">Excuse</span><span class="tg-swipe-stamp escalate">Escalate</span>
-          <div class="tg-photo"><img class="atm-img" src="${slotImg(it.photos[0])}" style="object-position:center"><span class="tg-flag">${it.type}</span>${countBadge}<span class="tg-photo-expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div>
-          <div class="tg-ctx"><div class="tg-type">${it.type} flag</div><div class="tg-meta"><button class="tg-atm">ATM&#8209;${it.atm}</button> · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}${multi ? ' · ' + it.photos.length + ' photos · tap to open' : ' · tap photo to open'}</div></div>
+          <div class="tg-photo"><img class="atm-img" src="${slotImg(it.photos[0])}" style="object-position:center"><span class="tg-flag">${it.type}</span>${countBadge}</div>
+          ${dots}
+          <div class="tg-ctx"><div class="tg-meta"><button class="tg-atm">ATM&#8209;${it.atm}</button> · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}</div></div>
         </div>
-        <div class="tg-swipe-tip">Swipe ← to excuse · → to escalate</div>
-        <textarea class="tg-comment" id="tg-comment" rows="2" placeholder="Add a comment (optional)…"></textarea>
         <div class="tg-actions">
           <button class="tg-btn excuse" onclick="triageDo('excuse')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Excuse</button>
           <button class="tg-btn escalate" onclick="triageDo('escalate')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Escalate</button>
         </div>
+        <textarea class="tg-comment" id="tg-comment" rows="2" placeholder="Add a comment (optional)…"></textarea>
         <button class="tg-skip" onclick="triageDo('skip')">Can't tell — skip for now</button>`;
       wireSwipe(document.getElementById('tg-card'));
     }
