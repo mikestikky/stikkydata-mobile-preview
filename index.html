@@ -511,6 +511,25 @@ body {
 .tg-bar-fill { height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
 .tg-stage { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; padding: 16px; gap: 14px; }
 
+/* triage landing — the dashboard's department > issue-type groups */
+.tg-hint { font-size: 13px; color: var(--accent-dark); background: var(--accent-light); border: 1px solid #fed7aa; border-radius: 10px; padding: 11px 13px; line-height: 1.45; }
+.tg-dept { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 14px; overflow: hidden; }
+.tg-dept-hd { display: flex; align-items: center; gap: 9px; padding: 12px 15px; border-bottom: 1px solid var(--border-light); }
+.tg-dept-nm { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+.tg-dept-tag { font-size: 10.5px; font-weight: 700; color: var(--text-secondary); border: 1px solid var(--border-outline); border-radius: 6px; padding: 2px 7px; }
+.tg-dept-n { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--late); }
+.tg-types { display: flex; flex-direction: column; }
+.tg-type-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--border-light); padding: 11px 15px; cursor: pointer; font-family: inherit; }
+.tg-type-row:first-child { border-top: none; }
+.tg-type-row:active { background: var(--border-light); }
+.tg-type-thumb { width: 42px; height: 42px; border-radius: 8px; overflow: hidden; background: #0f172a; flex-shrink: 0; }
+.tg-type-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.tg-type-nm { flex: 1; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.tg-type-n { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.tg-type-clear { font-size: 12px; font-weight: 700; color: var(--pass); }
+.tg-chev { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
+.tg-type-row.done { opacity: 0.55; }
+
 .tg-card { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(15,23,42,0.06); }
 .tg-photo { position: relative; width: 100%; aspect-ratio: 4/3; background: #0f172a; }
 .tg-photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -761,11 +780,7 @@ body {
         <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2 0 3.8.8 5.1 2l1.2-1.3C13.7 1.2 11 0 8 0S2.3 1.2.7 2.9L1.9 4.2C3.2 3 5 2.2 8 2.2z"/><circle cx="8" cy="9" r="1.8"/></svg>
         <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
       </span></div>
-      <header class="tg-top">
-        <button class="icon-btn" aria-label="Done" onclick="closeTriage()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-        <div class="tg-ttl">Triage <span class="tg-prog" id="tg-prog"></span></div>
-        <div class="tg-bar"><div class="tg-bar-fill" id="tg-bar-fill"></div></div>
-      </header>
+      <header class="tg-top" id="tg-top"></header>
       <div class="tg-stage" id="tg-stage"></div>
       <div class="tg-undo" id="tg-undo"><span id="tg-undo-tx">Excused</span><button onclick="triageUndo()">Undo</button></div>
     </div>
@@ -1014,53 +1029,62 @@ body {
     let toastT;
     function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1900); }
 
-    /* ===== TRIAGE ("Hot or Not") — its own door; clears the flagged-issue backlog in a photo-swipe stack.
-       Dispositions EXISTING issues only (never creates new ones). Escalate batches per vendor, then opens a
-       pre-filled email you send from your own mail (matches how monitors are emailed to Diebold today). ===== */
-    const VENDOR_EMAIL = {
-      'Diebold Nixdorf': 'service@dieboldnixdorf.com',
-      'NCR': 'service@ncr.com',
-      'ATA Field Team': 'field@ataservices.com',
-      'Facilities': 'facilities@americafirst.com',
-    };
-    const ISSUE_DEFS = {
-      'Monitor flagged dark':   { vendor: 'Diebold Nixdorf', slot: 3 },
-      'Receipt printer jam':    { vendor: 'Diebold Nixdorf', slot: 1 },
-      'Card reader read error': { vendor: 'NCR', slot: 2 },
-      'Keypad key sticking':    { vendor: 'ATA Field Team', slot: 4 },
-      'Fascia decal peeling':   { vendor: 'Facilities', slot: 5 },
-    };
-    const REVIEW = (function () {
-      const pool = FLEET.slice(8, 40); /* 32 real fleet ATMs — mostly monitor flags (the noise) */
-      return pool.map((a, i) => {
-        let type = 'Monitor flagged dark';
-        if (i === 6 || i === 19) type = 'Receipt printer jam';
-        else if (i === 12) type = 'Card reader read error';
-        else if (i === 25) type = 'Keypad key sticking';
-        else if (i === 30) type = 'Fascia decal peeling';
-        const d = ISSUE_DEFS[type];
-        return { atm: a.id, addr: a.loc + ', ' + a.city, type, vendor: d.vendor, slot: d.slot };
-      });
-    })();
+    /* ===== TRIAGE — mirrors the StikkyData dashboard: outstanding action items grouped by DEPARTMENT → issue
+       type (each its own photo). You CLEAR ONE GROUP AT A TIME (e.g. Diebold › Monitor), never a mixed pile.
+       Per card: Excuse (dismiss as not-real) / Escalate (route to that dept) / Skip. Escalations batch within
+       the group, then open a pre-filled email to that department (e.g. Diebold) you send from your own mail.
+       Counts mirror the real dashboard (Diebold 58, America First 210, Facilities 15). ===== */
+    const DEPARTMENTS = [
+      { dept: 'Diebold Nixdorf', tag: 'Vendor', email: 'vendor-support@americafirst.com',
+        types: [ { type: 'Monitor', n: 45, slot: 3 }, { type: 'Receipt', n: 10, slot: 1 }, { type: 'ATM Lighting', n: 3, slot: 5 } ] },
+      { dept: 'America First CU', tag: 'Internal', email: 'compliance@americafirst.com',
+        types: [ { type: 'ADA', n: 145, slot: 6 }, { type: 'ATM Condition', n: 33, slot: 0 }, { type: 'Braille', n: 12, slot: 4 }, { type: 'ATM Out of Service', n: 4, slot: 0 } ] },
+      { dept: 'Facilities', tag: 'Internal', email: 'facilities@americafirst.com',
+        types: [ { type: 'Drive-Up Lanes', n: 15, slot: 0 } ] },
+    ];
+    DEPARTMENTS.forEach(d => d.types.forEach(t => { t.remaining = t.n; }));
+    function triageTotal() { return DEPARTMENTS.reduce((s, d) => s + d.types.reduce((a, t) => a + t.remaining, 0), 0); }
+    function updateReviewChip() { document.querySelectorAll('.rc-n').forEach(el => el.textContent = triageTotal()); }
 
-    let tgIdx = 0, tgLog = [], tgUndoT = null;
-    function openTriage() { tgIdx = 0; tgLog = []; showView('triage'); renderTriage(); }
-    function closeTriage() {
-      clearTimeout(tgUndoT); document.getElementById('tg-undo').classList.remove('show');
-      document.querySelectorAll('.rc-n').forEach(el => el.textContent = REVIEW.length - tgLog.length);
-      showView('map');
+    let tgDept = null, tgType = null, tgDeck = [], tgIdx = 0, tgLog = [], tgUndoT = null;
+    const ICN_X = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    const ICN_BACK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+
+    function openTriage() { renderLanding(); showView('triage'); }
+    function closeTriage() { clearTimeout(tgUndoT); document.getElementById('tg-undo').classList.remove('show'); updateReviewChip(); showView('map'); }
+
+    function renderLanding() {
+      tgDept = tgType = null; document.getElementById('tg-undo').classList.remove('show');
+      document.getElementById('tg-top').innerHTML =
+        `<button class="icon-btn" aria-label="Done" onclick="closeTriage()">${ICN_X}</button><div class="tg-ttl">Review <span class="tg-prog">${triageTotal()} open · clear a group</span></div>`;
+      const groups = DEPARTMENTS.map(d => {
+        const open = d.types.reduce((a, t) => a + t.remaining, 0);
+        const rows = d.types.map(t => t.remaining === 0
+          ? `<div class="tg-type-row done"><span class="tg-type-thumb"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[t.slot].pos}"></span><span class="tg-type-nm">${t.type}</span><span class="tg-type-clear">Cleared</span></div>`
+          : `<button class="tg-type-row" onclick="openGroup('${d.dept.replace(/'/g, "\\'")}','${t.type.replace(/'/g, "\\'")}')"><span class="tg-type-thumb"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[t.slot].pos}"></span><span class="tg-type-nm">${t.type}</span><span class="tg-type-n">${t.remaining}</span><svg class="tg-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>`
+        ).join('');
+        return `<div class="tg-dept"><div class="tg-dept-hd"><span class="tg-dept-nm">${d.dept}</span><span class="tg-dept-tag">${d.tag}</span><span class="tg-dept-n">${open} open</span></div><div class="tg-types">${rows}</div></div>`;
+      }).join('');
+      document.getElementById('tg-stage').innerHTML = `<div class="tg-hint">Most flags are noise. Pick a group and clear it — Excuse the noise, Escalate the real ones, and email that team in one go.</div>${groups}`;
     }
-    function renderTriage() {
-      const stage = document.getElementById('tg-stage');
-      const prog = document.getElementById('tg-prog'), bar = document.getElementById('tg-bar-fill');
-      if (tgIdx >= REVIEW.length) { prog.textContent = ''; bar.style.width = '100%'; stage.innerHTML = triageSummary(); return; }
-      const it = REVIEW[tgIdx];
-      prog.textContent = (tgIdx + 1) + ' of ' + REVIEW.length;
-      bar.style.width = Math.round((tgIdx / REVIEW.length) * 100) + '%';
-      stage.innerHTML =
+
+    function openGroup(deptName, typeName) {
+      tgDept = DEPARTMENTS.find(d => d.dept === deptName);
+      tgType = tgDept.types.find(t => t.type === typeName);
+      tgDeck = []; tgIdx = 0; tgLog = [];
+      for (let i = 0; i < tgType.remaining; i++) { const a = FLEET[(i * 7 + 3) % FLEET.length]; tgDeck.push({ atm: a.id, addr: a.loc + ', ' + a.city }); }
+      renderGroup();
+    }
+
+    function renderGroup() {
+      if (tgIdx >= tgDeck.length) { renderGroupSummary(); return; }
+      const it = tgDeck[tgIdx];
+      document.getElementById('tg-top').innerHTML =
+        `<button class="icon-btn" aria-label="Back to groups" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${tgType.type} <span class="tg-prog">${tgIdx + 1} of ${tgDeck.length}</span></div><div class="tg-bar"><div class="tg-bar-fill" style="width:${Math.round(tgIdx / tgDeck.length * 100)}%"></div></div>`;
+      document.getElementById('tg-stage').innerHTML =
         `<div class="tg-card">
-          <div class="tg-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[it.slot].pos}"><span class="tg-flag">${it.type}</span></div>
-          <div class="tg-ctx"><div class="tg-type">${it.type}</div><div class="tg-meta">ATM&#8209;${it.atm} · ${it.addr}</div><div class="tg-vendor">Default route · ${it.vendor}</div></div>
+          <div class="tg-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[tgType.slot].pos}"><span class="tg-flag">${tgType.type}</span></div>
+          <div class="tg-ctx"><div class="tg-type">${tgType.type} flag</div><div class="tg-meta">ATM&#8209;${it.atm} · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}</div></div>
         </div>
         <div class="tg-actions">
           <button class="tg-btn excuse" onclick="triageDo('excuse')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Excuse</button>
@@ -1068,47 +1092,44 @@ body {
         </div>
         <button class="tg-skip" onclick="triageDo('skip')">Skip for now</button>`;
     }
+
     function triageDo(action) {
-      if (tgIdx >= REVIEW.length) return;
-      tgLog.push({ item: REVIEW[tgIdx], action }); tgIdx++;
+      if (tgIdx >= tgDeck.length) return;
+      tgLog.push({ item: tgDeck[tgIdx], action }); tgIdx++;
       const label = action === 'excuse' ? 'Excused' : action === 'escalate' ? 'Escalated' : 'Skipped';
-      const u = document.getElementById('tg-undo');
-      document.getElementById('tg-undo-tx').textContent = label;
-      u.classList.add('show');
-      clearTimeout(tgUndoT); tgUndoT = setTimeout(() => u.classList.remove('show'), 2200);
-      renderTriage();
+      const u = document.getElementById('tg-undo'); document.getElementById('tg-undo-tx').textContent = label;
+      u.classList.add('show'); clearTimeout(tgUndoT); tgUndoT = setTimeout(() => u.classList.remove('show'), 2200);
+      renderGroup();
     }
-    function triageUndo() {
-      if (!tgLog.length) return;
-      tgLog.pop(); tgIdx = Math.max(0, tgIdx - 1);
-      clearTimeout(tgUndoT); document.getElementById('tg-undo').classList.remove('show');
-      renderTriage();
-    }
-    function triageSummary() {
+    function triageUndo() { if (!tgLog.length) return; tgLog.pop(); tgIdx = Math.max(0, tgIdx - 1); clearTimeout(tgUndoT); document.getElementById('tg-undo').classList.remove('show'); renderGroup(); }
+
+    function renderGroupSummary() {
       const by = a => tgLog.filter(l => l.action === a).length;
-      const esc = tgLog.filter(l => l.action === 'escalate').map(l => l.item);
-      const buckets = {};
-      esc.forEach(it => (buckets[it.vendor] = buckets[it.vendor] || []).push(it));
-      const rows = Object.keys(buckets).map(v => {
-        const n = buckets[v].length;
-        return `<button class="tg-email" onclick="emailVendor('${v.replace(/'/g, "\\'")}')"><span class="tg-email-tx"><b>Email ${v}</b><span>${n} ATM${n > 1 ? 's' : ''} to service</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>`;
-      }).join('') || '<div class="tg-noesc">Nothing escalated this pass.</div>';
-      return `<div class="tg-summary">
+      const escN = by('escalate'), skipN = by('skip');
+      tgType.remaining = skipN; /* excused + escalated clear from outstanding; skipped stays open */
+      document.getElementById('tg-undo').classList.remove('show');
+      document.getElementById('tg-top').innerHTML =
+        `<button class="icon-btn" aria-label="Back to groups" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${tgType.type}</div>`;
+      const emailBtn = escN
+        ? `<button class="tg-email" onclick="emailGroup()"><span class="tg-email-tx"><b>Email ${tgDept.dept}</b><span>${escN} ${tgType.type.toLowerCase()} ${escN > 1 ? 'units' : 'unit'} to service</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>`
+        : '<div class="tg-noesc">Nothing escalated — group cleared.</div>';
+      document.getElementById('tg-stage').innerHTML =
+        `<div class="tg-summary">
           <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <h2>Backlog cleared</h2>
-          <div class="tg-tally"><span><b>${by('excuse')}</b> excused</span><span><b>${by('escalate')}</b> escalated</span><span><b>${by('skip')}</b> skipped</span></div>
-          <div class="tg-summary-sub">${esc.length ? 'Send escalations to the vendor — opens a pre-filled email you send from your own mail.' : 'No escalations to send.'}</div>
-          ${rows}
-          <button class="btn btn-primary tg-finish" onclick="closeTriage()">Done</button>
+          <h2>${tgType.type} cleared</h2>
+          <div class="tg-tally"><span><b>${by('excuse')}</b> excused</span><span><b>${escN}</b> escalated</span><span><b>${skipN}</b> skipped</span></div>
+          <div class="tg-summary-sub">${escN ? 'Send the escalations to ' + tgDept.dept + ' — opens a pre-filled email you send from your own mail.' : ''}</div>
+          ${emailBtn}
+          <button class="btn btn-primary tg-finish" onclick="renderLanding()">Back to groups</button>
         </div>`;
     }
-    function emailVendor(vendor) {
-      const items = tgLog.filter(l => l.action === 'escalate' && l.item.vendor === vendor).map(l => l.item);
+    function emailGroup() {
+      const items = tgLog.filter(l => l.action === 'escalate').map(l => l.item);
       if (!items.length) return;
-      const subj = `ATM service request — ${items.length} unit${items.length > 1 ? 's' : ''} (America First CU)`;
-      const lines = items.map(it => `• ATM-${it.atm} — ${it.type} — ${it.addr}`).join('\n');
-      const body = `Hi ${vendor},\n\nPlease schedule service for the following ATMs flagged in our latest review:\n\n${lines}\n\nThank you,\nAmerica First CU`;
-      window.location.href = `mailto:${VENDOR_EMAIL[vendor] || ''}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+      const subj = `${tgType.type} service — ${items.length} ATM${items.length > 1 ? 's' : ''} (America First CU)`;
+      const lines = items.map(it => `• ATM-${it.atm} — ${tgType.type} — ${it.addr}`).join('\n');
+      const body = `Hi ${tgDept.dept},\n\nPlease schedule service for the following ATMs flagged for ${tgType.type.toLowerCase()} in our latest review:\n\n${lines}\n\nThank you,\nAmerica First CU`;
+      window.location.href = `mailto:${tgDept.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
     }
 
     /* ---- init ---- */
@@ -1121,7 +1142,7 @@ body {
       const attn = FLEET.filter(a => a.issues > 0).length;
       const pc = document.querySelector('.peek-count');
       if (pc) pc.innerHTML = `<b>${FLEET.length}</b> ATMs <i>· ${attn} need attention</i>`;
-      document.querySelectorAll('.rc-n').forEach(el => el.textContent = REVIEW.length);
+      updateReviewChip();
       if (window.__noLeaflet || typeof L === 'undefined') buildFallback();
       else { try { buildLeaflet(); } catch (e) { buildFallback(); } }
 

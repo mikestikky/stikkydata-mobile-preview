@@ -182,15 +182,16 @@
     <div class="screen">
       <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="triage" onload="drive(this)"></iframe></div></div>
       <div class="notes">
-        <h2><span class="num">9</span>Triage — "Hot or Not" <span class="tag build">new build · its own door</span></h2>
-        <div class="route">"N to review" chip in the top controls</div>
+        <h2><span class="num">9</span>Triage — clear a group <span class="tag build">new build · its own door</span></h2>
+        <div class="route">"N to review" chip → group list → a group</div>
         <ul>
           <li><b>A separate mode, NOT part of map/asset.</b> Browse stays calm and asset-first; issue lists never bleed onto the map or asset screens. Reached from the <b>"N to review" chip</b> in the top Zillow-style controls (no bottom nav). Opens as a full-screen takeover with a Done (✕) back to the map.</li>
           <li><b>Purpose:</b> clear the standing flagged-issue backlog in ~10–15 min/month. Most flags are noise (e.g. ~35 monitor flags, ~2 real) — today that triage is a phone call; this replaces it with thumb-swipes.</li>
-          <li><b>Card stack, one issue at a time.</b> Each card: big photo of the flagged condition + one-line context (issue type · ATM id · address · default vendor). A progress bar runs along the top.</li>
+          <li><b>Mirrors the StikkyData dashboard.</b> Landing = outstanding action items <b>grouped by department, then issue type</b>, with the real counts (Diebold Nixdorf: Monitor 45 · Receipt 10 · ATM Lighting 3; America First CU: ADA 145 · ATM Condition 33 · Braille 12 · ATM Out of Service 4; Facilities: Drive-Up Lanes 15). Each type shows its own component photo.</li>
+          <li><b>You clear ONE GROUP at a time</b> — they do not triage everything together. Tap a group (e.g. <i>Diebold &rsaquo; Monitor</i>) and you get a card stack of just that type, all the same photo. (Key correction from the first pass.) A progress bar runs along the top.</li>
           <li><b>Three actions:</b> <b>Excuse</b> (dismiss as not-real — v2's existing "excuse" action), <b>Escalate</b> (keep it / route to that issue's default vendor), <b>Skip for now</b> (defer, never stall on an ambiguous one). Tapping <b>auto-advances</b> to the next card.</li>
           <li><b>Undo:</b> a brief "Excused · Undo" (~2s) after each action — fat-finger safety on a live backlog.</li>
-          <li><b>Escalate = an email at the end</b> (per Michael — it's how monitors go to Diebold today). Escalations batch per vendor; the end-of-pass summary shows one <b>"Email Diebold · N units"</b> button per vendor → opens a <b>pre-filled email the user sends from their own mail</b> (nothing auto-sends). Sidesteps needing v2 route-to-default; if v2 later supports it, swap the email for a direct route.</li>
+          <li><b>Escalate = one email at the end of the group</b> (per Michael — monitors get emailed to Diebold today). Escalations batch within the group; the group summary shows <b>"Email Diebold Nixdorf · N monitors"</b> → opens a <b>pre-filled email the user sends from their own mail</b> (nothing auto-sends; uses that department's email routing from the dashboard). Sidesteps needing v2 route-to-default. Finishing a group marks it <b>Cleared</b> and drops the open count; skipped items stay open.</li>
           <li><b>Dispositions EXISTING issues only</b> — never creates new action items (that's deferred web-side work).</li>
         </ul>
       </div>
