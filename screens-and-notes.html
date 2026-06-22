@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- StikkyData Mobile — Screens & Notes. Each screen is the live prototype driven to that state + notes for STPL. -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StikkyData Mobile — Screens & Notes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --green:#1a7a1c; --accent:#FF9800; --accent-dark:#E65100; --ink:#0f172a; --sub:#475569; --muted:#94a3b8; --line:#e2e8f0; --bg:#f1f5f9; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.011em; padding:36px 20px 80px; }
+    .wrap { max-width:1080px; margin:0 auto; }
+    h1 { font-size:26px; font-weight:800; letter-spacing:-0.03em; }
+    h1 b { color:var(--accent); }
+    .lede { color:var(--sub); font-size:14.5px; line-height:1.6; margin-top:22px; max-width:760px; }
+    .banner { display:flex; gap:32px; align-items:center; background:#fff; border:1px solid var(--line); border-radius:18px; padding:30px 32px; box-shadow:0 2px 8px rgba(15,23,42,0.06); }
+    .banner-text { flex:1; min-width:0; }
+    .banner .kicker { font-size:12px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:var(--green); }
+    .banner h1 { font-size:32px; font-weight:800; letter-spacing:-0.03em; margin-top:6px; }
+    .banner h1 b { color:var(--accent); }
+    .banner p { font-size:15.5px; line-height:1.65; color:var(--sub); margin-top:14px; max-width:640px; }
+    .banner p b { color:var(--ink); }
+    .banner-qr { flex-shrink:0; text-align:center; }
+    .qr-card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:0 6px 20px rgba(15,23,42,0.14); }
+    .qr-card svg { display:block; width:208px; height:208px; }
+    .qr-label { font-size:12.5px; font-weight:700; color:var(--accent-dark); margin-top:11px; }
+    .qr-url { font-size:11px; color:var(--muted); margin-top:2px; font-family:ui-monospace,monospace; }
+    .scope { margin:18px 0 8px; padding:14px 16px; background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; font-size:13.5px; line-height:1.6; color:var(--ink); }
+    .scope b { color:var(--accent-dark); }
+    .screen { display:flex; gap:28px; align-items:flex-start; background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px; margin-top:24px; box-shadow:0 1px 3px rgba(15,23,42,0.05); page-break-inside:avoid; }
+    .phone { flex-shrink:0; width:312px; }
+    .phone-frame { width:312px; height:640px; background:#0a0a0a; border-radius:34px; padding:9px; box-shadow:0 16px 40px rgba(15,23,42,0.28); }
+    .phone-frame iframe { width:100%; height:100%; border:none; border-radius:26px; background:#fff; display:block; }
+    .num { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; background:var(--green); color:#fff; border-radius:8px; font-size:13px; font-weight:800; margin-right:10px; }
+    .notes { flex:1; min-width:0; padding-top:4px; }
+    .notes h2 { font-size:19px; font-weight:700; letter-spacing:-0.02em; display:flex; align-items:center; flex-wrap:wrap; }
+    .route { font-size:11.5px; color:var(--muted); font-weight:600; margin:4px 0 14px 36px; font-family:ui-monospace,monospace; }
+    .notes ul { list-style:none; margin-left:36px; }
+    .notes li { font-size:14px; line-height:1.55; color:var(--sub); padding-left:18px; position:relative; margin-bottom:9px; }
+    .notes li::before { content:''; position:absolute; left:0; top:8px; width:6px; height:6px; border-radius:50%; background:var(--accent); }
+    .notes li b { color:var(--ink); font-weight:600; }
+    .tag { display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:2px 8px; border-radius:5px; border:1.5px solid; margin-left:8px; vertical-align:middle; }
+    .tag.render { border-color:#bbf7d0; color:var(--green); }
+    .tag.build { border-color:#fed7aa; color:var(--accent-dark); }
+    .foot { margin-top:30px; font-size:12.5px; color:var(--muted); line-height:1.6; }
+    @media print { body { background:#fff; } .screen { box-shadow:none; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="banner">
+      <div class="banner-text">
+        <div class="kicker">The StikkyData v2 web app — on mobile</div>
+        <h1>Stikky<b>Data</b>, on your phone</h1>
+        <p>This is the <b>mobile version of the StikkyData web app you already use (v2)</b> — the same assets, photos, issues, history and map, just laid out for a phone. It is <b>not a new product.</b> <b>Scan the code to open the live prototype on your phone</b> — then walk the screens below, each with its build notes.</p>
+      </div>
+      <div class="banner-qr">
+        <div class="qr-card">
+          <svg viewBox="0 0 35 35" shape-rendering="crispEdges" role="img" aria-label="QR code to the StikkyData mobile prototype"><rect x="0" y="0" width="35" height="35" fill="#ffffff"/><g fill="#0f172a"><rect x="1" y="1" width="7" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="13" y="1" width="1" height="1"/><rect x="15" y="1" width="1" height="1"/><rect x="17" y="1" width="1" height="1"/><rect x="20" y="1" width="2" height="1"/><rect x="23" y="1" width="2" height="1"/><rect x="27" y="1" width="7" height="1"/><rect x="1" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="11" y="2" width="2" height="1"/><rect x="15" y="2" width="1" height="1"/><rect x="17" y="2" width="3" height="1"/><rect x="23" y="2" width="3" height="1"/><rect x="27" y="2" width="1" height="1"/><rect x="33" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="3" y="3" width="3" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="10" y="3" width="7" height="1"/><rect x="19" y="3" width="2" height="1"/><rect x="23" y="3" width="2" height="1"/><rect x="27" y="3" width="1" height="1"/><rect x="29" y="3" width="3" height="1"/><rect x="33" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="3" y="4" width="3" height="1"/><rect x="7" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/><rect x="18" y="4" width="1" height="1"/><rect x="20" y="4" width="1" height="1"/><rect x="23" y="4" width="1" height="1"/><rect x="25" y="4" width="1" height="1"/><rect x="27" y="4" width="1" height="1"/><rect x="29" y="4" width="3" height="1"/><rect x="33" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="3" y="5" width="3" height="1"/><rect x="7" y="5" width="1" height="1"/><rect x="11" y="5" width="3" height="1"/><rect x="17" y="5" width="4" height="1"/><rect x="25" y="5" width="1" height="1"/><rect x="27" y="5" width="1" height="1"/><rect x="29" y="5" width="3" height="1"/><rect x="33" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/><rect x="16" y="6" width="2" height="1"/><rect x="19" y="6" width="3" height="1"/><rect x="25" y="6" width="1" height="1"/><rect x="27" y="6" width="1" height="1"/><rect x="33" y="6" width="1" height="1"/><rect x="1" y="7" width="7" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="11" y="7" width="1" height="1"/><rect x="13" y="7" width="1" height="1"/><rect x="15" y="7" width="1" height="1"/><rect x="17" y="7" width="1" height="1"/><rect x="19" y="7" width="1" height="1"/><rect x="21" y="7" width="1" height="1"/><rect x="23" y="7" width="1" height="1"/><rect x="25" y="7" width="1" height="1"/><rect x="27" y="7" width="7" height="1"/><rect x="9" y="8" width="2" height="1"/><rect x="12" y="8" width="2" height="1"/><rect x="16" y="8" width="3" height="1"/><rect x="21" y="8" width="1" height="1"/><rect x="24" y="8" width="1" height="1"/><rect x="1" y="9" width="1" height="1"/><rect x="3" y="9" width="2" height="1"/><rect x="6" y="9" width="3" height="1"/><rect x="11" y="9" width="2" height="1"/><rect x="15" y="9" width="5" height="1"/><rect x="22" y="9" width="1" height="1"/><rect x="24" y="9" width="2" height="1"/><rect x="27" y="9" width="1" height="1"/><rect x="30" y="9" width="1" height="1"/><rect x="32" y="9" width="2" height="1"/><rect x="1" y="10" width="2" height="1"/><rect x="9" y="10" width="2" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="14" y="10" width="2" height="1"/><rect x="19" y="10" width="4" height="1"/><rect x="24" y="10" width="1" height="1"/><rect x="27" y="10" width="2" height="1"/><rect x="30" y="10" width="2" height="1"/><rect x="33" y="10" width="1" height="1"/><rect x="1" y="11" width="7" height="1"/><rect x="9" y="11" width="3" height="1"/><rect x="13" y="11" width="2" height="1"/><rect x="17" y="11" width="1" height="1"/><rect x="19" y="11" width="1" height="1"/><rect x="23" y="11" width="3" height="1"/><rect x="27" y="11" width="4" height="1"/><rect x="32" y="11" width="2" height="1"/><rect x="1" y="12" width="1" height="1"/><rect x="3" y="12" width="1" height="1"/><rect x="5" y="12" width="2" height="1"/><rect x="8" y="12" width="2" height="1"/><rect x="11" y="12" width="1" height="1"/><rect x="16" y="12" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/><rect x="21" y="12" width="1" height="1"/><rect x="25" y="12" width="1" height="1"/><rect x="28" y="12" width="1" height="1"/><rect x="30" y="12" width="1" height="1"/><rect x="33" y="12" width="1" height="1"/><rect x="4" y="13" width="4" height="1"/><rect x="12" y="13" width="2" height="1"/><rect x="15" y="13" width="1" height="1"/><rect x="17" y="13" width="3" height="1"/><rect x="25" y="13" width="1" height="1"/><rect x="28" y="13" width="3" height="1"/><rect x="33" y="13" width="1" height="1"/><rect x="1" y="14" width="3" height="1"/><rect x="5" y="14" width="2" height="1"/><rect x="10" y="14" width="4" height="1"/><rect x="15" y="14" width="1" height="1"/><rect x="20" y="14" width="1" height="1"/><rect x="22" y="14" width="1" height="1"/><rect x="25" y="14" width="1" height="1"/><rect x="28" y="14" width="1" height="1"/><rect x="30" y="14" width="3" height="1"/><rect x="3" y="15" width="1" height="1"/><rect x="5" y="15" width="5" height="1"/><rect x="13" y="15" width="3" height="1"/><rect x="20" y="15" width="1" height="1"/><rect x="23" y="15" width="1" height="1"/><rect x="27" y="15" width="1" height="1"/><rect x="29" y="15" width="3" height="1"/><rect x="1" y="16" width="1" height="1"/><rect x="4" y="16" width="2" height="1"/><rect x="11" y="16" width="1" height="1"/><rect x="14" y="16" width="3" height="1"/><rect x="19" y="16" width="9" height="1"/><rect x="30" y="16" width="2" height="1"/><rect x="1" y="17" width="1" height="1"/><rect x="7" y="17" width="1" height="1"/><rect x="10" y="17" width="6" height="1"/><rect x="19" y="17" width="1" height="1"/><rect x="21" y="17" width="4" height="1"/><rect x="26" y="17" width="2" height="1"/><rect x="29" y="17" width="1" height="1"/><rect x="31" y="17" width="1" height="1"/><rect x="3" y="18" width="3" height="1"/><rect x="16" y="18" width="1" height="1"/><rect x="18" y="18" width="2" height="1"/><rect x="21" y="18" width="7" height="1"/><rect x="29" y="18" width="2" height="1"/><rect x="32" y="18" width="2" height="1"/><rect x="1" y="19" width="2" height="1"/><rect x="5" y="19" width="4" height="1"/><rect x="12" y="19" width="3" height="1"/><rect x="16" y="19" width="3" height="1"/><rect x="22" y="19" width="2" height="1"/><rect x="26" y="19" width="4" height="1"/><rect x="31" y="19" width="2" height="1"/><rect x="3" y="20" width="2" height="1"/><rect x="8" y="20" width="4" height="1"/><rect x="14" y="20" width="1" height="1"/><rect x="18" y="20" width="3" height="1"/><rect x="23" y="20" width="1" height="1"/><rect x="26" y="20" width="2" height="1"/><rect x="29" y="20" width="1" height="1"/><rect x="32" y="20" width="2" height="1"/><rect x="1" y="21" width="1" height="1"/><rect x="4" y="21" width="1" height="1"/><rect x="6" y="21" width="2" height="1"/><rect x="9" y="21" width="3" height="1"/><rect x="16" y="21" width="2" height="1"/><rect x="21" y="21" width="2" height="1"/><rect x="24" y="21" width="1" height="1"/><rect x="28" y="21" width="1" height="1"/><rect x="30" y="21" width="4" height="1"/><rect x="1" y="22" width="3" height="1"/><rect x="8" y="22" width="2" height="1"/><rect x="15" y="22" width="3" height="1"/><rect x="19" y="22" width="3" height="1"/><rect x="23" y="22" width="2" height="1"/><rect x="27" y="22" width="1" height="1"/><rect x="33" y="22" width="1" height="1"/><rect x="5" y="23" width="3" height="1"/><rect x="9" y="23" width="1" height="1"/><rect x="12" y="23" width="1" height="1"/><rect x="14" y="23" width="1" height="1"/><rect x="16" y="23" width="1" height="1"/><rect x="18" y="23" width="2" height="1"/><rect x="22" y="23" width="1" height="1"/><rect x="24" y="23" width="3" height="1"/><rect x="28" y="23" width="1" height="1"/><rect x="32" y="23" width="2" height="1"/><rect x="2" y="24" width="4" height="1"/><rect x="8" y="24" width="2" height="1"/><rect x="16" y="24" width="1" height="1"/><rect x="19" y="24" width="3" height="1"/><rect x="24" y="24" width="2" height="1"/><rect x="29" y="24" width="2" height="1"/><rect x="33" y="24" width="1" height="1"/><rect x="1" y="25" width="1" height="1"/><rect x="7" y="25" width="4" height="1"/><rect x="12" y="25" width="1" height="1"/><rect x="14" y="25" width="1" height="1"/><rect x="18" y="25" width="1" height="1"/><rect x="23" y="25" width="7" height="1"/><rect x="32" y="25" width="1" height="1"/><rect x="9" y="26" width="1" height="1"/><rect x="11" y="26" width="7" height="1"/><rect x="20" y="26" width="2" height="1"/><rect x="24" y="26" width="2" height="1"/><rect x="29" y="26" width="2" height="1"/><rect x="1" y="27" width="7" height="1"/><rect x="9" y="27" width="1" height="1"/><rect x="14" y="27" width="1" height="1"/><rect x="17" y="27" width="5" height="1"/><rect x="23" y="27" width="3" height="1"/><rect x="27" y="27" width="1" height="1"/><rect x="29" y="27" width="1" height="1"/><rect x="1" y="28" width="1" height="1"/><rect x="7" y="28" width="1" height="1"/><rect x="9" y="28" width="2" height="1"/><rect x="12" y="28" width="2" height="1"/><rect x="17" y="28" width="3" height="1"/><rect x="22" y="28" width="1" height="1"/><rect x="24" y="28" width="2" height="1"/><rect x="29" y="28" width="3" height="1"/><rect x="1" y="29" width="1" height="1"/><rect x="3" y="29" width="3" height="1"/><rect x="7" y="29" width="1" height="1"/><rect x="10" y="29" width="1" height="1"/><rect x="13" y="29" width="17" height="1"/><rect x="31" y="29" width="3" height="1"/><rect x="1" y="30" width="1" height="1"/><rect x="3" y="30" width="3" height="1"/><rect x="7" y="30" width="1" height="1"/><rect x="9" y="30" width="3" height="1"/><rect x="17" y="30" width="1" height="1"/><rect x="21" y="30" width="2" height="1"/><rect x="24" y="30" width="1" height="1"/><rect x="28" y="30" width="1" height="1"/><rect x="30" y="30" width="1" height="1"/><rect x="33" y="30" width="1" height="1"/><rect x="1" y="31" width="1" height="1"/><rect x="3" y="31" width="3" height="1"/><rect x="7" y="31" width="1" height="1"/><rect x="9" y="31" width="1" height="1"/><rect x="11" y="31" width="1" height="1"/><rect x="16" y="31" width="4" height="1"/><rect x="27" y="31" width="2" height="1"/><rect x="31" y="31" width="1" height="1"/><rect x="1" y="32" width="1" height="1"/><rect x="7" y="32" width="1" height="1"/><rect x="11" y="32" width="1" height="1"/><rect x="18" y="32" width="1" height="1"/><rect x="20" y="32" width="2" height="1"/><rect x="23" y="32" width="4" height="1"/><rect x="28" y="32" width="2" height="1"/><rect x="33" y="32" width="1" height="1"/><rect x="1" y="33" width="7" height="1"/><rect x="9" y="33" width="2" height="1"/><rect x="12" y="33" width="4" height="1"/><rect x="17" y="33" width="2" height="1"/><rect x="20" y="33" width="3" height="1"/><rect x="24" y="33" width="1" height="1"/><rect x="29" y="33" width="1" height="1"/><rect x="31" y="33" width="1" height="1"/></g></svg>
+        </div>
+        <div class="qr-label">Scan to open on your phone</div>
+        <div class="qr-url">mikestikky.github.io/stikkydata-mobile-preview</div>
+      </div>
+    </div>
+
+    <p class="lede">Each screen below is the <b>live prototype</b> at that state (in a phone frame), with build notes beside it. For STPL — build to match the screens; the notes flag what's new versus what's just existing v2 data.</p>
+
+    <div class="scope">
+      <b>Scope:</b> This is the mobile view of the <b>existing StikkyData v2 webpage</b>. Most of what you see is v2 data rendered for a phone
+      (<span style="color:var(--green);font-weight:600">RENDER</span>). The only genuinely new work is the mobile shell/layout and the photo/note
+      capture flow (<span style="color:var(--accent-dark);font-weight:600">BUILD</span>). Asset-first. Photos are a single placeholder cropped per slot — swap real field photos in later.
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="map" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">1</span>Map — the front door <span class="tag render">render + shell</span></h2>
+        <div class="route">opens here</div>
+        <ul>
+          <li><b>This map is a TERRITORY display</b> — its job is "look how much we own." It opens framed on the customer's whole <b>multi-state footprint</b>. Top bar = StikkyData brand + the <b>America First</b> customer chip + search + the map/list toggle (same bar on every screen).</li>
+          <li><b>Pins PILE UP where the customer is dense</b> (home turf) and thin out elsewhere — the pile of pins IS the message. Each ATM is its own pin; they overlap on purpose. <b>Do NOT cluster them and do NOT space them evenly</b> — clustering hides the density, even spacing erases the scale. A 1,000-ATM customer must look enormous next to a 50-ATM one.</li>
+          <li><b>Pin = the StikkyData app's pushpin:</b> a green ball with a glossy highlight on a slate stick.</li>
+          <li><b>Peek sheet</b> at the bottom — "N ATMs · M need attention." Drag/tap it up and it becomes the list over the map. Search filters it.</li>
+          <li><b>Tap a pin →</b> a card: swipe its photos in place, then <i>Show me</i> (open asset) or <i>Drive there</i> (maps).</li>
+          <li>Data = v2's real asset coordinates. For big fleets (PNC ~8k) the pins stream in progressively (see footer) — all of them, never collapsed into a count.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="list" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">2</span>List <span class="tag render">render + shell</span></h2>
+        <div class="route">top-bar map/list toggle</div>
+        <ul>
+          <li>The same fleet as <b>photo-forward cards</b> — big photo on top, status flag (orange "N open" / green "Clean"), ATM id, location, "Serviced N ago."</li>
+          <li>Reached via the <b>map/list toggle</b> in the top bar. <b>Search</b> filters by id or location; "Recently viewed" first.</li>
+          <li>Tap a card → the asset. Data = v2 fleet list. Big fleets → infinite-scroll + virtualize.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="asset" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">3</span>Asset detail <span class="tag render">render + shell</span></h2>
+        <div class="route">tap a pin / card</div>
+        <ul>
+          <li><b>Header:</b> back chevron · ATM id + address · three icon actions — <b>Directions · Camera · Share</b> (Camera is the only one that opens the camera).</li>
+          <li><b>Hero photo</b> with count "1/7", date, slot name, tap-to-enlarge. Below it the <b>slot strip</b> (Main, Receipt, Card Reader, Monitor, Keypad, Fascia, Fee Notice) — tap to swap the hero.</li>
+          <li><b>Status row:</b> last service + open-issue count.</li>
+          <li><b>Tabs — Issues / History / Info.</b> Issues = action items with the v2 verbs Email / Comment / Remove. History = visit timeline. Info = asset details. All v2 data.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="photo" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">4</span>Photo viewer <span class="tag build">shell</span></h2>
+        <div class="route">tap the hero photo</div>
+        <ul>
+          <li><b>Full-screen, true-black</b> viewer (reference: Zillow's). Floating chrome: ✕ top-left, share top-right, "Photos / N of M" centered, slot name lower-left.</li>
+          <li><b>Swipe</b> between slots; a <b>single tap toggles the chrome</b> away so it's just the photo. No boxed buttons, no side arrows.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="camera" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">5</span>Camera → capture &amp; note <span class="tag build">new build</span></h2>
+        <div class="route">Camera icon (header)</div>
+        <ul>
+          <li><b>The one genuinely new interaction.</b> The Camera icon opens the <b>device camera</b>; the shot lands here.</li>
+          <li><b>Draw on the photo</b> (orange) to circle the problem + Clear, and a <b>note</b> field.</li>
+          <li>Two exits: <b>Make a ticket</b> or <b>Send</b>.</li>
+          <li><b>Implementation:</b> camera trigger = a transparent file input <i>laid over the button</i> (iOS-reliable). NOT display:none + .click(), NOT an off-screen label. Shown here with the placeholder photo.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="send" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">6</span>Send — share or save <span class="tag build">new build</span></h2>
+        <div class="route">compose → Send</div>
+        <ul>
+          <li>From the capture screen, <b>Send</b> → choose each time: <b>Share with someone</b> or <b>Save to this ATM</b>.</li>
+          <li><b>Share with someone</b> → native share sheet; goes out from the user's <b>own Messages/Mail</b> with the photo + a plain link.</li>
+          <li>The link = v2's <b>no-login single-asset view</b> — the recipient sees only that one ATM (no account), never the fleet. Plain link, no tracking params; log the <b>open</b> server-side.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="share" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">7</span>Share this ATM <span class="tag render">render</span></h2>
+        <div class="route">header Share icon</div>
+        <ul>
+          <li>The header <b>Share</b> icon (a share/upload arrow — <b>not</b> a camera) shares the ATM directly, no photo step.</li>
+          <li>Shows the photo + the message + the tap-to-view link, with <b>Copy</b> / <b>Share</b>. Same no-login link as #6.</li>
+          <li>This is the core "show someone an ATM" move — uses v2's existing share link.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="directions" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">8</span>Directions <span class="tag build">shell</span></h2>
+        <div class="route">Directions icon / "Drive there"</div>
+        <ul>
+          <li>Tapping Directions (or "Drive there" on a pin) opens an <b>Apple Maps / Google Maps</b> chooser.</li>
+          <li>Picking one opens that app navigating to the ATM's coordinates (https deep links). Always offer the explicit choice.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="ticket" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">9</span>Make a ticket <span class="tag build">wire to v2</span></h2>
+        <div class="route">compose → Make a ticket</div>
+        <ul>
+          <li>From the capture screen, <b>Make a ticket</b> → Assign to / Priority / note, carrying the photo + asset.</li>
+          <li>Ticketing is v2's last feature in flight — these fields are a <b>placeholder</b>; swap the real schema and wire <b>Create ticket</b> to the v2 endpoint.</li>
+          <li>A ticket always belongs to its asset (no orphan tickets, no global ticket queue in the mobile UI).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot">
+      <b>Transitions:</b> view changes cross-fade (~0.2s); the peek sheet drags &amp; snaps collapsed/expanded; bottom sheets slide up over a dimmed overlay; the photo viewer toggles chrome on tap. (Motion only shows on a real device.)<br><br>
+      <b>Still to build / placeholders:</b> real ATM photos (swap into the per-slot arrays); large-fleet handling for big customers (background-stream the map pins, infinite-scroll + virtualize the list — no clustering); wire the ticket to v2 ticketing. <br>
+      <b>Out of scope on mobile:</b> Reports, fleet-wide dashboards/filters, any StikkySurveys project/board patterns, system-sent email (Send goes from the user's own phone).<br><br>
+      Live reference: <b>mikestikky.github.io/stikkydata-mobile-preview/</b>
+    </div>
+  </div>
+
+  <script>
+    /* drive each iframe's prototype to its screen state (same-origin) */
+    function drive(f) {
+      const st = f.dataset.state;
+      setTimeout(() => {
+        const w = f.contentWindow;
+        try {
+          const R = {
+            map: () => w.showView('map'),
+            list: () => w.showView('list'),
+            asset: () => w.openAsset('map'),
+            photo: () => { w.openAsset('map'); w.openLB(); },
+            camera: () => { w.openAsset('map'); w.openSheet('takephoto'); },
+            send: () => { w.openAsset('map'); w.openSheet('sendchoice'); },
+            share: () => { w.openAsset('map'); w.openSheet('send'); },
+            directions: () => { w.openAsset('map'); w.directions(); },
+            ticket: () => { w.openAsset('map'); w.openSheet('ticket'); },
+          };
+          (R[st] || R.map)();
+        } catch (e) { /* ignore */ }
+      }, 800);
+    }
+  </script>
+</body>
+</html>
