@@ -24,8 +24,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="window.__noLeaflet=true">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onerror="window.__noLeaflet=true"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <style>
 /* =============================================================================
    StikkyData Mobile — shared stylesheet  (the design-system handoff)
@@ -348,15 +346,13 @@ body {
   box-shadow: 0 6px 20px rgba(15,23,42,0.22), 0 0 0 1px rgba(15,23,42,0.04);
 }
 
-/* Fleet pins — the StikkyData v2 app's green balloon markers (white center + asset glyph),
-   clustered into dark-green count PILLS (the "47" cap). Uniform green, like the live app. */
+/* Fleet pins — the StikkyData app's pushpin: a green ball with a glossy highlight on a slate stick.
+   Every asset shown individually (no clustering). */
 .fpin { position: relative; width: 30px; height: 42px; }
 .fpin svg { display: block; filter: drop-shadow(0 3px 4px rgba(15,23,42,0.4)); transition: transform .12s ease; transform-origin: 50% 100%; }
 /* selected (popup open) — grows + lifts on its tip */
 .pin-selected svg { transform: scale(1.22); }
 .pin-selected { z-index: 1000 !important; }
-/* dark-green cluster count pill */
-.cluster-bubble { min-width: 30px; height: 30px; padding: 0 13px; background: #14532d; color: #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; letter-spacing: -0.01em; box-shadow: 0 3px 9px rgba(15,23,42,0.4); }
 .pin-me { width: 16px; height: 16px; background: #2563eb; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 5px rgba(37,99,235,0.22); }
 
 /* Zillow-style photo-forward cards (list + map peek sheet) */
@@ -761,8 +757,7 @@ body {
       { id:'4571', loc:'1300 E 500 S', lat:40.7510, lng:-111.8560, issues:4, last:'15d', crop:4 },
       { id:'4588', loc:'600 N Redwood Rd', lat:40.7790, lng:-111.9380, issues:0, last:'4d', crop:0 },
     ];
-    /* demo fleet: most pins SPREAD across the valley so they show as individual green teardrops
-       (like the live app), plus one tight downtown knot that clusters into a single count bubble. */
+    /* demo fleet: pins spread across the valley so they read like a real fleet, each shown individually (no clustering) */
     (function seedDensity() {
       const streets = ['S State St','E 2100 S','W North Temple','S Highland Dr','E 500 S','N Redwood Rd','S Main St','E 900 S','W 3300 S','S 700 E'];
       let id = 4600;
@@ -775,11 +770,6 @@ body {
           FLEET.push({ id: String(id), loc: (200 + (id % 700)) + ' ' + streets[id % streets.length], lat, lng, issues: (id % 7 === 0 ? 2 : 0), last: ((id % 13) + 1) + 'd', crop: id % 7 });
           id++;
         }
-      }
-      for (let k = 0; k < 12; k++) {
-        const lat = 40.7565 + ((k % 4) - 1.5) * 0.0015, lng = -111.8925 + (Math.floor(k / 4) - 1) * 0.0017;
-        FLEET.push({ id: String(id), loc: 'Downtown hub · ' + streets[k % streets.length], lat, lng, issues: (k % 5 === 0 ? 1 : 0), last: ((k % 9) + 1) + 'd', crop: k % 7 });
-        id++;
       }
     })();
     const ASSET = FLEET[0];
@@ -959,23 +949,14 @@ body {
       const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([40.7400, -111.8800], 12);
       window.__map = map;
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
-      const useCluster = typeof L.markerClusterGroup === 'function';
-      const layer = useCluster
-        ? L.markerClusterGroup({
-            showCoverageOnHover: false, spiderfyOnMaxZoom: true, maxClusterRadius: 28,
-            iconCreateFunction: c => L.divIcon({ html: `<div class="cluster-bubble">${c.getChildCount()}</div>`, className: '', iconSize: [40, 40] })
-          })
-        : map;
       const bounds = [];
       FLEET.forEach(a => {
-        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [30,42], iconAnchor: [15,41], popupAnchor: [0,-40] }) });
+        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [30,42], iconAnchor: [15,41], popupAnchor: [0,-40] }) }).addTo(map);
         m.bindPopup(cardHTML(a), { className: 'fleet-popup', closeButton: false, minWidth: 214, maxWidth: 214 });
         m.on('popupopen', e => { paintImages(e.popup.getElement()); if (e.target._icon) e.target._icon.classList.add('pin-selected'); });
         m.on('popupclose', e => { if (e.target._icon) e.target._icon.classList.remove('pin-selected'); });
-        layer.addLayer(m);
         bounds.push([a.lat, a.lng]);
       });
-      if (useCluster) map.addLayer(layer);
       L.marker([40.7330, -111.8700], { icon: L.divIcon({ html: '<div class="pin-me"></div>', className: '', iconSize: [16,16], iconAnchor: [8,8] }) }).addTo(map);
       map.fitBounds(bounds, { paddingTopLeft: [55, 55], paddingBottomRight: [55, 120] });
       setTimeout(() => map.invalidateSize(), 120);
