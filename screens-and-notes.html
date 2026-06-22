@@ -44,6 +44,27 @@
     .tag.render { border-color:#bbf7d0; color:var(--green); }
     .tag.build { border-color:#fed7aa; color:var(--accent-dark); }
     .foot { margin-top:30px; font-size:12.5px; color:var(--muted); line-height:1.6; }
+    .section { background:#fff; border:1px solid var(--line); border-radius:16px; padding:26px 28px; margin-top:24px; box-shadow:0 1px 3px rgba(15,23,42,0.05); }
+    .section-h { font-size:19px; font-weight:700; letter-spacing:-0.02em; }
+    .section-sub { display:block; font-size:13px; font-weight:500; color:var(--muted); margin-top:4px; letter-spacing:0; }
+    .ds-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:18px; }
+    .ds-card { border:1px solid var(--line); border-radius:12px; padding:16px; }
+    .ds-k { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-dark); margin-bottom:13px; }
+    .sw-row { display:flex; gap:11px; align-items:flex-start; margin-bottom:12px; }
+    .sw { width:26px; height:26px; border-radius:7px; flex-shrink:0; border:1px solid rgba(15,23,42,0.1); }
+    .sw-row > div { display:flex; flex-direction:column; }
+    .sw-row b { font-size:13px; color:var(--ink); font-weight:600; }
+    .sw-row span { font-size:12px; color:var(--sub); line-height:1.45; }
+    .ds-list { list-style:none; }
+    .ds-list li { font-size:13px; color:var(--sub); line-height:1.5; padding-left:14px; position:relative; margin-bottom:8px; }
+    .ds-list li::before { content:''; position:absolute; left:0; top:7px; width:5px; height:5px; border-radius:50%; background:var(--accent); }
+    .ds-list b { color:var(--ink); font-weight:600; }
+    .dec { margin-top:16px; }
+    .dec-row { display:flex; gap:18px; padding:13px 0; border-top:1px solid var(--line); }
+    .dec-row:first-child { border-top:none; }
+    .dec-q { flex:0 0 230px; font-size:13.5px; font-weight:700; color:var(--ink); }
+    .dec-a { flex:1; font-size:13.5px; color:var(--sub); line-height:1.5; }
+    @media (max-width:680px){ .dec-row{ flex-direction:column; gap:4px; } .dec-q{ flex:none; } }
     @media print { body { background:#fff; } .screen { box-shadow:none; } }
   </style>
 </head>
@@ -201,6 +222,94 @@
       </div>
     </div>
 
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="triage-card" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">10</span>Triage — the card <span class="tag build">new build</span></h2>
+        <div class="route">a team / type → one card at a time</div>
+        <ul>
+          <li><b>Swipe ← to Excuse · → to Escalate</b> (a stamp fades in as you drag); the two buttons do the same. The swipe is what makes the "take out the trash" run fast.</li>
+          <li><b>Optional comment</b> above the buttons — it rides into the escalation email.</li>
+          <li><b>"Can't tell — skip for now"</b> leaves the item open for next time (it doesn't clear).</li>
+          <li><b>Multi-photo:</b> a count badge on the card; tap the photo or the ATM id to open the full set in a viewer.</li>
+          <li>Header shows the <b>current type + progress</b>; finishing one type rolls straight into the next.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="triage-summary" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">11</span>Triage — group summary <span class="tag build">new build</span></h2>
+        <div class="route">end of a group</div>
+        <ul>
+          <li>Tally: <b>excused · escalated · left open</b>.</li>
+          <li><b>Email N to &lt;team&gt;</b> — a pre-filled draft to the team's default address (from the dashboard routing), <b>editable</b> so it can go to a manager, a vendor rep, or anyone. Nothing auto-sends.</li>
+          <li><b>Next: &lt;type&gt;</b> keeps you moving without leaving the team; or Back to teams.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html" data-state="triage-excused" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">12</span>Triage — review what I excused <span class="tag build">new build</span></h2>
+        <div class="route">summary → tap "review" on the excused count</div>
+        <ul>
+          <li>The <b>safety net</b> for fast clearing: see everything you just dismissed, with its comment.</li>
+          <li><b>Reopen</b> any that shouldn't have been excused — it goes straight back to open.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-h">Design system <span class="section-sub">the rules that hold every screen together — build to these exactly</span></h2>
+      <div class="ds-grid">
+        <div class="ds-card">
+          <div class="ds-k">Color</div>
+          <div class="sw-row"><span class="sw" style="background:#FF9800"></span><div><b>Action / active — orange</b><span>#FF9800 fill · #E65100 text. Primary buttons, Escalate, active toggle/tab, the review chip.</span></div></div>
+          <div class="sw-row"><span class="sw" style="background:#1a7a1c"></span><div><b>Brand — green</b><span>#1a7a1c. The StikkyData wordmark only.</span></div></div>
+          <div class="sw-row"><span class="sw" style="background:#16a34a"></span><div><b>Success — green</b><span>#16a34a. "Cleared" / done states.</span></div></div>
+          <div class="sw-row"><span class="sw" style="background:#0f172a"></span><div><b>Text / neutral — slate</b><span>#0f172a → #94a3b8. Body text, secondary controls, Excuse.</span></div></div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-k">Type &amp; shape</div>
+          <ul class="ds-list">
+            <li><b>Font:</b> Inter, on every screen.</li>
+            <li><b>Wordmark:</b> 20px — green "Stikky" + orange "Data".</li>
+            <li><b>Radii:</b> 8–14px, sharp.</li>
+            <li><b>Badges:</b> outline by default; solid fill only for the active selection.</li>
+            <li><b>Icons:</b> line-style SVG. No emoji.</li>
+            <li><b>Photos:</b> real photography.</li>
+          </ul>
+        </div>
+        <div class="ds-card">
+          <div class="ds-k">Consistent chrome — every screen</div>
+          <ul class="ds-list">
+            <li><b>Status bar</b> (9:41) — identical.</li>
+            <li><b>App bar:</b> StikkyData + the America First customer chip — 44px, same position.</li>
+            <li>Then a <b>toolbar</b> (Map/List: search + review chip + map/list toggle) or a <b>contextual header</b> (Asset/Triage: back + title + actions).</li>
+            <li><b>Icon buttons</b> 38×38 everywhere.</li>
+            <li><b>No bottom nav</b> — Zillow model (map is home, the peek sheet is the list).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-h">Key decisions <span class="section-sub">what was chosen and why — so the build doesn't re-open settled questions</span></h2>
+      <div class="dec">
+        <div class="dec-row"><div class="dec-q">Map = a territory display, not a tidy map</div><div class="dec-a">ATMs pile up where a customer is dense; that footprint across the states IS the value. Real multi-state spread, no even spacing.</div></div>
+        <div class="dec-row"><div class="dec-q">No clustering</div><div class="dec-a">Every pin shows individually — clustering into count bubbles hides the very density that's the point.</div></div>
+        <div class="dec-row"><div class="dec-q">Pin = the app's round pushpin</div><div class="dec-a">Green ball + slate stick + a soft shadow. Matches the live StikkyData app, not a generic teardrop.</div></div>
+        <div class="dec-row"><div class="dec-q">Drawing on photos — cut</div><div class="dec-a">Not worth the build time (Claire, 2026-06-22).</div></div>
+        <div class="dec-row"><div class="dec-q">Ticketing — pulled for now</div><div class="dec-a">v2 ticketing isn't done; removed the ticket flow and the Tickets tab. Revisit when v2 ships it.</div></div>
+        <div class="dec-row"><div class="dec-q">Triage grouped by team → issue type</div><div class="dec-a">Mirrors the StikkyData dashboard; you clear one group at a time, not a mixed pile. Accordion landing, no photos on the list.</div></div>
+        <div class="dec-row"><div class="dec-q">Swipe + Skip + "review excused"</div><div class="dec-a">Borrowed from email / photo-culling / moderation queues: the bin you open IS the mode (fast trash vs careful review). Swipe for speed, Skip for "can't tell," review-excused as the safety net.</div></div>
+        <div class="dec-row"><div class="dec-q">Escalation = editable pre-filled email</div><div class="dec-a">Default recipient = the team's dashboard routing address, but editable so it can go to a boss / rep / anyone. Nothing auto-sends. Later: let v2's routing send it automatically.</div></div>
+      </div>
+    </div>
+
     <div class="foot">
       <b>Transitions:</b> view changes cross-fade (~0.2s); the peek sheet drags &amp; snaps collapsed/expanded; bottom sheets slide up over a dimmed overlay; the photo viewer toggles chrome on tap. (Motion only shows on a real device.)<br><br>
       <b>Cut for now (Claire, 2026-06-22):</b> draw-on-photo (not worth the build time) and ticketing (v2 ticketing isn't done) — both removed; no Tickets/Reports tab on mobile.<br>
@@ -227,6 +336,9 @@
             share: () => { w.openAsset('map'); w.openSheet('send'); },
             directions: () => { w.openAsset('map'); w.directions(); },
             triage: () => w.openTriage(),
+            'triage-card': () => { w.openTriage(); w.openGroup('Diebold Nixdorf', 'Monitor'); },
+            'triage-summary': () => { w.openTriage(); w.openGroup('Diebold Nixdorf', 'ATM Lighting'); w.triageDo('escalate'); w.triageDo('excuse'); w.triageDo('escalate'); },
+            'triage-excused': () => { w.openTriage(); w.openGroup('Diebold Nixdorf', 'ATM Lighting'); w.triageDo('excuse'); w.triageDo('excuse'); w.triageDo('escalate'); w.renderExcusedReview(); },
           };
           (R[st] || R.map)();
         } catch (e) { /* ignore */ }
