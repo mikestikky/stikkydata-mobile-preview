@@ -514,21 +514,24 @@ body {
 /* triage landing — the dashboard's department > issue-type groups */
 .tg-hint { font-size: 13px; color: var(--accent-dark); background: var(--accent-light); border: 1px solid #fed7aa; border-radius: 10px; padding: 11px 13px; line-height: 1.45; }
 .tg-dept { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 14px; overflow: hidden; }
-.tg-dept-hd { display: flex; align-items: center; gap: 9px; padding: 12px 15px; border-bottom: 1px solid var(--border-light); }
+.tg-dept-hd { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; background: none; border: none; padding: 14px 15px; cursor: pointer; font-family: inherit; }
+.tg-dept-hd:active { background: var(--border-light); }
+.tg-dept.open .tg-dept-hd { border-bottom: 1px solid var(--border-light); }
 .tg-dept-nm { font-size: 15px; font-weight: 800; color: var(--text-primary); }
 .tg-dept-tag { font-size: 10.5px; font-weight: 700; color: var(--text-secondary); border: 1px solid var(--border-outline); border-radius: 6px; padding: 2px 7px; }
 .tg-dept-n { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--late); }
+.tg-dept-chev { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; transition: transform .18s ease; }
+.tg-dept.open .tg-dept-chev { transform: rotate(180deg); }
 .tg-types { display: flex; flex-direction: column; }
-.tg-type-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--border-light); padding: 11px 15px; cursor: pointer; font-family: inherit; }
-.tg-type-row:first-child { border-top: none; }
+.tg-type-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--border-light); padding: 13px 15px 13px 22px; cursor: pointer; font-family: inherit; }
 .tg-type-row:active { background: var(--border-light); }
-.tg-type-thumb { width: 42px; height: 42px; border-radius: 8px; overflow: hidden; background: #0f172a; flex-shrink: 0; }
-.tg-type-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .tg-type-nm { flex: 1; font-size: 14px; font-weight: 700; color: var(--text-primary); }
 .tg-type-n { font-size: 16px; font-weight: 800; color: var(--text-primary); }
 .tg-type-clear { font-size: 12px; font-weight: 700; color: var(--pass); }
 .tg-chev { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
 .tg-type-row.done { opacity: 0.55; }
+.tg-type-row.all { background: var(--accent-light); }
+.tg-type-row.all .tg-type-nm, .tg-type-row.all .tg-type-n { color: var(--accent-dark); }
 
 .tg-card { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(15,23,42,0.06); }
 .tg-photo { position: relative; width: 100%; aspect-ratio: 4/3; background: #0f172a; }
@@ -1046,45 +1049,60 @@ body {
     function triageTotal() { return DEPARTMENTS.reduce((s, d) => s + d.types.reduce((a, t) => a + t.remaining, 0), 0); }
     function updateReviewChip() { document.querySelectorAll('.rc-n').forEach(el => el.textContent = triageTotal()); }
 
-    let tgDept = null, tgType = null, tgDeck = [], tgIdx = 0, tgLog = [], tgUndoT = null;
+    let tgDept = null, tgTypeName = null, tgDeck = [], tgIdx = 0, tgLog = [], tgUndoT = null;
+    const tgExpanded = new Set();
     const ICN_X = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     const ICN_BACK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+    const ICN_CHEV = '<svg class="tg-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+    const esc = s => s.replace(/'/g, "\\'");
 
     function openTriage() { renderLanding(); showView('triage'); }
     function closeTriage() { clearTimeout(tgUndoT); document.getElementById('tg-undo').classList.remove('show'); updateReviewChip(); showView('map'); }
+    function toggleDept(name) { tgExpanded.has(name) ? tgExpanded.delete(name) : tgExpanded.add(name); renderLanding(); }
 
+    /* Landing = accordion of teams. First look = collapsed team names; expand to launch the whole team or a single type. */
     function renderLanding() {
-      tgDept = tgType = null; document.getElementById('tg-undo').classList.remove('show');
+      tgDept = null; tgTypeName = null; document.getElementById('tg-undo').classList.remove('show');
       document.getElementById('tg-top').innerHTML =
-        `<button class="icon-btn" aria-label="Done" onclick="closeTriage()">${ICN_X}</button><div class="tg-ttl">Review <span class="tg-prog">${triageTotal()} open · clear a group</span></div>`;
+        `<button class="icon-btn" aria-label="Done" onclick="closeTriage()">${ICN_X}</button><div class="tg-ttl">Review <span class="tg-prog">${triageTotal()} open</span></div>`;
       const groups = DEPARTMENTS.map(d => {
         const open = d.types.reduce((a, t) => a + t.remaining, 0);
-        const rows = d.types.map(t => t.remaining === 0
-          ? `<div class="tg-type-row done"><span class="tg-type-thumb"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[t.slot].pos}"></span><span class="tg-type-nm">${t.type}</span><span class="tg-type-clear">Cleared</span></div>`
-          : `<button class="tg-type-row" onclick="openGroup('${d.dept.replace(/'/g, "\\'")}','${t.type.replace(/'/g, "\\'")}')"><span class="tg-type-thumb"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[t.slot].pos}"></span><span class="tg-type-nm">${t.type}</span><span class="tg-type-n">${t.remaining}</span><svg class="tg-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>`
-        ).join('');
-        return `<div class="tg-dept"><div class="tg-dept-hd"><span class="tg-dept-nm">${d.dept}</span><span class="tg-dept-tag">${d.tag}</span><span class="tg-dept-n">${open} open</span></div><div class="tg-types">${rows}</div></div>`;
+        const isOpen = tgExpanded.has(d.dept);
+        let panel = '';
+        if (isOpen) {
+          const live = d.types.filter(t => t.remaining > 0);
+          const allBtn = live.length > 1
+            ? `<button class="tg-type-row all" onclick="openGroup('${esc(d.dept)}', null)"><span class="tg-type-nm">Triage all issues</span><span class="tg-type-n">${open}</span>${ICN_CHEV}</button>` : '';
+          const rows = d.types.map(t => t.remaining === 0
+            ? `<div class="tg-type-row done"><span class="tg-type-nm">${t.type}</span><span class="tg-type-clear">Cleared</span></div>`
+            : `<button class="tg-type-row" onclick="openGroup('${esc(d.dept)}','${esc(t.type)}')"><span class="tg-type-nm">${t.type}</span><span class="tg-type-n">${t.remaining}</span>${ICN_CHEV}</button>`).join('');
+          panel = `<div class="tg-types">${allBtn}${rows}</div>`;
+        }
+        return `<div class="tg-dept${isOpen ? ' open' : ''}"><button class="tg-dept-hd" onclick="toggleDept('${esc(d.dept)}')"><span class="tg-dept-nm">${d.dept}</span><span class="tg-dept-tag">${d.tag}</span><span class="tg-dept-n">${open} open</span><svg class="tg-dept-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>${panel}</div>`;
       }).join('');
-      document.getElementById('tg-stage').innerHTML = `<div class="tg-hint">Most flags are noise. Pick a group and clear it — Excuse the noise, Escalate the real ones, and email that team in one go.</div>${groups}`;
+      document.getElementById('tg-stage').innerHTML = `<div class="tg-hint">Most flags are noise. Open a team, then clear it — Excuse the noise, Escalate the real ones, and email that team in one go.</div>${groups}`;
     }
 
+    /* typeName null = the whole team (all its issue types); otherwise just that type. */
     function openGroup(deptName, typeName) {
       tgDept = DEPARTMENTS.find(d => d.dept === deptName);
-      tgType = tgDept.types.find(t => t.type === typeName);
+      tgTypeName = typeName;
       tgDeck = []; tgIdx = 0; tgLog = [];
-      for (let i = 0; i < tgType.remaining; i++) { const a = FLEET[(i * 7 + 3) % FLEET.length]; tgDeck.push({ atm: a.id, addr: a.loc + ', ' + a.city }); }
+      const types = typeName ? tgDept.types.filter(t => t.type === typeName) : tgDept.types;
+      let k = 0;
+      types.forEach(t => { for (let i = 0; i < t.remaining; i++) { const a = FLEET[(k * 7 + 3) % FLEET.length]; tgDeck.push({ atm: a.id, addr: a.loc + ', ' + a.city, type: t.type, slot: t.slot }); k++; } });
       renderGroup();
     }
 
     function renderGroup() {
       if (tgIdx >= tgDeck.length) { renderGroupSummary(); return; }
-      const it = tgDeck[tgIdx];
+      const it = tgDeck[tgIdx], label = tgTypeName || 'All issues';
       document.getElementById('tg-top').innerHTML =
-        `<button class="icon-btn" aria-label="Back to groups" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${tgType.type} <span class="tg-prog">${tgIdx + 1} of ${tgDeck.length}</span></div><div class="tg-bar"><div class="tg-bar-fill" style="width:${Math.round(tgIdx / tgDeck.length * 100)}%"></div></div>`;
+        `<button class="icon-btn" aria-label="Back to teams" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${label} <span class="tg-prog">${tgIdx + 1} of ${tgDeck.length}</span></div><div class="tg-bar"><div class="tg-bar-fill" style="width:${Math.round(tgIdx / tgDeck.length * 100)}%"></div></div>`;
       document.getElementById('tg-stage').innerHTML =
         `<div class="tg-card">
-          <div class="tg-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[tgType.slot].pos}"><span class="tg-flag">${tgType.type}</span></div>
-          <div class="tg-ctx"><div class="tg-type">${tgType.type} flag</div><div class="tg-meta">ATM&#8209;${it.atm} · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}</div></div>
+          <div class="tg-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[it.slot].pos}"><span class="tg-flag">${it.type}</span></div>
+          <div class="tg-ctx"><div class="tg-type">${it.type} flag</div><div class="tg-meta">ATM&#8209;${it.atm} · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}</div></div>
         </div>
         <div class="tg-actions">
           <button class="tg-btn excuse" onclick="triageDo('excuse')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Excuse</button>
@@ -1105,30 +1123,32 @@ body {
 
     function renderGroupSummary() {
       const by = a => tgLog.filter(l => l.action === a).length;
-      const escN = by('escalate'), skipN = by('skip');
-      tgType.remaining = skipN; /* excused + escalated clear from outstanding; skipped stays open */
+      const escN = by('escalate'), skipN = by('skip'), label = tgTypeName || 'All issues';
+      /* commit: excused + escalated clear from outstanding; skipped stays open — per type touched */
+      const types = tgTypeName ? [tgTypeName] : tgDept.types.map(t => t.type);
+      types.forEach(tn => { const t = tgDept.types.find(x => x.type === tn); if (t) t.remaining = tgLog.filter(l => l.action === 'skip' && l.item.type === tn).length; });
       document.getElementById('tg-undo').classList.remove('show');
       document.getElementById('tg-top').innerHTML =
-        `<button class="icon-btn" aria-label="Back to groups" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${tgType.type}</div>`;
+        `<button class="icon-btn" aria-label="Back to teams" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${label}</div>`;
       const emailBtn = escN
-        ? `<button class="tg-email" onclick="emailGroup()"><span class="tg-email-tx"><b>Email ${tgDept.dept}</b><span>${escN} ${tgType.type.toLowerCase()} ${escN > 1 ? 'units' : 'unit'} to service</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>`
-        : '<div class="tg-noesc">Nothing escalated — group cleared.</div>';
+        ? `<button class="tg-email" onclick="emailGroup()"><span class="tg-email-tx"><b>Email ${tgDept.dept}</b><span>${escN} ATM${escN > 1 ? 's' : ''} to service</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>`
+        : '<div class="tg-noesc">Nothing escalated — all cleared.</div>';
       document.getElementById('tg-stage').innerHTML =
         `<div class="tg-summary">
           <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <h2>${tgType.type} cleared</h2>
+          <h2>${label} cleared</h2>
           <div class="tg-tally"><span><b>${by('excuse')}</b> excused</span><span><b>${escN}</b> escalated</span><span><b>${skipN}</b> skipped</span></div>
           <div class="tg-summary-sub">${escN ? 'Send the escalations to ' + tgDept.dept + ' — opens a pre-filled email you send from your own mail.' : ''}</div>
           ${emailBtn}
-          <button class="btn btn-primary tg-finish" onclick="renderLanding()">Back to groups</button>
+          <button class="btn btn-primary tg-finish" onclick="renderLanding()">Back to teams</button>
         </div>`;
     }
     function emailGroup() {
       const items = tgLog.filter(l => l.action === 'escalate').map(l => l.item);
       if (!items.length) return;
-      const subj = `${tgType.type} service — ${items.length} ATM${items.length > 1 ? 's' : ''} (America First CU)`;
-      const lines = items.map(it => `• ATM-${it.atm} — ${tgType.type} — ${it.addr}`).join('\n');
-      const body = `Hi ${tgDept.dept},\n\nPlease schedule service for the following ATMs flagged for ${tgType.type.toLowerCase()} in our latest review:\n\n${lines}\n\nThank you,\nAmerica First CU`;
+      const subj = `ATM service — ${items.length} unit${items.length > 1 ? 's' : ''} (America First CU)`;
+      const lines = items.map(it => `• ATM-${it.atm} — ${it.type} — ${it.addr}`).join('\n');
+      const body = `Hi ${tgDept.dept},\n\nPlease schedule service for the following ATMs flagged in our latest review:\n\n${lines}\n\nThank you,\nAmerica First CU`;
       window.location.href = `mailto:${tgDept.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
     }
 
