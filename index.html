@@ -24,6 +24,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="window.__noLeaflet=true">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onerror="window.__noLeaflet=true"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <style>
 /* =============================================================================
    StikkyData Mobile — shared stylesheet  (the design-system handoff)
@@ -346,14 +348,15 @@ body {
   box-shadow: 0 6px 20px rgba(15,23,42,0.22), 0 0 0 1px rgba(15,23,42,0.04);
 }
 
-/* Calm fleet pins — a plain location dot. Most are neutral; a quiet orange dot flags the few needing attention. */
-.fpin { display: flex; align-items: center; justify-content: center; }
-.fpin .dot { width: 13px; height: 13px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 2px 5px rgba(15,23,42,0.3); transition: transform .12s ease; }
-.fpin.ok .dot { background: #64748b; }
-.fpin.issues .dot { background: var(--accent); }
-/* selected (popup open) — grows + lifts */
-.pin-selected .dot { transform: scale(1.5); box-shadow: 0 4px 11px rgba(15,23,42,0.45); }
+/* Fleet pins — the StikkyData v2 app's green teardrop markers, clustered into dark-green count bubbles. */
+.fpin { position: relative; width: 26px; height: 34px; }
+.fpin svg { display: block; filter: drop-shadow(0 3px 4px rgba(15,23,42,0.35)); transition: transform .12s ease; transform-origin: 50% 100%; }
+.fpin .badge { position: absolute; top: -1px; right: -1px; width: 11px; height: 11px; background: var(--accent); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 1px 2px rgba(15,23,42,0.3); }
+/* selected (popup open) — grows + lifts on its tip */
+.pin-selected svg { transform: scale(1.28); }
 .pin-selected { z-index: 1000 !important; }
+/* dark-green cluster count bubble (the "47" cap) */
+.cluster-bubble { min-width: 36px; height: 36px; padding: 0 10px; background: #14532d; color: #fff; border: 2.5px solid #fff; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; letter-spacing: -0.02em; box-shadow: 0 3px 9px rgba(15,23,42,0.45); }
 .pin-me { width: 16px; height: 16px; background: #2563eb; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 5px rgba(37,99,235,0.22); }
 
 /* Zillow-style photo-forward cards (list + map peek sheet) */
@@ -525,7 +528,7 @@ body {
   background-image: linear-gradient(rgba(116,170,34,0.08) 1px, transparent 1px),
                     linear-gradient(90deg, rgba(116,170,34,0.08) 1px, transparent 1px);
   background-size: 34px 34px; }
-.fb-pin { position: absolute; transform: translate(-50%,-50%); cursor: pointer; }
+.fb-pin { position: absolute; transform: translate(-50%,-100%); cursor: pointer; }
 
 /* no bottom nav — let scroll areas clear the home indicator */
 .scroll { padding-bottom: env(safe-area-inset-bottom, 0); }
@@ -758,6 +761,20 @@ body {
       { id:'4571', loc:'1300 E 500 S', lat:40.7510, lng:-111.8560, issues:4, last:'15d', crop:4 },
       { id:'4588', loc:'600 N Redwood Rd', lat:40.7790, lng:-111.9380, issues:0, last:'4d', crop:0 },
     ];
+    /* demo density so the map reads like a real fleet and the pins cluster (placeholder markers) */
+    (function seedDensity() {
+      const zones = [[40.760,-111.891],[40.700,-111.852],[40.728,-111.888],[40.772,-111.921],[40.722,-111.829],[40.751,-111.856]];
+      const streets = ['S State St','E 2100 S','W North Temple','S Highland Dr','E 500 S','N Redwood Rd','S Main St','E 900 S','W 3300 S','S 700 E'];
+      let id = 4600;
+      zones.forEach((z, zi) => {
+        for (let k = 0; k < 5; k++) {
+          const lat = z[0] + ((k % 3) - 1) * 0.0055 + (zi % 2 ? 0.0026 : -0.0026);
+          const lng = z[1] + (Math.floor(k / 3) - 0.5) * 0.011 + k * 0.0012;
+          FLEET.push({ id: String(id), loc: (200 + (id % 700)) + ' ' + streets[id % streets.length], lat, lng, issues: (id % 6 === 0 ? 2 : 0), last: ((id % 13) + 1) + 'd', crop: id % 7 });
+          id++;
+        }
+      });
+    })();
     const ASSET = FLEET[0];
 
     /* ---- view navigation (cross-fade) ---- */
@@ -906,7 +923,8 @@ body {
 
     /* ---- map ---- */
     function pinHTML(a) {
-      return `<div class="fpin ${a.issues > 0 ? 'issues' : 'ok'}"><span class="dot"></span></div>`;
+      const badge = a.issues > 0 ? '<span class="badge"></span>' : '';
+      return `<div class="fpin"><svg width="26" height="34" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg"><path d="M13 0C6 0 0 6 0 13c0 9 13 21 13 21s13-12 13-21C26 6 20 0 13 0z" fill="#43a047" stroke="#fff" stroke-width="2"/><circle cx="13" cy="13" r="4.5" fill="#fff"/></svg>${badge}</div>`;
     }
     function cardHTML(a) {
       const pill = a.issues > 0 ? `<span class="pc-pill issues">${a.issues} open</span>` : `<span class="pc-pill ok">Clean</span>`;
@@ -935,14 +953,23 @@ body {
       const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([40.7400, -111.8800], 12);
       window.__map = map;
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+      const useCluster = typeof L.markerClusterGroup === 'function';
+      const layer = useCluster
+        ? L.markerClusterGroup({
+            showCoverageOnHover: false, spiderfyOnMaxZoom: true, maxClusterRadius: 48,
+            iconCreateFunction: c => L.divIcon({ html: `<div class="cluster-bubble">${c.getChildCount()}</div>`, className: '', iconSize: [40, 40] })
+          })
+        : map;
       const bounds = [];
       FLEET.forEach(a => {
-        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [18,18], iconAnchor: [9,9], popupAnchor: [0,-10] }) }).addTo(map);
+        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [26,34], iconAnchor: [13,34], popupAnchor: [0,-32] }) });
         m.bindPopup(cardHTML(a), { className: 'fleet-popup', closeButton: false, minWidth: 214, maxWidth: 214 });
         m.on('popupopen', e => { paintImages(e.popup.getElement()); if (e.target._icon) e.target._icon.classList.add('pin-selected'); });
         m.on('popupclose', e => { if (e.target._icon) e.target._icon.classList.remove('pin-selected'); });
+        layer.addLayer(m);
         bounds.push([a.lat, a.lng]);
       });
+      if (useCluster) map.addLayer(layer);
       L.marker([40.7330, -111.8700], { icon: L.divIcon({ html: '<div class="pin-me"></div>', className: '', iconSize: [16,16], iconAnchor: [8,8] }) }).addTo(map);
       map.fitBounds(bounds, { paddingTopLeft: [55, 55], paddingBottomRight: [55, 120] });
       setTimeout(() => map.invalidateSize(), 120);
@@ -950,14 +977,14 @@ body {
     function buildFallback() {
       document.getElementById('map').style.display = 'none';
       const fb = document.getElementById('fallback'); fb.style.display = 'block';
-      const spots = [[26,34],[58,28],[44,50],[20,62],[72,58],[64,74],[36,76],[80,40]];
-      FLEET.forEach((a, i) => {
+      const spots = [[26,34],[58,28],[44,50],[20,62],[72,58],[64,74],[36,76],[80,40],[50,38],[30,46],[68,44],[40,64]];
+      FLEET.slice(0, spots.length).forEach((a, i) => {
         const [x,y] = spots[i];
         const el = document.createElement('div'); el.className = 'fb-pin'; el.style.left = x + '%'; el.style.top = y + '%'; el.innerHTML = pinHTML(a);
         el.onclick = () => { document.querySelectorAll('#fallback .fb-pin.pin-selected').forEach(p => p.classList.remove('pin-selected')); el.classList.add('pin-selected'); const old = document.getElementById('fbcard'); if (old) old.remove(); const c = document.createElement('div'); c.id='fbcard'; c.style.cssText='position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:31;'; c.innerHTML = cardHTML(a); document.querySelector('#view-map .map-pane').appendChild(c); paintImages(c); };
         fb.appendChild(el);
       });
-      const me = document.createElement('div'); me.className='fb-pin'; me.style.cssText='left:50%;top:46%;'; me.innerHTML='<div class="pin-me"></div>'; fb.appendChild(me);
+      const me = document.createElement('div'); me.className='fb-pin'; me.style.cssText='left:50%;top:46%;transform:translate(-50%,-50%);'; me.innerHTML='<div class="pin-me"></div>'; fb.appendChild(me);
     }
 
     /* ---- toast ---- */
@@ -971,6 +998,9 @@ body {
       renderPeek();
       initPeek();
       paintImages();
+      const attn = FLEET.filter(a => a.issues > 0).length;
+      const pc = document.querySelector('.peek-count');
+      if (pc) pc.innerHTML = `<b>${FLEET.length}</b> ATMs <i>· ${attn} need attention</i>`;
       if (window.__noLeaflet || typeof L === 'undefined') buildFallback();
       else { try { buildLeaflet(); } catch (e) { buildFallback(); } }
 
