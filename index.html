@@ -973,6 +973,21 @@ body {
       paintImages();
       if (window.__noLeaflet || typeof L === 'undefined') buildFallback();
       else { try { buildLeaflet(); } catch (e) { buildFallback(); } }
+
+      /* deep-link each screen state (used by the Screens & Notes sheet) */
+      const routes = {
+        map: () => showView('map'),
+        list: () => showView('list'),
+        asset: () => openAsset('map'),
+        photo: () => { openAsset('map'); openLB(); },
+        camera: () => { openAsset('map'); document.getElementById('take-photo-img').src = ATM; openSheet('takephoto'); },
+        send: () => { openAsset('map'); openSheet('sendchoice'); },
+        share: () => { openAsset('map'); openSheet('send'); },
+        directions: () => { openAsset('map'); directions(); },
+        ticket: () => { openAsset('map'); openSheet('ticket'); },
+      };
+      const r = routes[location.hash.slice(1)];
+      if (r) setTimeout(r, 250);
     });
   </script>
 </body>
