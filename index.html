@@ -748,29 +748,45 @@ body {
       { nm:'Monitor', pos:'38% 42%' }, { nm:'Keypad', pos:'30% 90%' }, { nm:'Fascia', pos:'50% 8%' }, { nm:'Fee Notice', pos:'20% 50%' },
     ];
     const FLEET = [
-      { id:'4471', loc:'1450 S State St', lat:40.7280, lng:-111.8882, issues:3, last:'8d', crop:0 },
-      { id:'4490', loc:'700 E 2100 S', lat:40.7250, lng:-111.8650, issues:1, last:'3d', crop:2 },
-      { id:'4512', loc:'400 S Main St', lat:40.7608, lng:-111.8910, issues:0, last:'2d', crop:3 },
-      { id:'4533', loc:'900 W North Temple', lat:40.7700, lng:-111.9210, issues:2, last:'12d', crop:1 },
-      { id:'4540', loc:'3300 S Highland Dr', lat:40.6980, lng:-111.8500, issues:0, last:'5d', crop:6 },
-      { id:'4558', loc:'2100 E Sugarhouse', lat:40.7220, lng:-111.8290, issues:0, last:'1d', crop:5 },
-      { id:'4571', loc:'1300 E 500 S', lat:40.7510, lng:-111.8560, issues:4, last:'15d', crop:4 },
-      { id:'4588', loc:'600 N Redwood Rd', lat:40.7790, lng:-111.9380, issues:0, last:'4d', crop:0 },
+      { id:'4471', loc:'1450 S State St', city:'Salt Lake City, UT', lat:40.7280, lng:-111.8882, issues:3, last:'8d', crop:0 },
+      { id:'4490', loc:'700 E 2100 S', city:'Salt Lake City, UT', lat:40.7250, lng:-111.8650, issues:1, last:'3d', crop:2 },
+      { id:'4512', loc:'400 S Main St', city:'Salt Lake City, UT', lat:40.7608, lng:-111.8910, issues:0, last:'2d', crop:3 },
+      { id:'4533', loc:'900 W North Temple', city:'Salt Lake City, UT', lat:40.7700, lng:-111.9210, issues:2, last:'12d', crop:1 },
+      { id:'4540', loc:'3300 S Highland Dr', city:'Salt Lake City, UT', lat:40.6980, lng:-111.8500, issues:0, last:'5d', crop:6 },
+      { id:'4558', loc:'2100 E Sugarhouse', city:'Salt Lake City, UT', lat:40.7220, lng:-111.8290, issues:0, last:'1d', crop:5 },
+      { id:'4571', loc:'1300 E 500 S', city:'Salt Lake City, UT', lat:40.7510, lng:-111.8560, issues:4, last:'15d', crop:4 },
+      { id:'4588', loc:'600 N Redwood Rd', city:'Salt Lake City, UT', lat:40.7790, lng:-111.9380, issues:0, last:'4d', crop:0 },
     ];
-    /* demo fleet: pins spread across the valley so they read like a real fleet, each shown individually (no clustering) */
-    (function seedDensity() {
-      const streets = ['S State St','E 2100 S','W North Temple','S Highland Dr','E 500 S','N Redwood Rd','S Main St','E 900 S','W 3300 S','S 700 E'];
+    /* The map is a TERRITORY display: ATMs PILE UP where the customer is dense (home turf) and thin out
+       elsewhere — the pile-up of individual pins IS the "look how much we own" message. No clustering
+       (it would hide the very density that matters), no even spacing. America First's real-ish western
+       footprint — Utah dominant, with outposts across NV/AZ/ID/NM. */
+    (function seedFootprint() {
+      const streets = ['S State St','Main St','State Rte 89','Center St','E Highland Dr','Redwood Rd','W Market St','Commerce Way','N Mall Dr','S Frontage Rd','Union Blvd','Pioneer Pkwy'];
+      const METROS = [
+        { city:'Salt Lake City, UT', lat:40.760, lng:-111.890, n:58, r:0.060 },
+        { city:'Ogden, UT',          lat:41.223, lng:-111.973, n:24, r:0.045 },
+        { city:'Provo, UT',          lat:40.252, lng:-111.660, n:30, r:0.060 },
+        { city:'Logan, UT',          lat:41.737, lng:-111.834, n:9,  r:0.030 },
+        { city:'St. George, UT',     lat:37.096, lng:-113.575, n:11, r:0.040 },
+        { city:'Las Vegas, NV',      lat:36.135, lng:-115.150, n:27, r:0.085 },
+        { city:'Reno, NV',           lat:39.530, lng:-119.810, n:12, r:0.050 },
+        { city:'Phoenix, AZ',        lat:33.450, lng:-112.070, n:25, r:0.090 },
+        { city:'Boise, ID',          lat:43.610, lng:-116.200, n:16, r:0.060 },
+        { city:'Albuquerque, NM',    lat:35.084, lng:-106.650, n:12, r:0.060 },
+      ];
       let id = 4600;
-      const cols = 6, rows = 5, lat0 = 40.635, lat1 = 40.788, lng0 = -111.985, lng1 = -111.815;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const jx = (((id * 7) % 11) - 5) * 0.0013, jy = (((id * 13) % 11) - 5) * 0.0013;
-          const lat = lat0 + (lat1 - lat0) * (r / (rows - 1)) + jy;
-          const lng = lng0 + (lng1 - lng0) * (c / (cols - 1)) + jx;
-          FLEET.push({ id: String(id), loc: (200 + (id % 700)) + ' ' + streets[id % streets.length], lat, lng, issues: (id % 7 === 0 ? 2 : 0), last: ((id % 13) + 1) + 'd', crop: id % 7 });
+      METROS.forEach(m => {
+        for (let k = 0; k < m.n; k++) {
+          const h1 = ((id * 9301 + 49297) % 233280) / 233280;
+          const h2 = ((id * 4099 + 150889) % 714025) / 714025;
+          const ang = h1 * Math.PI * 2, rad = Math.sqrt(h2) * m.r;
+          const lat = m.lat + rad * Math.sin(ang) * 0.78;
+          const lng = m.lng + rad * Math.cos(ang);
+          FLEET.push({ id:String(id), loc:(100 + (id % 899)) + ' ' + streets[id % streets.length], city:m.city, lat, lng, issues:(id % 9 === 0 ? 2 : (id % 13 === 0 ? 1 : 0)), last:((id % 21) + 1) + 'd', crop:id % 7 });
           id++;
         }
-      }
+      });
     })();
     const ASSET = FLEET[0];
 
@@ -804,7 +820,7 @@ body {
         <div class="zcard-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[a.crop].pos}">${flag}</div>
         <div class="zcard-body">
           <div class="zcard-id">ATM&#8209;${a.id}</div>
-          <div class="zcard-loc">${a.loc} · Salt Lake City</div>
+          <div class="zcard-loc">${a.loc} · ${a.city}</div>
           <div class="zcard-meta">Serviced ${a.last} ago</div>
         </div>
       </div>`;
@@ -929,7 +945,7 @@ body {
         <div class="pc-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[0].pos}">
           <button class="pc-arrow l" onclick="cardStep(event,-1)">&#8249;</button><button class="pc-arrow r" onclick="cardStep(event,1)">&#8250;</button>
           <span class="pc-slot">${SLOTS[0].nm}</span><span class="pc-dots">${dots}</span></div>
-        <div class="pc-meta"><div class="pc-id">ATM&#8209;${a.id}</div><div class="pc-loc">${a.loc} · Salt Lake City</div>
+        <div class="pc-meta"><div class="pc-id">ATM&#8209;${a.id}</div><div class="pc-loc">${a.loc} · ${a.city}</div>
           <div class="pc-status">${pill}<span class="pc-last">Serviced ${a.last} ago</span></div></div>
         <div class="pc-btns"><button class="pc-btn show" onclick="openAsset('map')">Show me</button>
           <button class="pc-btn go" onclick="openMaps(${a.lat},${a.lng})">Drive there</button></div>
