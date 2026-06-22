@@ -348,15 +348,15 @@ body {
   box-shadow: 0 6px 20px rgba(15,23,42,0.22), 0 0 0 1px rgba(15,23,42,0.04);
 }
 
-/* Fleet pins — the StikkyData v2 app's green teardrop markers, clustered into dark-green count bubbles. */
-.fpin { position: relative; width: 26px; height: 34px; }
-.fpin svg { display: block; filter: drop-shadow(0 3px 4px rgba(15,23,42,0.35)); transition: transform .12s ease; transform-origin: 50% 100%; }
-.fpin .badge { position: absolute; top: -1px; right: -1px; width: 11px; height: 11px; background: var(--accent); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 1px 2px rgba(15,23,42,0.3); }
+/* Fleet pins — the StikkyData v2 app's green balloon markers (white center + asset glyph),
+   clustered into dark-green count PILLS (the "47" cap). Uniform green, like the live app. */
+.fpin { position: relative; width: 30px; height: 38px; }
+.fpin svg { display: block; filter: drop-shadow(0 3px 4px rgba(15,23,42,0.4)); transition: transform .12s ease; transform-origin: 50% 100%; }
 /* selected (popup open) — grows + lifts on its tip */
-.pin-selected svg { transform: scale(1.28); }
+.pin-selected svg { transform: scale(1.22); }
 .pin-selected { z-index: 1000 !important; }
-/* dark-green cluster count bubble (the "47" cap) */
-.cluster-bubble { min-width: 36px; height: 36px; padding: 0 10px; background: #14532d; color: #fff; border: 2.5px solid #fff; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; letter-spacing: -0.02em; box-shadow: 0 3px 9px rgba(15,23,42,0.45); }
+/* dark-green cluster count pill */
+.cluster-bubble { min-width: 30px; height: 30px; padding: 0 13px; background: #14532d; color: #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; letter-spacing: -0.01em; box-shadow: 0 3px 9px rgba(15,23,42,0.4); }
 .pin-me { width: 16px; height: 16px; background: #2563eb; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 5px rgba(37,99,235,0.22); }
 
 /* Zillow-style photo-forward cards (list + map peek sheet) */
@@ -930,8 +930,7 @@ body {
 
     /* ---- map ---- */
     function pinHTML(a) {
-      const badge = a.issues > 0 ? '<span class="badge"></span>' : '';
-      return `<div class="fpin"><svg width="26" height="34" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg"><path d="M13 0C6 0 0 6 0 13c0 9 13 21 13 21s13-12 13-21C26 6 20 0 13 0z" fill="#43a047" stroke="#fff" stroke-width="2"/><circle cx="13" cy="13" r="4.5" fill="#fff"/></svg>${badge}</div>`;
+      return `<div class="fpin"><svg width="30" height="38" viewBox="0 0 30 38" xmlns="http://www.w3.org/2000/svg"><path d="M15 1C7.3 1 1 7.1 1 14.6 1 24.4 15 37 15 37s14-12.6 14-22.4C29 7.1 22.7 1 15 1z" fill="#57ab2e" stroke="#ffffff" stroke-width="2"/><circle cx="15" cy="14.4" r="6.6" fill="#ffffff"/><rect x="11.4" y="11.6" width="7.2" height="5.6" rx="1.2" fill="#2f7d16"/><rect x="13.6" y="17.4" width="2.8" height="1.5" rx="0.6" fill="#2f7d16"/></svg></div>`;
     }
     function cardHTML(a) {
       const pill = a.issues > 0 ? `<span class="pc-pill issues">${a.issues} open</span>` : `<span class="pc-pill ok">Clean</span>`;
@@ -969,7 +968,7 @@ body {
         : map;
       const bounds = [];
       FLEET.forEach(a => {
-        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [26,34], iconAnchor: [13,34], popupAnchor: [0,-32] }) });
+        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [30,38], iconAnchor: [15,38], popupAnchor: [0,-36] }) });
         m.bindPopup(cardHTML(a), { className: 'fleet-popup', closeButton: false, minWidth: 214, maxWidth: 214 });
         m.on('popupopen', e => { paintImages(e.popup.getElement()); if (e.target._icon) e.target._icon.classList.add('pin-selected'); });
         m.on('popupclose', e => { if (e.target._icon) e.target._icon.classList.remove('pin-selected'); });
