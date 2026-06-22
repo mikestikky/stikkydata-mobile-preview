@@ -1172,7 +1172,7 @@ body {
       document.getElementById('tg-top').innerHTML =
         `<button class="icon-btn" aria-label="Back to teams" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${label}</div>`;
       const emailBtn = escN
-        ? `<button class="tg-email" onclick="emailGroup()"><span class="tg-email-tx"><b>Email ${tgDept.dept}</b><span>${escN} ATM${escN > 1 ? 's' : ''} to service</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>`
+        ? `<button class="tg-email" onclick="emailGroup()"><span class="tg-email-tx"><b>Email ${escN} to ${tgDept.dept}</b><span>To: ${tgDept.email} · tap to change</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>`
         : '<div class="tg-noesc">Nothing escalated — all cleared.</div>';
       const next = tgTypeName ? tgDept.types.find(t => t.remaining > 0) : null;
       const nextBtn = next
@@ -1183,7 +1183,7 @@ body {
           <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <h2>${label} cleared</h2>
           <div class="tg-tally"><span><b>${by('excuse')}</b> excused</span><span><b>${escN}</b> escalated</span></div>
-          <div class="tg-summary-sub">${escN ? 'Send the escalations to ' + tgDept.dept + ' — opens a pre-filled email you send from your own mail.' : ''}</div>
+          <div class="tg-summary-sub">${escN ? 'Opens a pre-filled draft to ' + tgDept.email + ' (the default for this team) — change the recipient to your manager, a ' + tgDept.dept + ' rep, or anyone before you send. Nothing sends until you hit send.' : ''}</div>
           ${emailBtn}
           ${nextBtn}
         </div>`;
