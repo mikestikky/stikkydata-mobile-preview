@@ -348,8 +348,8 @@ body {
 
 /* Fleet pins — the StikkyData app's pushpin: a green ball with a glossy highlight on a slate stick.
    Every asset shown individually (no clustering). */
-.fpin { position: relative; width: 30px; height: 42px; }
-.fpin svg { display: block; filter: drop-shadow(0 3px 4px rgba(15,23,42,0.4)); transition: transform .12s ease; transform-origin: 50% 100%; }
+.fpin { position: relative; width: 28px; height: 38px; }
+.fpin svg { display: block; filter: drop-shadow(0 1.5px 1.5px rgba(0,0,0,0.22)); transition: transform .12s ease; transform-origin: 50% 100%; }
 /* selected (popup open) — grows + lifts on its tip */
 .pin-selected svg { transform: scale(1.22); }
 .pin-selected { z-index: 1000 !important; }
@@ -936,7 +936,7 @@ body {
 
     /* ---- map ---- */
     function pinHTML(a) {
-      return `<div class="fpin"><svg width="30" height="42" viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg"><rect x="13.9" y="18" width="2.2" height="23" rx="1.1" fill="#5a6478"/><circle cx="15" cy="13" r="11" fill="#57ab2e"/><circle cx="11.1" cy="9.1" r="2.9" fill="#ffffff" fill-opacity="0.32"/></svg></div>`;
+      return `<div class="fpin"><svg width="28" height="38" viewBox="0 0 28 38" xmlns="http://www.w3.org/2000/svg"><rect x="13" y="16.5" width="2" height="20" rx="1" fill="#5a6478"/><circle cx="14" cy="12" r="9.5" fill="#57ab2e"/><circle cx="11" cy="9" r="2.5" fill="#ffffff" fill-opacity="0.32"/></svg></div>`;
     }
     function cardHTML(a) {
       const pill = a.issues > 0 ? `<span class="pc-pill issues">${a.issues} open</span>` : `<span class="pc-pill ok">Clean</span>`;
@@ -967,7 +967,7 @@ body {
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
       const bounds = [];
       FLEET.forEach(a => {
-        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [30,42], iconAnchor: [15,41], popupAnchor: [0,-40] }) }).addTo(map);
+        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [28,38], iconAnchor: [14,37], popupAnchor: [0,-36] }) }).addTo(map);
         m.bindPopup(cardHTML(a), { className: 'fleet-popup', closeButton: false, minWidth: 214, maxWidth: 214 });
         m.on('popupopen', e => { paintImages(e.popup.getElement()); if (e.target._icon) e.target._icon.classList.add('pin-selected'); });
         m.on('popupclose', e => { if (e.target._icon) e.target._icon.classList.remove('pin-selected'); });
