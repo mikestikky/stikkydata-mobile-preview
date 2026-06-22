@@ -761,19 +761,26 @@ body {
       { id:'4571', loc:'1300 E 500 S', lat:40.7510, lng:-111.8560, issues:4, last:'15d', crop:4 },
       { id:'4588', loc:'600 N Redwood Rd', lat:40.7790, lng:-111.9380, issues:0, last:'4d', crop:0 },
     ];
-    /* demo density so the map reads like a real fleet and the pins cluster (placeholder markers) */
+    /* demo fleet: most pins SPREAD across the valley so they show as individual green teardrops
+       (like the live app), plus one tight downtown knot that clusters into a single count bubble. */
     (function seedDensity() {
-      const zones = [[40.760,-111.891],[40.700,-111.852],[40.728,-111.888],[40.772,-111.921],[40.722,-111.829],[40.751,-111.856]];
       const streets = ['S State St','E 2100 S','W North Temple','S Highland Dr','E 500 S','N Redwood Rd','S Main St','E 900 S','W 3300 S','S 700 E'];
       let id = 4600;
-      zones.forEach((z, zi) => {
-        for (let k = 0; k < 5; k++) {
-          const lat = z[0] + ((k % 3) - 1) * 0.0055 + (zi % 2 ? 0.0026 : -0.0026);
-          const lng = z[1] + (Math.floor(k / 3) - 0.5) * 0.011 + k * 0.0012;
-          FLEET.push({ id: String(id), loc: (200 + (id % 700)) + ' ' + streets[id % streets.length], lat, lng, issues: (id % 6 === 0 ? 2 : 0), last: ((id % 13) + 1) + 'd', crop: id % 7 });
+      const cols = 6, rows = 5, lat0 = 40.635, lat1 = 40.788, lng0 = -111.985, lng1 = -111.815;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const jx = (((id * 7) % 11) - 5) * 0.0013, jy = (((id * 13) % 11) - 5) * 0.0013;
+          const lat = lat0 + (lat1 - lat0) * (r / (rows - 1)) + jy;
+          const lng = lng0 + (lng1 - lng0) * (c / (cols - 1)) + jx;
+          FLEET.push({ id: String(id), loc: (200 + (id % 700)) + ' ' + streets[id % streets.length], lat, lng, issues: (id % 7 === 0 ? 2 : 0), last: ((id % 13) + 1) + 'd', crop: id % 7 });
           id++;
         }
-      });
+      }
+      for (let k = 0; k < 12; k++) {
+        const lat = 40.7565 + ((k % 4) - 1.5) * 0.0015, lng = -111.8925 + (Math.floor(k / 4) - 1) * 0.0017;
+        FLEET.push({ id: String(id), loc: 'Downtown hub · ' + streets[k % streets.length], lat, lng, issues: (k % 5 === 0 ? 1 : 0), last: ((k % 9) + 1) + 'd', crop: k % 7 });
+        id++;
+      }
     })();
     const ASSET = FLEET[0];
 
@@ -956,7 +963,7 @@ body {
       const useCluster = typeof L.markerClusterGroup === 'function';
       const layer = useCluster
         ? L.markerClusterGroup({
-            showCoverageOnHover: false, spiderfyOnMaxZoom: true, maxClusterRadius: 48,
+            showCoverageOnHover: false, spiderfyOnMaxZoom: true, maxClusterRadius: 28,
             iconCreateFunction: c => L.divIcon({ html: `<div class="cluster-bubble">${c.getChildCount()}</div>`, className: '', iconSize: [40, 40] })
           })
         : map;
