@@ -573,6 +573,30 @@ body {
 .tg-lb-close { position: absolute; top: calc(14px + env(safe-area-inset-top, 0)); right: 14px; z-index: 3; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.16); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .tg-lb-count { position: absolute; bottom: calc(20px + env(safe-area-inset-bottom, 0)); left: 50%; transform: translateX(-50%); z-index: 3; background: rgba(255,255,255,0.16); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; }
 
+/* swipe-to-dispose (left = excuse, right = escalate) */
+.tg-card { position: relative; touch-action: pan-y; }
+.tg-swipe-stamp { position: absolute; top: 16px; z-index: 6; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 5px 12px; border: 3px solid; border-radius: 9px; opacity: 0; transition: opacity .08s; pointer-events: none; background: rgba(255,255,255,0.9); }
+.tg-swipe-stamp.excuse { left: 16px; transform: rotate(-11deg); color: #475569; border-color: #475569; }
+.tg-swipe-stamp.escalate { right: 16px; transform: rotate(11deg); color: var(--brand-green); border-color: var(--brand-green); }
+.tg-card.to-excuse .tg-swipe-stamp.excuse, .tg-card.to-escalate .tg-swipe-stamp.escalate { opacity: 1; }
+.tg-swipe-tip { text-align: center; font-size: 12px; color: var(--text-muted); margin: -2px 0; }
+
+/* "review what I excused" list */
+.tg-tally { align-items: flex-start; }
+.tg-tally-btn { background: none; border: none; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--text-secondary); }
+.tg-tally-btn b { font-size: 19px; font-weight: 800; color: var(--text-primary); }
+.tg-review-link { font-size: 10.5px; color: var(--accent-dark); font-weight: 700; text-decoration: underline; margin-top: 1px; }
+.tg-rev-hint { font-size: 12px; color: var(--text-muted); padding: 0 2px 4px; }
+.tg-rev-row { display: flex; align-items: center; gap: 11px; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 11px; padding: 10px 12px; }
+.tg-rev-thumb { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #0f172a; flex-shrink: 0; }
+.tg-rev-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.tg-rev-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tg-rev-tx b { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.tg-rev-tx span { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tg-rev-note { font-style: italic; color: var(--text-muted) !important; }
+.tg-reopen { flex-shrink: 0; background: none; border: 1.5px solid var(--border-outline); border-radius: 8px; color: var(--text-secondary); font-family: inherit; font-size: 13px; font-weight: 700; padding: 7px 12px; cursor: pointer; }
+.tg-reopen:active { background: var(--border-light); }
+
 .tg-undo { position: absolute; left: 16px; right: 16px; bottom: 18px; display: flex; align-items: center; justify-content: space-between; background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 11px; font-size: 14px; font-weight: 600; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .15s ease, transform .15s ease; z-index: 60; }
 .tg-undo.show { opacity: 1; transform: none; pointer-events: auto; }
 .tg-undo button { background: none; border: none; color: var(--accent); font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; }
@@ -1136,15 +1160,46 @@ body {
         `<button class="icon-btn" aria-label="Back to teams" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${label} <span class="tg-prog">${tgIdx + 1} of ${tgDeck.length}</span></div><div class="tg-bar"><div class="tg-bar-fill" style="width:${Math.round(tgIdx / tgDeck.length * 100)}%"></div></div>`;
       const countBadge = multi ? `<span class="tg-photo-count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>${it.photos.length}</span>` : '';
       document.getElementById('tg-stage').innerHTML =
-        `<div class="tg-card">
-          <div class="tg-photo" onclick="openTgPhotos()"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[it.photos[0]].pos}"><span class="tg-flag">${it.type}</span>${countBadge}<span class="tg-photo-expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div>
-          <div class="tg-ctx"><div class="tg-type">${it.type} flag</div><div class="tg-meta"><button class="tg-atm" onclick="openTgPhotos()">ATM&#8209;${it.atm}</button> · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}${multi ? ' · ' + it.photos.length + ' photos' : ''}</div></div>
+        `<div class="tg-card" id="tg-card">
+          <span class="tg-swipe-stamp excuse">Excuse</span><span class="tg-swipe-stamp escalate">Escalate</span>
+          <div class="tg-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[it.photos[0]].pos}"><span class="tg-flag">${it.type}</span>${countBadge}<span class="tg-photo-expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div>
+          <div class="tg-ctx"><div class="tg-type">${it.type} flag</div><div class="tg-meta"><button class="tg-atm">ATM&#8209;${it.atm}</button> · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}${multi ? ' · ' + it.photos.length + ' photos · tap to open' : ' · tap photo to open'}</div></div>
         </div>
+        <div class="tg-swipe-tip">Swipe ← to excuse · → to escalate</div>
         <textarea class="tg-comment" id="tg-comment" rows="2" placeholder="Add a comment (optional)…"></textarea>
         <div class="tg-actions">
           <button class="tg-btn excuse" onclick="triageDo('excuse')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Excuse</button>
           <button class="tg-btn escalate" onclick="triageDo('escalate')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Escalate</button>
-        </div>`;
+        </div>
+        <button class="tg-skip" onclick="triageDo('skip')">Can't tell — skip for now</button>`;
+      wireSwipe(document.getElementById('tg-card'));
+    }
+    /* swipe the card: left = Excuse, right = Escalate; a small drag that doesn't cross the threshold
+       counts as a tap (opens the photo set if it landed on the photo or the ATM id). */
+    function wireSwipe(card) {
+      if (!card) return;
+      let sx = 0, sy = 0, dragging = false, moved = false, downT = null;
+      card.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; dragging = true; moved = false; downT = e.target; card.style.transition = 'none'; try { card.setPointerCapture(e.pointerId); } catch (_) {} });
+      card.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) moved = true;
+        if (Math.abs(dx) > Math.abs(dy)) { card.style.transform = `translateX(${dx}px) rotate(${dx * 0.03}deg)`; card.classList.toggle('to-excuse', dx < -36); card.classList.toggle('to-escalate', dx > 36); }
+      });
+      card.addEventListener('pointerup', e => {
+        if (!dragging) return; dragging = false;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        card.style.transition = ''; card.classList.remove('to-excuse', 'to-escalate');
+        if (Math.abs(dx) > 92 && Math.abs(dx) > Math.abs(dy)) {
+          const act = dx > 0 ? 'escalate' : 'excuse';
+          card.style.transform = `translateX(${dx > 0 ? 520 : -520}px) rotate(${dx > 0 ? 18 : -18}deg)`; card.style.opacity = '0';
+          setTimeout(() => triageDo(act), 140);
+        } else {
+          card.style.transform = '';
+          if (!moved && downT && downT.closest && (downT.closest('.tg-photo') || downT.closest('.tg-atm'))) openTgPhotos();
+        }
+      });
+      card.addEventListener('pointercancel', () => { dragging = false; card.style.transition = ''; card.style.transform = ''; card.classList.remove('to-excuse', 'to-escalate'); });
     }
     /* full photo set for the current issue (some issues carry multiple photos) */
     let tgPhotos = [], tgPhotoIdx = 0;
@@ -1157,36 +1212,60 @@ body {
       if (tgIdx >= tgDeck.length) return;
       const cEl = document.getElementById('tg-comment'); const comment = cEl ? cEl.value.trim() : '';
       tgLog.push({ item: tgDeck[tgIdx], action, comment }); tgIdx++;
-      const u = document.getElementById('tg-undo'); document.getElementById('tg-undo-tx').textContent = action === 'excuse' ? 'Excused' : 'Escalated';
+      const u = document.getElementById('tg-undo'); document.getElementById('tg-undo-tx').textContent = action === 'excuse' ? 'Excused' : action === 'escalate' ? 'Escalated' : 'Skipped';
       u.classList.add('show'); clearTimeout(tgUndoT); tgUndoT = setTimeout(() => u.classList.remove('show'), 2200);
       renderGroup();
     }
     function triageUndo() { if (!tgLog.length) return; tgLog.pop(); tgIdx = Math.max(0, tgIdx - 1); clearTimeout(tgUndoT); document.getElementById('tg-undo').classList.remove('show'); renderGroup(); }
 
+    /* idempotent: a type's remaining = its deck size minus what got excused/escalated (skipped stays open) */
+    function commitRemaining() {
+      [...new Set(tgDeck.map(d => d.type))].forEach(tn => {
+        const t = tgDept.types.find(x => x.type === tn); if (!t) return;
+        const deckN = tgDeck.filter(d => d.type === tn).length;
+        const cleared = tgLog.filter(l => (l.action === 'excuse' || l.action === 'escalate') && l.item.type === tn).length;
+        t.remaining = deckN - cleared;
+      });
+    }
     function renderGroupSummary() {
+      commitRemaining();
       const by = a => tgLog.filter(l => l.action === a).length;
-      const escN = by('escalate'), label = tgTypeName || 'All issues';
-      /* every card was excused or escalated → those types are cleared (no skip anymore) */
-      (tgTypeName ? [tgTypeName] : tgDept.types.map(t => t.type)).forEach(tn => { const t = tgDept.types.find(x => x.type === tn); if (t) t.remaining = 0; });
+      const excN = by('excuse'), escN = by('escalate'), skipN = by('skip'), label = tgTypeName || 'All issues';
       document.getElementById('tg-undo').classList.remove('show');
       document.getElementById('tg-top').innerHTML =
         `<button class="icon-btn" aria-label="Back to teams" onclick="renderLanding()">${ICN_BACK}</button><div class="tg-ttl">${tgDept.dept} · ${label}</div>`;
       const emailBtn = escN
         ? `<button class="tg-email" onclick="emailGroup()"><span class="tg-email-tx"><b>Email ${escN} to ${tgDept.dept}</b><span>To: ${tgDept.email} · tap to change</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>`
-        : '<div class="tg-noesc">Nothing escalated — all cleared.</div>';
-      const next = tgTypeName ? tgDept.types.find(t => t.remaining > 0) : null;
+        : '<div class="tg-noesc">Nothing escalated this pass.</div>';
+      const next = tgTypeName ? tgDept.types.find(t => t.remaining > 0 && t.type !== tgTypeName) : null;
       const nextBtn = next
         ? `<button class="btn btn-primary tg-finish" onclick="openGroup('${esc(tgDept.dept)}','${esc(next.type)}')">Next: ${next.type} (${next.remaining}) &rsaquo;</button><button class="tg-backteams" onclick="renderLanding()">Back to teams</button>`
         : `<button class="btn btn-primary tg-finish" onclick="renderLanding()">Back to teams</button>`;
+      const excTally = excN
+        ? `<button class="tg-tally-btn" onclick="renderExcusedReview()"><b>${excN}</b>excused<span class="tg-review-link">review</span></button>`
+        : `<span><b>0</b> excused</span>`;
+      const skipTally = skipN ? `<span><b>${skipN}</b> left open</span>` : '';
       document.getElementById('tg-stage').innerHTML =
         `<div class="tg-summary">
           <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <h2>${label} cleared</h2>
-          <div class="tg-tally"><span><b>${by('excuse')}</b> excused</span><span><b>${escN}</b> escalated</span></div>
-          <div class="tg-summary-sub">${escN ? 'Opens a pre-filled draft to ' + tgDept.email + ' (the default for this team) — change the recipient to your manager, a ' + tgDept.dept + ' rep, or anyone before you send. Nothing sends until you hit send.' : ''}</div>
+          <h2>${label} reviewed</h2>
+          <div class="tg-tally">${excTally}<span><b>${escN}</b> escalated</span>${skipTally}</div>
+          <div class="tg-summary-sub">${escN ? 'Opens a pre-filled draft to ' + tgDept.email + ' (the default for this team) — change the recipient to your manager, a ' + tgDept.dept + ' rep, or anyone before you send. Nothing sends until you hit send.' : ''}${skipN ? (escN ? ' ' : '') + 'The ' + skipN + ' you skipped stay open for next time.' : ''}</div>
           ${emailBtn}
           ${nextBtn}
         </div>`;
+    }
+    /* "review what I excused" — the batch safety net for the trash run */
+    function renderExcusedReview() {
+      const excused = tgLog.map((l, i) => ({ l, i })).filter(x => x.l.action === 'excuse');
+      document.getElementById('tg-top').innerHTML =
+        `<button class="icon-btn" aria-label="Back" onclick="renderGroupSummary()">${ICN_BACK}</button><div class="tg-ttl">Excused <span class="tg-prog">${excused.length}</span></div>`;
+      const rows = excused.map(x => `<div class="tg-rev-row"><div class="tg-rev-thumb"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[x.l.item.slot].pos}"></div><div class="tg-rev-tx"><b>${x.l.item.type}</b><span>ATM&#8209;${x.l.item.atm} · ${x.l.item.addr}</span>${x.l.comment ? '<span class="tg-rev-note">“' + x.l.comment + '”</span>' : ''}</div><button class="tg-reopen" onclick="reopenExcused(${x.i})">Reopen</button></div>`).join('') || '<div class="tg-noesc">Nothing excused.</div>';
+      document.getElementById('tg-stage').innerHTML = `<div class="tg-rev-hint">Tap Reopen to put one back as open.</div>${rows}<button class="btn btn-primary tg-finish" onclick="renderGroupSummary()">Done</button>`;
+    }
+    function reopenExcused(logIdx) {
+      if (logIdx < 0 || logIdx >= tgLog.length) return;
+      tgLog.splice(logIdx, 1); commitRemaining(); renderExcusedReview();
     }
     function emailGroup() {
       const escd = tgLog.filter(l => l.action === 'escalate');
