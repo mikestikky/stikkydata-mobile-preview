@@ -547,7 +547,7 @@ body {
 .tg-btn svg { width: 25px; height: 25px; }
 .tg-btn.excuse { border-color: var(--border-outline); color: var(--text-secondary); }
 .tg-btn.excuse:active { background: var(--border-light); }
-.tg-btn.escalate { border-color: var(--brand-green); color: #fff; background: var(--brand-green); }
+.tg-btn.escalate { border-color: var(--accent); color: #fff; background: var(--accent); }
 .tg-btn.escalate:active { filter: brightness(0.95); }
 .tg-skip { align-self: center; background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; padding: 4px 14px 2px; cursor: pointer; font-family: inherit; }
 
@@ -577,7 +577,7 @@ body {
 .tg-card { position: relative; touch-action: pan-y; }
 .tg-swipe-stamp { position: absolute; top: 16px; z-index: 6; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 5px 12px; border: 3px solid; border-radius: 9px; opacity: 0; transition: opacity .08s; pointer-events: none; background: rgba(255,255,255,0.9); }
 .tg-swipe-stamp.excuse { left: 16px; transform: rotate(-11deg); color: #475569; border-color: #475569; }
-.tg-swipe-stamp.escalate { right: 16px; transform: rotate(11deg); color: var(--brand-green); border-color: var(--brand-green); }
+.tg-swipe-stamp.escalate { right: 16px; transform: rotate(11deg); color: var(--accent-dark); border-color: var(--accent-dark); }
 .tg-card.to-excuse .tg-swipe-stamp.excuse, .tg-card.to-escalate .tg-swipe-stamp.escalate { opacity: 1; }
 .tg-swipe-tip { text-align: center; font-size: 12px; color: var(--text-muted); margin: -2px 0; }
 
@@ -612,7 +612,7 @@ body {
 .tg-email-tx { display: flex; flex-direction: column; }
 .tg-email-tx b { font-size: 15px; font-weight: 800; color: var(--text-primary); }
 .tg-email-tx span { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-.tg-email svg { width: 22px; height: 22px; color: var(--brand-green); flex-shrink: 0; }
+.tg-email svg { width: 22px; height: 22px; color: var(--accent-dark); flex-shrink: 0; }
 .tg-noesc { font-size: 13px; color: var(--text-muted); margin: 6px 0 14px; }
 .tg-finish { width: 100%; margin-top: 8px; }
 
@@ -829,6 +829,7 @@ body {
         <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2 0 3.8.8 5.1 2l1.2-1.3C13.7 1.2 11 0 8 0S2.3 1.2.7 2.9L1.9 4.2C3.2 3 5 2.2 8 2.2z"/><circle cx="8" cy="9" r="1.8"/></svg>
         <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
       </span></div>
+      <div class="appbar"><span class="brand">Stikky<b>Data</b></span><span class="customer">America First</span></div>
       <header class="tg-top" id="tg-top"></header>
       <div class="tg-stage" id="tg-stage"></div>
       <div class="tg-undo" id="tg-undo"><span id="tg-undo-tx">Excused</span><button onclick="triageUndo()">Undo</button></div>
