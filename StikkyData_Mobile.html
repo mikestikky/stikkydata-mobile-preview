@@ -163,6 +163,11 @@ body {
 .hero img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 /* real photos are framed shots, not crops of one image — show them centered everywhere */
 .ai-thumb img, .visit-photos .vp img, .note-photo img, .send-photo img, .zcard-photo img, .pcard .pc-photo img { object-position: center !important; }
+/* "pop" without touching the pixels — a whisper of saturation + contrast at render time (the Zillow/Airbnb trick). The photo file is never altered. */
+.hero img, .atm-img, .zcard-photo img, .pcard .pc-photo img { filter: saturate(1.1) contrast(1.05); }
+/* depth scrim: a hair darker at the very top + bottom so the hero reads 3-D, not pasted-on (sits under the chips) */
+.hero::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1; background: linear-gradient(to bottom, rgba(0,0,0,0.12), rgba(0,0,0,0) 16%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.34)); }
+.hero .chip, .hero .expand { z-index: 2; }
 .hero .chip {
   position: absolute; display: inline-flex; align-items: center; gap: 5px;
   background: rgba(15,23,42,0.62); color: #fff; font-size: 11px; font-weight: 600;
