@@ -333,10 +333,12 @@ body.lb-open { overflow: hidden; }
 .lb-chrome.hide { opacity: 0; }
 .lb-fab { position: absolute; top: max(52px, calc(env(safe-area-inset-top, 0px) + 14px)); width: 38px; height: 38px; border: none; border-radius: 50%; background: rgba(28,28,30,0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto; }
 .lb-fab.l { left: max(16px, env(safe-area-inset-left, 0px)); } .lb-fab.r { right: max(16px, env(safe-area-inset-right, 0px)); }
-.lb-head { position: absolute; top: max(54px, calc(env(safe-area-inset-top, 0px) + 16px)); left: 50%; transform: translateX(-50%); text-align: center; }
-.lb-head .k { color: #fff; font-size: 14px; font-weight: 600; }
-.lb-head .c { color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 1px; }
-.lb-slot { position: absolute; bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 24px)); left: max(20px, calc(env(safe-area-inset-left, 0px) + 4px)); color: rgba(255,255,255,0.88); font-size: 14px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+.lb-head { position: absolute; top: max(54px, calc(env(safe-area-inset-top, 0px) + 16px)); left: 50%; transform: translateX(-50%); text-align: center; max-width: calc(100% - 150px); }
+.lb-head .k { color: #fff; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.lb-head .c { color: rgba(255,255,255,0.82); font-size: 12px; margin-top: 2px; line-height: 1.3; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
+.lb-slot { position: absolute; bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 24px)); left: max(20px, calc(env(safe-area-inset-left, 0px) + 4px)); display: flex; align-items: baseline; gap: 9px; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+.lb-slotnm { color: rgba(255,255,255,0.88); font-size: 14px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+.lb-ct { color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; }
 .lb-tapzone { position: absolute; top: 0; bottom: 0; width: 40%; pointer-events: auto; cursor: pointer; }
 .lb-tapzone.l { left: 0; } .lb-tapzone.r { right: 0; }
 
@@ -904,8 +906,8 @@ body.lb-open { overflow: hidden; }
         <div class="lb-chrome" id="lb-chrome" onclick="toggleChrome(event)">
           <button class="lb-fab l" onclick="closeLB(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           <button class="lb-fab r" onclick="openSheet('send')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
-          <div class="lb-head"><div class="k">Photos</div><div class="c" id="lb-count">1 of 7</div></div>
-          <div class="lb-slot" id="lb-slotname">Main view</div>
+          <div class="lb-head"><div class="k" id="lb-atm">ATM-4471</div><div class="c" id="lb-addr">1450 S State St</div></div>
+          <div class="lb-slot"><span class="lb-slotnm" id="lb-slotname">Main view</span><span class="lb-ct" id="lb-count">1 of 7</span></div>
         </div>
       </div>
 
@@ -1267,6 +1269,8 @@ body.lb-open { overflow: hidden; }
       img.src = slotImg(cur); img.style.objectFit = 'contain'; img.style.objectPosition = 'center'; /* full horizontal component photo, letterboxed — bigger when the phone rotates */
       document.getElementById('lb-count').textContent = `${cur + 1} of 7`;
       document.getElementById('lb-slotname').textContent = s.nm + (s.nm === 'Main' ? ' view' : '');
+      document.getElementById('lb-atm').textContent = 'ATM-' + ASSET.id;
+      document.getElementById('lb-addr').textContent = ASSET.loc + ', ' + ASSET.city;
     }
     function toggleChrome(e) { if (e.target.closest('.lb-fab')) return; document.getElementById('lb-chrome').classList.toggle('hide'); }
 
