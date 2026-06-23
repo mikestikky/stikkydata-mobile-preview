@@ -642,9 +642,10 @@ body {
 /* Survey detail overlay (a History entry's Action Record + Q&A) */
 .survey-sheet { position: absolute; inset: 0; background: var(--surface-bg); z-index: 95; display: none; flex-direction: column; }
 .survey-sheet.show { display: flex; }
-.sv-top { display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0)) 12px 8px; background: var(--surface-card); border-bottom: 1px solid var(--border-default); flex-shrink: 0; }
-.sv-ttl { font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
-.sv-ttl span { font-size: 11.5px; font-weight: 500; color: var(--text-muted); }
+.sv-top { display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0)) 10px 8px; background: var(--surface-card); border-bottom: 1px solid var(--border-default); flex-shrink: 0; position: relative; z-index: 2; box-shadow: 0 1px 5px rgba(15,23,42,0.06); }
+.sv-hd { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.sv-atm { font-size: 14px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv-sub { font-size: 11.5px; font-weight: 500; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sv-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 14px 30px; }
 .sv-h { font-size: 14px; font-weight: 800; color: var(--brand-green); margin: 16px 2px 9px; }
 .sv-h:first-child { margin-top: 0; }
@@ -657,7 +658,10 @@ body {
 .sv-issue-img img { width: 100%; height: 100%; object-fit: cover; }
 .sv-issue-act { font-size: 11.5px; color: var(--text-muted); font-style: italic; margin: 9px 0; }
 .sv-issue-btns { display: flex; gap: 7px; }
-.sv-btn { flex: 1; padding: 8px; border: none; border-radius: 7px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #fff; cursor: pointer; }
+.sv-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; }
+.sv-btn svg { width: 16px; height: 16px; }
+.sv-btn.triage { background: var(--accent); }
+.sv-btn.send { background: var(--surface-card); color: var(--text-secondary); border: 1.5px solid var(--border-outline); }
 .sv-btn.repair { background: var(--brand-green); }
 .sv-btn.email { background: #2563eb; }
 .sv-btn.remove { background: var(--late); }
@@ -845,7 +849,8 @@ body {
       <div class="survey-sheet" id="survey-sheet">
         <header class="sv-top">
           <button class="icon-btn" aria-label="Back" onclick="closeSurvey()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-          <div class="sv-ttl" id="sv-top-ttl"></div>
+          <div class="sv-hd"><div class="sv-atm" id="sv-atm"></div><div class="sv-sub" id="sv-top-ttl"></div></div>
+          <button class="icon-btn" aria-label="Share" onclick="surveyShare()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
         </header>
         <div class="sv-scroll" id="sv-body"></div>
         <div class="sv-lb" id="sv-lb" onclick="closeImg()">
@@ -942,8 +947,8 @@ body {
     const HISTORY = [
       { type:'Standard Evaluation', icon:'eval', date:'17 Jun 2026', time:'8:59 PM', outstanding:2, status:'Approved', approvedBy:'Auto Approved', tech:'Heath Apple', thumb:'main',
         actions:[
-          { issue:'America First Credit Union — Braille', desc:'Braille functionality decals are needed to replace the non-braille functionality decals on this ATM.', action:'Issue reported in the website.', img:'general', buttons:['Repair','Email','Remove'] },
-          { issue:'Diebold Nixdorf — Receipt', desc:'The Receipt Printer is not working and the ATM indicates it cannot print receipts.', action:'Issue reported in the website.', img:'receipt', buttons:['Email','Remove'] },
+          { issue:'America First Credit Union — Braille', desc:'Braille functionality decals are needed to replace the non-braille functionality decals on this ATM.', action:'Issue reported in the website.', img:'general', dept:'America First CU', type:'Braille' },
+          { issue:'Diebold Nixdorf — Receipt', desc:'The Receipt Printer is not working and the ATM indicates it cannot print receipts.', action:'Issue reported in the website.', img:'receipt', dept:'Diebold Nixdorf', type:'Receipt' },
         ],
         survey:[
           { q:'Is there a skimming device on the ATM?', a:'No' },
@@ -964,8 +969,8 @@ body {
         ] },
       { type:'Standard Evaluation', icon:'eval', date:'12 May 2026', time:'7:21 PM', outstanding:2, status:'Approved', approvedBy:'Auto Approved', tech:'Heath Apple', thumb:'main',
         actions:[
-          { issue:'Diebold Nixdorf — Receipt', desc:'Receipt printer reported low / misfeed on arrival.', action:'Issue reported in the website.', img:'receipt', buttons:['Email','Remove'] },
-          { issue:'Facilities — Fascia', desc:'Top-left brand decal lifting at the corner.', action:'Issue reported in the website.', img:'fascia', buttons:['Repair','Email','Remove'] },
+          { issue:'Diebold Nixdorf — Receipt', desc:'Receipt printer reported low / misfeed on arrival.', action:'Issue reported in the website.', img:'receipt', dept:'Diebold Nixdorf', type:'Receipt' },
+          { issue:'Facilities — Fascia', desc:'Top-left brand decal lifting at the corner.', action:'Issue reported in the website.', img:'fascia', dept:'Facilities', type:'' },
         ],
         survey:[
           { q:'Is there a skimming device on the ATM?', a:'No' },
@@ -995,13 +1000,14 @@ body {
     function openSurvey(i) {
       const h = HISTORY[i];
       const actions = h.actions.length ? '<h3 class="sv-h">Action Record</h3>' + h.actions.map(a => {
-        const btns = a.buttons.map(b => `<button class="sv-btn ${b.toLowerCase()}">${b}</button>`).join('');
+        const btns = `<button class="sv-btn triage" onclick="triageIssue('${(a.dept||'').replace(/'/g,"\\'")}','${(a.type||'').replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Triage</button><button class="sv-btn send" onclick="surveyShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Send</button>`;
         return `<div class="sv-issue"><div class="sv-issue-top"><div class="sv-issue-tx"><b>${a.issue}</b><span>${a.desc}</span></div><div class="sv-thumb sv-issue-img" onclick="openImg('${a.img}')"><img class="atm-img" src="${imgFor(a.img)}"><span class="sv-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div></div><div class="sv-issue-act">${a.action}</div><div class="sv-issue-btns">${btns}</div></div>`;
       }).join('') : '';
       const qa = `<h3 class="sv-h">${h.type}</h3>` + h.survey.map(s =>
         `<div class="sv-qa"><div class="sv-q">${s.q}</div><div class="sv-arow"><div class="sv-a">${s.a}</div>${s.img ? `<div class="sv-thumb sv-qimg" onclick="openImg('${s.img}')"><img class="atm-img" src="${imgFor(s.img)}"><span class="sv-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div>` : ''}</div></div>`
       ).join('');
-      document.getElementById('sv-top-ttl').innerHTML = `${h.type}<span>${h.date} · ${h.time} · ${h.tech}</span>`;
+      document.getElementById('sv-atm').textContent = 'ATM-' + ASSET.id + ' · ' + ASSET.loc + ', ' + ASSET.city;
+      document.getElementById('sv-top-ttl').textContent = h.type + ' · ' + h.date + ' · ' + h.tech;
       const body = document.getElementById('sv-body');
       body.innerHTML = actions + qa; body.scrollTop = 0;
       document.getElementById('survey-sheet').classList.add('show');
@@ -1009,6 +1015,9 @@ body {
     function closeSurvey() { document.getElementById('survey-sheet').classList.remove('show'); }
     function openImg(key) { if (!key) return; const img = document.getElementById('sv-lb-img'); img.src = imgFor(key); document.getElementById('sv-lb').classList.add('show'); }
     function closeImg(e) { if (e) e.stopPropagation(); document.getElementById('sv-lb').classList.remove('show'); }
+    /* survey action buttons reuse the app's real flows: Triage = Hot or Not for that issue; Send = the app's share */
+    function triageIssue(dept, type) { closeImg(); closeSurvey(); openTriage(); try { const d = DEPARTMENTS.find(x => x.dept === dept); const t = d && d.types.find(y => y.type === type && y.remaining > 0); if (d && t) openGroup(dept, type); } catch (e) {} }
+    function surveyShare() { closeImg(); closeSurvey(); openSheet('send'); }
     const FLEET = [
       { id:'4471', loc:'1450 S State St', city:'Salt Lake City, UT', lat:40.7280, lng:-111.8882, issues:3, last:'8d', crop:0 },
       { id:'4490', loc:'700 E 2100 S', city:'Salt Lake City, UT', lat:40.7250, lng:-111.8650, issues:1, last:'3d', crop:2 },
