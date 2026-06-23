@@ -225,9 +225,9 @@
   <div class="sec">
     <div class="sec-h">Known stubs <span class="n">wired, awaiting real data</span></div>
     <div class="d">
-      <div class="d-top"><span class="d-t">Institution switcher</span><span class="tag note">Stub</span></div>
-      <div class="why">The customer chip is a dropdown to pop between banks (for multi-bank owners like an NCR). In the prototype, picking a bank switches the <b>label</b> and toasts "Loading…", but the fleet data stays America First's — production swaps each tenant's fleet behind the same control.</div>
-      <div class="loc">#cust-menu, CUSTOMERS, pickCust()</div>
+      <div class="d-top"><span class="d-t">Institution switcher</span><span class="tag note">Demo data</span></div>
+      <div class="why">The customer chip is a dropdown to pop between banks (for multi-bank owners like an NCR). Picking a bank loads that institution's <b>own fleet</b> — distinct cities + density — and repopulates the map, list and counts, recentering the map. The fleets are <b>demonstration data</b>; in production each tenant's real fleet loads behind the same control. The drilled-in asset detail stays the one fully-built demonstrator ATM.</div>
+      <div class="loc">FLEETS, makeFleet(), pickCust() → paintFleet()</div>
     </div>
     <div class="d">
       <div class="d-top"><span class="d-t">Camera capture &amp; ticketing</span><span class="tag note">Stub</span></div>
