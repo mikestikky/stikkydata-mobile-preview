@@ -318,18 +318,25 @@ body {
 .nav-item .ndot { position: absolute; top: 9px; right: 50%; margin-right: -16px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); border: 1.5px solid #fff; }
 
 /* LIGHTBOX (photo viewer, true black) */
-.lb { position: absolute; inset: 0; background: #000; z-index: 80; display: none; }
+.lb { position: absolute; inset: 0; background: #000; z-index: 80; display: none; touch-action: manipulation; }
 .lb.show { display: block; }
+/* On a real phone the expanded photo escapes the mock frame and fills the device screen,
+   so rotating to landscape fills the screen. 100dvh = the iOS-safe dynamic viewport (no
+   overshoot behind the toolbar); fixed + dvh survives rotation without the usual iOS wackiness. */
+@media (hover: none) and (pointer: coarse), (max-width: 480px), (max-height: 480px) {
+  .lb { position: fixed; inset: 0; height: 100vh; height: 100dvh; width: 100vw; z-index: 9999; }
+}
+body.lb-open { overflow: hidden; }
 .lb-img { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .lb-img img { width: 100%; height: 100%; object-fit: contain; }
 .lb-chrome { position: absolute; inset: 0; pointer-events: none; transition: opacity .25s; }
 .lb-chrome.hide { opacity: 0; }
-.lb-fab { position: absolute; top: 52px; width: 38px; height: 38px; border: none; border-radius: 50%; background: rgba(28,28,30,0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto; }
-.lb-fab.l { left: 16px; } .lb-fab.r { right: 16px; }
-.lb-head { position: absolute; top: 54px; left: 50%; transform: translateX(-50%); text-align: center; }
+.lb-fab { position: absolute; top: max(52px, calc(env(safe-area-inset-top, 0px) + 14px)); width: 38px; height: 38px; border: none; border-radius: 50%; background: rgba(28,28,30,0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto; }
+.lb-fab.l { left: max(16px, env(safe-area-inset-left, 0px)); } .lb-fab.r { right: max(16px, env(safe-area-inset-right, 0px)); }
+.lb-head { position: absolute; top: max(54px, calc(env(safe-area-inset-top, 0px) + 16px)); left: 50%; transform: translateX(-50%); text-align: center; }
 .lb-head .k { color: #fff; font-size: 14px; font-weight: 600; }
 .lb-head .c { color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 1px; }
-.lb-slot { position: absolute; bottom: 40px; left: 20px; color: rgba(255,255,255,0.88); font-size: 14px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+.lb-slot { position: absolute; bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 24px)); left: max(20px, calc(env(safe-area-inset-left, 0px) + 4px)); color: rgba(255,255,255,0.88); font-size: 14px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
 .lb-tapzone { position: absolute; top: 0; bottom: 0; width: 40%; pointer-events: auto; cursor: pointer; }
 .lb-tapzone.l { left: 0; } .lb-tapzone.r { right: 0; }
 
@@ -1252,8 +1259,8 @@ body {
       const tab = btn.dataset.tab;
       ['issues','history','info'].forEach(t => document.getElementById('p-' + t).classList.toggle('active', t === tab));
     }
-    function openLB() { syncLB(); document.getElementById('lb').classList.add('show'); }
-    function closeLB(e) { if (e) e.stopPropagation(); document.getElementById('lb').classList.remove('show'); document.getElementById('lb-chrome').classList.remove('hide'); }
+    function openLB() { syncLB(); document.getElementById('lb').classList.add('show'); document.body.classList.add('lb-open'); }
+    function closeLB(e) { if (e) e.stopPropagation(); document.getElementById('lb').classList.remove('show'); document.getElementById('lb-chrome').classList.remove('hide'); document.body.classList.remove('lb-open'); }
     function stepLB(d) { cur = (cur + d + SLOTS.length) % SLOTS.length; selectSlot(cur); syncLB(); }
     function syncLB() {
       const s = SLOTS[cur], img = document.getElementById('lb-img');
