@@ -230,12 +230,14 @@ body {
 .panel.active { display: block; }
 
 /* action-item (issue) card */
-.ai { background: var(--surface-card); border: 1px solid var(--border-default); border-left: 3px solid var(--accent); border-radius: 10px; padding: 13px; margin-bottom: 12px; }
+.ai { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 11px; padding: 12px; margin-bottom: 10px; cursor: pointer; font-family: inherit; }
+.ai:active { background: var(--border-light); }
+.ai-go { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
 .ai.recur { border-left-color: var(--late); }
 .ai-top { display: flex; gap: 11px; align-items: flex-start; }
 .ai-thumb { width: 52px; height: 52px; flex-shrink: 0; border-radius: 7px; overflow: hidden; background: #0f172a; border: 1px solid var(--border-default); }
 .ai-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.ai-body { flex: 1; min-width: 0; }
+.ai-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .ai-type { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
 .ai-desc { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; line-height: 1.45; }
 .ai-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
@@ -815,9 +817,6 @@ body {
         </div>
 
         <div class="panel active" id="p-issues">
-          <div class="ai recur"><div class="ai-top"><div class="ai-thumb"><img class="atm-img" data-img="receipt"></div><div class="ai-body"><div class="ai-type">Receipt printer jam</div><div class="ai-desc">Paper feed misaligned at the receipt slot; out-of-paper light on. Reported by field tech.</div><div class="ai-tags"><span class="tag recur">Recurring · 3rd</span><span class="tag dept">Diebold Nixdorf</span></div></div></div><div class="ai-verbs"><button class="verb email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>Email</button><button class="verb comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button><button class="verb remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>Remove</button></div></div>
-          <div class="ai"><div class="ai-top"><div class="ai-thumb"><img class="atm-img" data-img="keypad"></div><div class="ai-body"><div class="ai-type">Keypad key sticking</div><div class="ai-desc">"5" key slow to release on the PIN pad. Possible debris under keycap.</div><div class="ai-tags"><span class="tag dept">Field Team</span></div></div></div><div class="ai-verbs"><button class="verb email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>Email</button><button class="verb comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button><button class="verb remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>Remove</button></div></div>
-          <div class="ai"><div class="ai-top"><div class="ai-thumb"><img class="atm-img" data-img="fascia"></div><div class="ai-body"><div class="ai-type">Fascia decal peeling</div><div class="ai-desc">Top-left brand decal lifting at the corner. Cosmetic — schedule on next route.</div><div class="ai-tags"><span class="tag dept">Facilities</span></div></div></div><div class="ai-verbs"><button class="verb email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>Email</button><button class="verb comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button><button class="verb remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>Remove</button></div></div>
         </div>
 
         <div class="panel" id="p-history"></div>
@@ -980,6 +979,23 @@ body {
           { q:'Does the audio jack work?', a:'Yes, Voice Prompt Working', img:'monitor' },
         ] },
     ];
+    /* this ATM's outstanding issues (the Issues tab) — each taps to triage THAT one */
+    const ASSET_ISSUES = [
+      { type:'Receipt printer jam', desc:'Paper feed misaligned at the receipt slot; out-of-paper light on.', slot:1, dept:'Diebold Nixdorf', dtype:'Receipt', tag:'Diebold Nixdorf', recur:'Recurring · 3rd' },
+      { type:'Keypad key sticking', desc:'"5" key slow to release on the PIN pad. Possible debris under keycap.', slot:4, dept:'America First CU', dtype:'ADA', tag:'America First CU' },
+      { type:'Fascia decal peeling', desc:'Top-left brand decal lifting at the corner. Cosmetic — schedule on next route.', slot:5, dept:'America First CU', dtype:'ATM Condition', tag:'Facilities' },
+    ];
+    function renderIssues() {
+      const el = document.getElementById('p-issues');
+      if (!el) return;
+      el.innerHTML = ASSET_ISSUES.map((it, i) =>
+        `<button class="ai" onclick="openAtmIssue(${i})">
+          <span class="ai-thumb"><img class="atm-img" src="${slotImg(it.slot)}"></span>
+          <span class="ai-body"><span class="ai-type">${it.type}</span><span class="ai-desc">${it.desc}</span><span class="ai-tags">${it.recur ? `<span class="tag recur">${it.recur}</span>` : ''}<span class="tag dept">${it.tag}</span></span></span>
+          <svg class="ai-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>`
+      ).join('');
+    }
     const SURVEY_IC = {
       eval: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg>',
       braille: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
@@ -998,9 +1014,9 @@ body {
       }).join('');
     }
     function openSurvey(i) {
-      const h = HISTORY[i];
-      const actions = h.actions.length ? '<h3 class="sv-h">Action Record</h3>' + h.actions.map(a => {
-        const btns = `<button class="sv-btn triage" onclick="triageIssue('${(a.dept||'').replace(/'/g,"\\'")}','${(a.type||'').replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Triage</button><button class="sv-btn send" onclick="surveyShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Send</button>`;
+      const h = HISTORY[i]; svOpen = i;
+      const actions = h.actions.length ? '<h3 class="sv-h">Action Record</h3>' + h.actions.map((a, ai) => {
+        const btns = `<button class="sv-btn triage" onclick="triageSurveyIssue(${ai})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Triage</button><button class="sv-btn send" onclick="surveyShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Send</button>`;
         return `<div class="sv-issue"><div class="sv-issue-top"><div class="sv-issue-tx"><b>${a.issue}</b><span>${a.desc}</span></div><div class="sv-thumb sv-issue-img" onclick="openImg('${a.img}')"><img class="atm-img" src="${imgFor(a.img)}"><span class="sv-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div></div><div class="sv-issue-act">${a.action}</div><div class="sv-issue-btns">${btns}</div></div>`;
       }).join('') : '';
       const qa = `<h3 class="sv-h">${h.type}</h3>` + h.survey.map(s =>
@@ -1016,7 +1032,13 @@ body {
     function openImg(key) { if (!key) return; const img = document.getElementById('sv-lb-img'); img.src = imgFor(key); document.getElementById('sv-lb').classList.add('show'); }
     function closeImg(e) { if (e) e.stopPropagation(); document.getElementById('sv-lb').classList.remove('show'); }
     /* survey action buttons reuse the app's real flows: Triage = Hot or Not for that issue; Send = the app's share */
-    function triageIssue(dept, type) { closeImg(); closeSurvey(); openTriage(); try { const d = DEPARTMENTS.find(x => x.dept === dept); const t = d && d.types.find(y => y.type === type && y.remaining > 0); if (d && t) openGroup(dept, type); } catch (e) {} }
+    let svOpen = 0;
+    function triageSurveyIssue(ai) {
+      const a = HISTORY[svOpen] && HISTORY[svOpen].actions[ai]; if (!a) return;
+      closeImg(); closeSurvey();
+      let slot = SLOTS.findIndex(s => s.key === a.img); if (slot < 0) slot = 0;
+      triageOne({ atm: ASSET.id, addr: ASSET.loc + ', ' + ASSET.city, type: a.type, slot: slot, dept: a.dept, dtype: a.type, atmIdx: -1 });
+    }
     function surveyShare() { closeImg(); closeSurvey(); openSheet('send'); }
     const FLEET = [
       { id:'4471', loc:'1450 S State St', city:'Salt Lake City, UT', lat:40.7280, lng:-111.8882, issues:3, last:'8d', crop:0 },
@@ -1260,13 +1282,14 @@ body {
     function updateReviewChip() { document.querySelectorAll('.rc-n').forEach(el => el.textContent = triageTotal()); }
 
     let tgDept = null, tgTypeName = null, tgDeck = [], tgIdx = 0, tgLog = [], tgUndoT = null;
+    let tgSingle = false, tgSingleAtmIdx = -1, tgDtype = '';   /* single-issue mode: triage ONE issue, then ask "do more?" */
     const tgExpanded = new Set();
     const ICN_X = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     const ICN_BACK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
     const ICN_CHEV = '<svg class="tg-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
     const esc = s => s.replace(/'/g, "\\'");
 
-    function openTriage() { renderLanding(); showView('triage'); }
+    function openTriage() { tgSingle = false; renderLanding(); showView('triage'); }
     function closeTriage() { clearTimeout(tgUndoT); document.getElementById('tg-undo').classList.remove('show'); updateReviewChip(); showView('map'); }
     function toggleDept(name) { tgExpanded.has(name) ? tgExpanded.delete(name) : tgExpanded.add(name); renderLanding(); }
 
@@ -1295,6 +1318,7 @@ body {
 
     /* typeName null = the whole team (all its issue types); otherwise just that type. */
     function openGroup(deptName, typeName) {
+      tgSingle = false;
       tgDept = DEPARTMENTS.find(d => d.dept === deptName);
       tgTypeName = typeName;
       tgDeck = []; tgIdx = 0; tgLog = [];
@@ -1385,7 +1409,43 @@ body {
         t.remaining = deckN - cleared;
       });
     }
+    /* single-issue triage: go straight to one issue's screen, then ask "do more?" */
+    function triageOne(o) {
+      tgDept = DEPARTMENTS.find(d => d.dept === o.dept) || DEPARTMENTS[0];
+      tgTypeName = o.type; tgDtype = o.dtype || ''; tgSingle = true; tgSingleAtmIdx = (o.atmIdx == null ? -1 : o.atmIdx);
+      tgDeck = [{ atm: o.atm, addr: o.addr, type: o.type, slot: o.slot, photos: [o.slot] }];
+      tgIdx = 0; tgLog = [];
+      showView('triage'); renderGroup();
+    }
+    function openAtmIssue(idx) {
+      const it = ASSET_ISSUES[idx];
+      triageOne({ atm: ASSET.id, addr: ASSET.loc + ', ' + ASSET.city, type: it.type, slot: it.slot, dept: it.dept, dtype: it.dtype, atmIdx: idx });
+    }
+    function triageNextOnAtm() { if (tgSingleAtmIdx >= 0 && tgSingleAtmIdx + 1 < ASSET_ISSUES.length) openAtmIssue(tgSingleAtmIdx + 1); }
+    function renderSingleDone() {
+      const last = tgLog[tgLog.length - 1] || { action: 'excuse' };
+      const escd = tgLog.filter(l => l.action === 'escalate');
+      const verb = last.action === 'escalate' ? 'Escalated' : last.action === 'skip' ? 'Left open' : 'Excused';
+      document.getElementById('tg-undo').classList.remove('show');
+      document.getElementById('tg-top').innerHTML = `<button class="icon-btn" aria-label="Done" onclick="closeTriage()">${ICN_X}</button><div class="tg-ttl">${tgDept.dept} · ${tgTypeName}</div>`;
+      const emailBtn = escd.length ? `<button class="tg-email" onclick="emailGroup()"><span class="tg-email-tx"><b>Email ${tgDept.dept}</b><span>To: ${tgDept.email} · tap to change</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></button>` : '';
+      const hasNext = tgSingleAtmIdx >= 0 && tgSingleAtmIdx + 1 < ASSET_ISSUES.length;
+      const dt = tgDept.types.find(t => t.type === tgDtype && t.remaining > 0);
+      let more = '';
+      if (hasNext) more += `<button class="btn btn-primary tg-finish" onclick="triageNextOnAtm()">Next issue on this ATM &rsaquo;</button>`;
+      if (dt) more += `<button class="${hasNext ? 'tg-backteams' : 'btn btn-primary tg-finish'}" onclick="openGroup('${esc(tgDept.dept)}','${esc(tgDtype)}')">Open the ${tgDept.dept} · ${tgDtype} queue (${dt.remaining})</button>`;
+      document.getElementById('tg-stage').innerHTML =
+        `<div class="tg-summary">
+          <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h2>${verb}</h2>
+          <div class="tg-summary-sub">${escd.length ? 'Send it to ' + tgDept.dept + ' — a pre-filled draft, editable recipient.' : 'Recorded on ATM-' + tgDeck[0].atm + '.'} Anything else to handle?</div>
+          ${emailBtn}
+          ${more}
+          <button class="tg-backteams" onclick="closeTriage()">Done</button>
+        </div>`;
+    }
     function renderGroupSummary() {
+      if (tgSingle) { renderSingleDone(); return; }
       commitRemaining();
       const by = a => tgLog.filter(l => l.action === a).length;
       const excN = by('excuse'), escN = by('escalate'), skipN = by('skip'), label = tgTypeName || 'All issues';
@@ -1437,6 +1497,7 @@ body {
     /* ---- init ---- */
     window.addEventListener('load', () => {
       buildSlots();
+      renderIssues();
       renderHistory();
       renderList();
       renderPeek();
