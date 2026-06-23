@@ -144,9 +144,19 @@ body {
 
 /* ===== ONE consistent top bar — identical on every screen (no jumping) ===== */
 .appbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 6px; background: var(--surface-card); flex-shrink: 0; }
-.appbar .customer { font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--surface-bg); border: 1px solid var(--border-default); padding: 5px 11px; border-radius: 16px; }
+.appbar .customer { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--surface-bg); border: 1px solid var(--border-default); padding: 5px 8px 5px 11px; border-radius: 16px; cursor: pointer; font-family: inherit; }
+.appbar .customer:active { background: var(--border-light); }
+.cust-chev { width: 14px; height: 14px; color: var(--text-muted); display: block; }
+/* institution switcher dropdown */
+.cust-menu { position: absolute; z-index: 90; min-width: 204px; max-width: 260px; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 12px; box-shadow: 0 14px 36px rgba(15,23,42,0.20); padding: 6px; display: none; }
+.cust-menu.show { display: block; }
+.cust-hd { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding: 6px 10px 5px; }
+.cust-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; background: transparent; border: none; border-radius: 8px; padding: 9px 10px; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text-primary); cursor: pointer; }
+.cust-item:hover { background: var(--surface-bg); }
+.cust-item.on { color: var(--brand-green); }
+.cust-item svg { width: 16px; height: 16px; flex-shrink: 0; }
 .toolbar { display: flex; align-items: center; gap: 10px; padding: 2px 16px 12px; background: var(--surface-card); border-bottom: 1px solid var(--border-default); flex-shrink: 0; }
-.tb-search { flex: 1; display: flex; align-items: center; gap: 9px; background: var(--surface-bg); border: 1px solid var(--border-default); border-radius: 10px; padding: 10px 12px; cursor: text; }
+.tb-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px; background: var(--surface-bg); border: 1px solid var(--border-default); border-radius: 10px; padding: 10px 12px; cursor: text; }
 .tb-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: inherit; font-size: 14px; color: var(--text-primary); }
 .tb-search input::placeholder { color: var(--text-muted); }
 .tb-search .si { color: var(--text-muted); display: flex; }
@@ -790,7 +800,7 @@ body.lb-open { overflow: hidden; }
         <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2 0 3.8.8 5.1 2l1.2-1.3C13.7 1.2 11 0 8 0S2.3 1.2.7 2.9L1.9 4.2C3.2 3 5 2.2 8 2.2z"/><circle cx="8" cy="9" r="1.8"/></svg>
         <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
       </span></div>
-      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><span class="customer">America First</span></div>
+      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><button class="customer" onclick="toggleCust(event)" aria-label="Switch institution"><span class="cust-name">America First</span><svg class="cust-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>
       <div class="toolbar">
         <div class="tb-search" onclick="document.getElementById('mq').focus()"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span><input id="mq" placeholder="Search ATM ID or location" autocomplete="off" oninput="renderPeek(this.value); document.getElementById('peek').classList.add('expanded')"></div>
         <button class="review-chip" onclick="openTriage()" aria-label="Review flagged issues"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><span class="rc-n">0</span></button>
@@ -829,7 +839,7 @@ body.lb-open { overflow: hidden; }
         <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2 0 3.8.8 5.1 2l1.2-1.3C13.7 1.2 11 0 8 0S2.3 1.2.7 2.9L1.9 4.2C3.2 3 5 2.2 8 2.2z"/><circle cx="8" cy="9" r="1.8"/></svg>
         <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
       </span></div>
-      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><span class="customer">America First</span></div>
+      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><button class="customer" onclick="toggleCust(event)" aria-label="Switch institution"><span class="cust-name">America First</span><svg class="cust-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>
       <div class="toolbar">
         <div class="tb-search" onclick="document.getElementById('q').focus()"><span class="si"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span><input id="q" placeholder="Search ATM ID or location" autocomplete="off" oninput="renderList()"></div>
         <button class="review-chip" onclick="openTriage()" aria-label="Review flagged issues"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><span class="rc-n">0</span></button>
@@ -849,7 +859,7 @@ body.lb-open { overflow: hidden; }
         <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2 0 3.8.8 5.1 2l1.2-1.3C13.7 1.2 11 0 8 0S2.3 1.2.7 2.9L1.9 4.2C3.2 3 5 2.2 8 2.2z"/><circle cx="8" cy="9" r="1.8"/></svg>
         <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
       </span></div>
-      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><span class="customer">America First</span></div>
+      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><button class="customer" onclick="toggleCust(event)" aria-label="Switch institution"><span class="cust-name">America First</span><svg class="cust-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>
       <header class="hdr">
         <button class="icon-btn" title="Back" onclick="goBack()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div class="hdr-title"><h1>ATM&#8209;4471</h1><div class="sub">1450 S State St · Salt Lake City, UT</div></div>
@@ -970,7 +980,7 @@ body.lb-open { overflow: hidden; }
         <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2.2c2 0 3.8.8 5.1 2l1.2-1.3C13.7 1.2 11 0 8 0S2.3 1.2.7 2.9L1.9 4.2C3.2 3 5 2.2 8 2.2z"/><circle cx="8" cy="9" r="1.8"/></svg>
         <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
       </span></div>
-      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><span class="customer">America First</span></div>
+      <div class="appbar"><span class="lockup"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><span class="brand">Stikky<b>Data</b></span></span><button class="customer" onclick="toggleCust(event)" aria-label="Switch institution"><span class="cust-name">America First</span><svg class="cust-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>
       <header class="tg-top" id="tg-top"></header>
       <div class="tg-stage" id="tg-stage"></div>
       <div class="tg-undo" id="tg-undo"><span id="tg-undo-tx">Excused</span><button onclick="triageUndo()">Undo</button></div>
@@ -982,6 +992,9 @@ body.lb-open { overflow: hidden; }
         <div class="tg-lb-count" id="tg-lb-count">1 of 3</div>
       </div>
     </div>
+
+    <!-- institution switcher (e.g. NCR manages many banks → pop between them) -->
+    <div class="cust-menu" id="cust-menu" onclick="event.stopPropagation()"></div>
 
     <!-- opens the phone camera (rear); falls back to file picker on desktop -->
     <!-- Directions: pick Apple or Google Maps -->
@@ -1352,6 +1365,37 @@ body.lb-open { overflow: hidden; }
     /* ---- toast ---- */
     let toastT;
     function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1900); }
+
+    /* institution switcher — a StikkyData customer (e.g. NCR) often owns the fleets of MANY banks; pop between them */
+    const CUSTOMERS = ['America First', 'Mountain America CU', 'Zions Bank', 'Goldenwest CU'];
+    let custIdx = 0;
+    function renderCustMenu() {
+      document.getElementById('cust-menu').innerHTML =
+        '<div class="cust-hd">Your institutions</div>' +
+        CUSTOMERS.map((c, i) =>
+          `<button class="cust-item${i === custIdx ? ' on' : ''}" onclick="pickCust(${i})"><span>${c}</span>${i === custIdx ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</button>`
+        ).join('');
+    }
+    function toggleCust(e) {
+      e.stopPropagation();
+      const m = document.getElementById('cust-menu');
+      if (m.classList.contains('show')) { closeCust(); return; }
+      renderCustMenu();
+      const r = e.currentTarget.getBoundingClientRect();
+      const sr = document.querySelector('.screen').getBoundingClientRect();
+      m.style.top = (r.bottom - sr.top + 7) + 'px';
+      m.style.right = (sr.right - r.right) + 'px';
+      m.classList.add('show');
+      setTimeout(() => document.addEventListener('click', closeCust), 0);
+    }
+    function closeCust() { document.getElementById('cust-menu').classList.remove('show'); document.removeEventListener('click', closeCust); }
+    function pickCust(i) {
+      closeCust();
+      if (i === custIdx) return;
+      custIdx = i;
+      document.querySelectorAll('.cust-name').forEach(el => el.textContent = CUSTOMERS[i]);
+      toast('Loading ' + CUSTOMERS[i] + ' …');
+    }
 
     /* ===== TRIAGE — mirrors the StikkyData dashboard: outstanding action items grouped by DEPARTMENT → issue
        type (each its own photo). You CLEAR ONE GROUP AT A TIME (e.g. Diebold › Monitor), never a mixed pile.
