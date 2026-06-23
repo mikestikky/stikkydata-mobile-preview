@@ -225,6 +225,7 @@ body {
   border: 1.5px solid var(--border-outline); color: var(--text-secondary); background: transparent;
 }
 .tab.active .cnt { border-color: var(--accent); color: var(--accent-dark); }
+.tab-n { font-size: 10.5px; font-weight: 800; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; }
 
 .panel { display: none; padding: 14px 16px 24px; }
 .panel.active { display: block; }
@@ -826,9 +827,9 @@ body {
         </div>
 
         <div class="tabs">
-          <button class="tab active" data-tab="issues" onclick="setTab(this)">Issues <span class="cnt">3</span></button>
+          <button class="tab active" data-tab="issues" onclick="setTab(this)">Issues <span class="tab-n" id="tab-n-issues"></span></button>
           <button class="tab" data-tab="history" onclick="setTab(this)">History</button>
-          <button class="tab" data-tab="info" onclick="setTab(this)">Info</button>
+          <button class="tab" data-tab="info" onclick="setTab(this)">Info <span class="tab-n" id="tab-n-info"></span></button>
         </div>
 
         <div class="panel active" id="p-issues">
@@ -1017,6 +1018,11 @@ body {
       { id:'4472', label:'Walk-up · Lobby', slot:6, issues:1 },
       { id:'4473', label:'Inside lane IVT', slot:3, issues:0 },
     ];
+    function tabBadge(el, n) { if (!el) return; if (n > 0) { el.textContent = n; el.style.display = ''; } else { el.style.display = 'none'; } }
+    function setTabBadges() {
+      tabBadge(document.getElementById('tab-n-issues'), ASSET_ISSUES.length);                 /* # of issues */
+      tabBadge(document.getElementById('tab-n-info'), CO_LOCATED.length ? CO_LOCATED.length + 1 : 0); /* total ATMs at this site (incl. this one) — only when others exist */
+    }
     function renderColo() {
       const el = document.getElementById('colo-info'); if (!el) return;
       if (!CO_LOCATED.length) { el.innerHTML = ''; return; }
@@ -1024,7 +1030,7 @@ body {
         const badge = c.issues > 0 ? `<span class="colo-issue">${c.issues}</span>` : '';
         return `<button class="colo-row" onclick="toast('Opening ATM-${c.id} …')"><span class="colo-thumb"><img class="atm-img" src="${slotImg(c.slot)}">${badge}</span><span class="colo-tx"><span class="colo-id">ATM-${c.id}</span><span class="colo-label">${c.label}</span></span><svg class="ai-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>`;
       }).join('');
-      el.innerHTML = `<div class="colo-hd">At this site <span class="colo-n">${CO_LOCATED.length}</span></div><div class="colo-sub">Other ATMs at ${ASSET.loc} — tap to open</div>${rows}<div class="colo-div"></div>`;
+      el.innerHTML = `<div class="colo-hd">At this site <span class="colo-n">${CO_LOCATED.length + 1}</span></div><div class="colo-sub">${ASSET.loc} · ${CO_LOCATED.length} other ATM${CO_LOCATED.length > 1 ? 's' : ''} here — tap to open</div>${rows}<div class="colo-div"></div>`;
     }
     const SURVEY_IC = {
       eval: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg>',
@@ -1530,6 +1536,7 @@ body {
       buildSlots();
       renderIssues();
       renderColo();
+      setTabBadges();
       renderHistory();
       renderList();
       renderPeek();
