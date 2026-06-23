@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StikkyData Mobile — Fidelity Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#1a7a1c; --orange:#FF9800; --orange-d:#E65100;
+    --ink:#0f172a; --muted:#64748b; --faint:#94a3b8;
+    --bg:#f1f5f9; --card:#ffffff; --line:#e2e8f0; --line-l:#f1f5f9;
+    --keep:#b91c1c; --keep-bg:#fef2f2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;padding:40px 20px 80px}
+  .wrap{max-width:860px;margin:0 auto}
+  /* header */
+  .lockup{display:inline-flex;align-items:center;gap:9px;margin-bottom:6px}
+  .bmark{width:26px;height:26px;color:var(--green);display:block}
+  .word{font-size:24px;font-weight:800;letter-spacing:-0.02em;color:var(--green);line-height:1}
+  .word b{color:var(--orange);font-weight:800}
+  h1{font-size:27px;font-weight:800;letter-spacing:-0.02em;margin:14px 0 6px}
+  .sub{font-size:15px;color:var(--muted);max-width:680px}
+  .sub b{color:var(--ink);font-weight:700}
+  /* rules box */
+  .rules{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:0 14px 14px 0;padding:18px 20px;margin:26px 0 8px}
+  .rules h2{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--orange-d);margin-bottom:10px}
+  .rules ol{margin:0;padding-left:20px}
+  .rules li{font-size:14.5px;margin:7px 0}
+  .rules li b{font-weight:700}
+  /* section */
+  .sec{margin-top:34px}
+  .sec-h{display:flex;align-items:baseline;gap:10px;font-size:18px;font-weight:800;letter-spacing:-0.01em;margin-bottom:4px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  .sec-h .n{font-size:12px;font-weight:700;color:var(--faint)}
+  /* decision card */
+  .d{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-top:12px}
+  .d-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .d-t{font-size:15.5px;font-weight:700;letter-spacing:-0.01em}
+  .tag{flex-shrink:0;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:20px;white-space:nowrap}
+  .tag.keep{color:var(--keep);background:var(--keep-bg);border:1px solid #fecaca}
+  .tag.note{color:var(--orange-d);background:#fff7ed;border:1px solid #fed7aa}
+  code{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--ink);display:inline-block;margin:9px 0 2px;word-break:break-word}
+  .why{font-size:14px;color:#334155;margin-top:7px}
+  .why b{font-weight:700;color:var(--ink)}
+  .loc{font-size:12px;color:var(--faint);margin-top:8px;font-weight:600}
+  .loc::before{content:"↳ ";color:var(--orange)}
+  footer{margin-top:40px;padding-top:18px;border-top:2px solid var(--line);font-size:13px;color:var(--muted)}
+  footer a{color:var(--green);font-weight:600}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .swatch{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:5px 11px 5px 6px}
+  .dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="lockup">
+    <svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg>
+    <span class="word">Stikky<b>Data</b></span>
+  </div>
+  <h1>Mobile — Fidelity Notes</h1>
+  <p class="sub">The deliberate choices that make this feel finished. The <b>Feature Spec Bible</b> covers <b>what</b> each screen does; this covers <b>how it should look and behave</b>. Every value below is intentional — <b>not</b> a default to "clean up." Each entry lists the exact value, why it matters, and where it lives in the code.</p>
+
+  <div class="rules">
+    <h2>Three handoff rules (read first)</h2>
+    <ol>
+      <li><b>The CSS file is the spec.</b> Lift <code>stikkydata-mobile.css</code> <b>verbatim</b> as the first epic — don't re-implement it from ticket prose. The polish lives in the stylesheet; carry the stylesheet.</li>
+      <li><b>Polish is the foundation, not the finish line.</b> Build the design system + shared styles <b>first</b>, so every screen inherits them. Left to the end, they're the first thing cut.</li>
+      <li><b>Parity gate on every UI ticket.</b> Definition of Done = "open the live prototype and the build side-by-side at 390px — they match." Sign off against the hosted URL.</li>
+    </ol>
+  </div>
+
+  <!-- BRAND -->
+  <div class="sec">
+    <div class="sec-h">Brand &amp; color <span class="n">3 colors, no more</span></div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Node-graph mark + wordmark lockup (the frog is retired)</span><span class="tag keep">Don't drop</span></div>
+      <div class="why">The mark is a small network of connected asset-nodes, paired with the wordmark, in the app bar on every screen. The old zen-frog reads playful/startup and undercuts a bank buyer — it's gone. <b>Swap in the official mark SVG</b> when available; the lockup slot is ready. Frog also still needs removing on the <b>v2 login</b> (outside this prototype).</div>
+      <div class="loc">.lockup / .bmark — every <code>.appbar</code></div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">One green — three color roles total</span><span class="tag keep">Don't drop</span></div>
+      <div class="why"><b>Green</b> = brand <i>and</i> success/done. <b>Orange</b> = action / active / counts. <b>Slate</b> = text &amp; neutrals. Two near-identical greens read as an accident — they were unified to one.</div>
+      <div class="pill-row">
+        <span class="swatch"><span class="dot" style="background:#1a7a1c"></span>Green · brand + done · #1a7a1c</span>
+        <span class="swatch"><span class="dot" style="background:#FF9800"></span>Orange · action · #FF9800 / #E65100</span>
+        <span class="swatch"><span class="dot" style="background:#0f172a"></span>Slate · text · #0f172a / #64748b / #94a3b8</span>
+      </div>
+      <div class="loc">:root — <code>--brand-green</code>, <code>--accent</code>, <code>--pass</code> (= brand green)</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Icons: one set, one stroke weight</span></div>
+      <div class="d-v"><code>stroke-width: 2</code> on every functional icon</div>
+      <div class="why">Mixed stroke weights are the tell of an unfinished UI. The brand mark is the <b>only</b> intentional exception at <code>1.6</code>. Keep line-style, sentence case, no emoji.</div>
+      <div class="loc">all inline SVG icons</div>
+    </div>
+  </div>
+
+  <!-- TOKENS -->
+  <div class="sec">
+    <div class="sec-h">Design tokens <span class="n">build to the grid, don't hardcode</span></div>
+    <div class="d">
+      <div class="d-top"><span class="d-t">Spacing grid, radii, type ramp are variables — use them</span><span class="tag keep">Don't drop</span></div>
+      <div class="d-v"><code>--sp-1…8 = 4·8·12·16·20·24·32</code></div>
+      <div class="d-v"><code>--r-sm/md/lg = 8·11·14 (sharp; a pill is deliberate)</code></div>
+      <div class="d-v"><code>--t-h1/h2/body/sub/cap = 20·16·14·12.5·11</code></div>
+      <div class="why">Hierarchy comes from <b>size + weight</b>, not color or decoration. Two weights: 400 body, 700/800 emphasis. Reach for a token, not an arbitrary px — that's what keeps the rhythm consistent across screens.</div>
+      <div class="loc">:root — <code>--sp-*</code>, <code>--r-*</code>, <code>--t-*</code></div>
+    </div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div class="sec">
+    <div class="sec-h">Photos — the "pop" <span class="n">never edit the file</span></div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Photos pop at render time, not in the pixels</span><span class="tag keep">Don't drop</span></div>
+      <div class="d-v"><code>filter: saturate(1.22) contrast(1.1) brightness(1.02)</code></div>
+      <div class="why">This is the Zillow/Airbnb trick — the browser renders the photo richer; <b>the file is never altered</b> (critical for "the photo is the proof"). Remove it and every photo goes flat. Applied to all photos.</div>
+      <div class="loc">.hero img, .atm-img, .zcard-photo img, .pcard .pc-photo img</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Depth scrim on the hero photo</span><span class="tag keep">Don't drop</span></div>
+      <div class="d-v"><code>linear-gradient(to bottom, rgba(0,0,0,.20), transparent 17%, transparent 56%, rgba(0,0,0,.48))</code></div>
+      <div class="why">A faint darkening at top + bottom edges so the photo reads three-dimensional, not pasted-on — and it keeps the white chips legible over a bright sky. It sits <b>under</b> the chips (chips are z-index 2).</div>
+      <div class="loc">.hero::after</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Photos are real field shots — keep them real</span><span class="tag note">Intent</span></div>
+      <div class="why">Don't auto-enhance, beautify, or stock-swap. The authenticity is the product. The only treatment is the render-filter + scrim above, plus a consistent crop/aspect. Swap the prototype's stand-in photos for the real per-slot field photos.</div>
+      <div class="loc">slot_photos/ → inlined by the build</div>
+    </div>
+  </div>
+
+  <!-- HOVER -->
+  <div class="sec">
+    <div class="sec-h">Hover affordance <span class="n">guarded so touch never sticks</span></div>
+    <div class="d">
+      <div class="d-top"><span class="d-t">Tappable things lift / pop on hover; photos zoom</span><span class="tag keep">Don't drop</span></div>
+      <div class="d-v"><code>cards: translateY(-2px) + box-shadow 0 6px 18px rgba(15,23,42,.14)</code></div>
+      <div class="d-v"><code>buttons: translateY(-1px) · photos: scale(1.05)</code></div>
+      <div class="why">Signals "this does something" on any pointer device. <b>All of it is wrapped in</b> <code>@media (hover: hover)</code> — without that guard, a phone gets stuck hover states after a tap. The guard is load-bearing, not optional.</div>
+      <div class="loc">@media (hover: hover) { … } block</div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="sec">
+    <div class="sec-h">Expanded photo (lightbox) <span class="n">the iOS-rotation minefield</span></div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">On a real phone the photo goes true full-screen and rotates</span><span class="tag keep">Don't drop</span></div>
+      <div class="d-v"><code>@media (hover:none) and (pointer:coarse), (max-width:480px), (max-height:480px)</code></div>
+      <div class="d-v"><code>.lb { position: fixed; inset: 0; height: 100dvh }</code></div>
+      <div class="why">Target the <b>device</b>, not the width. A <code>max-width:480px</code> guard <b>silently breaks in landscape</b> — a rotated phone is ~844px wide, so it stops matching and the photo snaps back into the portrait frame. <code>(hover:none) and (pointer:coarse)</code> holds in both orientations. On desktop it stays in-frame.</div>
+      <div class="loc">.lb media query</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">100dvh, not 100vh</span><span class="tag keep">Don't drop</span></div>
+      <div class="why"><code>100vh</code> overshoots behind the iOS Safari toolbar and jumps on scroll. <code>100dvh</code> (dynamic viewport) is the fix — with a <code>100vh</code> fallback line first for old iOS.</div>
+      <div class="loc">.lb (inside the media query)</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Safe-area insets on the chrome</span><span class="tag keep">Don't drop</span></div>
+      <div class="d-v"><code>top: max(52px, calc(env(safe-area-inset-top) + 14px))</code> · left/right via <code>env(safe-area-inset-*)</code></div>
+      <div class="why">Keeps the close / share / count clear of the notch &amp; Dynamic Island in <b>both</b> orientations. Requires <code>viewport-fit=cover</code> on the meta tag (already set).</div>
+      <div class="loc">.lb-fab, .lb-head, .lb-slot</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Background scroll-locked while open</span></div>
+      <div class="d-v"><code>body.lb-open { overflow: hidden }</code></div>
+      <div class="why">Stops the page behind the photo from rubber-banding / scrolling through on iOS. Toggled in <code>openLB()/closeLB()</code>.</div>
+      <div class="loc">body.lb-open</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">ATM number + address live in the photo header</span><span class="tag note">Intent</span></div>
+      <div class="why">So a screenshot of just the photo is self-identifying (people screenshot to share). Header = <code>ATM-####</code> + full address; the slot name + photo count sit bottom-left. Same reasoning as the sticky survey header.</div>
+      <div class="loc">.lb-head (#lb-atm / #lb-addr), syncLB()</div>
+    </div>
+  </div>
+
+  <!-- LAYOUT GOTCHAS -->
+  <div class="sec">
+    <div class="sec-h">Load-bearing gotchas <span class="n">subtle, but they break things</span></div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">The search field must be allowed to shrink</span><span class="tag keep">Don't drop</span></div>
+      <div class="d-v"><code>.tb-search { min-width: 0 }</code></div>
+      <div class="why">Without it, the search flex item won't shrink and <b>shoves the map/list toggle off the right edge</b> of a 390px screen — the button looks "broken" because it's literally unreachable. This is a one-line fix for a real, easy-to-reintroduce bug.</div>
+      <div class="loc">.tb-search</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Views cross-fade with opacity, not display:none</span></div>
+      <div class="why">Inactive views keep their size, so the Leaflet map doesn't go grey when you return to it. Still call <code>map.invalidateSize()</code> on switch back to the map (already wired in <code>showView</code>).</div>
+      <div class="loc">.view / .view.active, showView()</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">Branded loading splash</span></div>
+      <div class="why">A pulsing green node-graph mark covers the empty-map flash, then removes via <code>display:none</code> after load (an opacity-only fade was overridden by a transition quirk — the hard remove is intentional).</div>
+      <div class="loc">.map-splash, hideSplash()</div>
+    </div>
+
+    <div class="d">
+      <div class="d-top"><span class="d-t">One self-contained file is the reference build</span><span class="tag note">Intent</span></div>
+      <div class="why">The shipped <code>StikkyData_Mobile.html</code> is generated from <code>StikkyData_Mobile.template.html</code> + <code>stikkydata-mobile.css</code> by <code>_build_standalone.py</code> (it inlines the CSS and the photos as data-URIs). Edit the template/CSS, not the built file. In production the photos come from v2, not inlined.</div>
+      <div class="loc">_build_standalone.py</div>
+    </div>
+  </div>
+
+  <!-- KNOWN STUBS -->
+  <div class="sec">
+    <div class="sec-h">Known stubs <span class="n">wired, awaiting real data</span></div>
+    <div class="d">
+      <div class="d-top"><span class="d-t">Institution switcher</span><span class="tag note">Stub</span></div>
+      <div class="why">The customer chip is a dropdown to pop between banks (for multi-bank owners like an NCR). In the prototype, picking a bank switches the <b>label</b> and toasts "Loading…", but the fleet data stays America First's — production swaps each tenant's fleet behind the same control.</div>
+      <div class="loc">#cust-menu, CUSTOMERS, pickCust()</div>
+    </div>
+    <div class="d">
+      <div class="d-top"><span class="d-t">Camera capture &amp; ticketing</span><span class="tag note">Stub</span></div>
+      <div class="why">Capture is local-only in the prototype; "Make a ticket" and share hit v2's real endpoints in production. Large-fleet maps (e.g. ~8,000 ATMs) need clustered/streamed pins + a virtualized list — not yet built.</div>
+      <div class="loc">see the Feature Spec Bible</div>
+    </div>
+  </div>
+
+  <footer>
+    Pair this with the <b>Feature Spec Bible</b> (the what) — this document is the how, and the live prototype is the source of truth.<br>
+    Live reference: <a href="https://mikestikky.github.io/stikkydata-mobile-preview/">stikkydata-mobile-preview</a> · review every screen side-by-side at 390px.
+  </footer>
+
+</div>
+</body>
+</html>
