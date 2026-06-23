@@ -57,6 +57,21 @@
   --border-default: #e2e8f0;
   --border-light: #f1f5f9;
   --border-outline: #cbd5e1;
+
+  /* ---- spacing: 4px base grid. Reach for a step, not an arbitrary px value. ---- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px;
+
+  /* ---- radii: sharp by default; a pill is a deliberate choice, not a fallback ---- */
+  --r-sm: 8px; --r-md: 11px; --r-lg: 14px; --r-pill: 999px;
+
+  /* ---- type ramp: Inter. Two weights carry it — 400 body, 700/800 emphasis.
+         Hierarchy comes from SIZE + weight, not from color or decoration. ---- */
+  --t-h1: 20px;   /* screen / brand wordmark      */
+  --t-h2: 16px;   /* section + card titles        */
+  --t-body: 14px; /* default body                 */
+  --t-sub: 12.5px;/* secondary / descriptions     */
+  --t-cap: 11px;  /* captions, tags, badge counts */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -305,6 +320,11 @@ body {
    ============================================================================= */
 .map-pane { flex: 1; position: relative; overflow: hidden; }
 #map { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; background: #e8ede4; }
+.map-splash { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: #eef2ed; transition: opacity .45s ease; }
+.map-splash.gone { opacity: 0; pointer-events: none; }
+.map-splash .bmark { width: 52px; height: 52px; color: var(--brand-green); animation: ms-pulse 1.4s ease-in-out infinite; }
+.map-splash .ms-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.01em; }
+@keyframes ms-pulse { 0%,100% { opacity: .45; transform: scale(.94); } 50% { opacity: 1; transform: scale(1); } }
 .leaflet-container { font-family: inherit; }
 
 /* float controls sit ON the map */
@@ -755,6 +775,7 @@ body {
       <div class="map-pane">
         <div id="map"></div>
         <div class="fallback" id="fallback" style="display:none"></div>
+        <div class="map-splash" id="map-splash"><svg class="bmark" viewBox="0 0 24 24" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><line x1="7" y1="8" x2="16" y2="5.5"/><line x1="7" y1="8" x2="8.5" y2="17"/><line x1="7" y1="8" x2="17" y2="15.5"/><line x1="17" y1="15.5" x2="16" y2="5.5"/><line x1="8.5" y1="17" x2="17" y2="15.5"/></g><g fill="currentColor"><circle cx="7" cy="8" r="3"/><circle cx="16" cy="5.5" r="2.2"/><circle cx="17" cy="15.5" r="2.6"/><circle cx="8.5" cy="17" r="2"/></g></svg><div class="ms-label">Loading your fleet…</div></div>
 
         <button class="locate-btn" title="My location" onclick="locateMe()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
@@ -815,7 +836,7 @@ body {
       <div class="scroll">
         <div class="hero" onclick="openLB()">
           <img class="atm-img" alt="ATM main view" id="hero-img">
-          <span class="chip count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> 1 / 7</span>
+          <span class="chip count"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> 1 / 7</span>
           <span class="chip date">Apr 18, 2026</span>
           <span class="chip slot" id="hero-slot">Main view</span>
           <span class="expand"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span>
@@ -856,7 +877,7 @@ body {
         <div class="lb-tapzone l" onclick="stepLB(-1)"></div>
         <div class="lb-tapzone r" onclick="stepLB(1)"></div>
         <div class="lb-chrome" id="lb-chrome" onclick="toggleChrome(event)">
-          <button class="lb-fab l" onclick="closeLB(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <button class="lb-fab l" onclick="closeLB(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           <button class="lb-fab r" onclick="openSheet('send')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
           <div class="lb-head"><div class="k">Photos</div><div class="c" id="lb-count">1 of 7</div></div>
           <div class="lb-slot" id="lb-slotname">Main view</div>
@@ -873,7 +894,7 @@ body {
         <div class="sv-scroll" id="sv-body"></div>
         <div class="sv-lb" id="sv-lb" onclick="closeImg()">
           <img id="sv-lb-img" alt="Survey photo">
-          <button class="sv-lb-close" aria-label="Close" onclick="closeImg(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <button class="sv-lb-close" aria-label="Close" onclick="closeImg(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
 
@@ -930,7 +951,7 @@ body {
         <img class="atm-img" id="tg-lb-img" alt="Issue photo">
         <div class="tg-lb-tap l" onclick="tgLBStep(-1)"></div>
         <div class="tg-lb-tap r" onclick="tgLBStep(1)"></div>
-        <button class="tg-lb-close" aria-label="Close" onclick="closeTgLB()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <button class="tg-lb-close" aria-label="Close" onclick="closeTgLB()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <div class="tg-lb-count" id="tg-lb-count">1 of 3</div>
       </div>
     </div>
@@ -1055,7 +1076,7 @@ body {
     function openSurvey(i) {
       const h = HISTORY[i]; svOpen = i;
       const actions = h.actions.length ? '<h3 class="sv-h">Action Record</h3>' + h.actions.map((a, ai) => {
-        const btns = `<button class="sv-btn triage" onclick="triageSurveyIssue(${ai})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Triage</button><button class="sv-btn send" onclick="surveyShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Send</button>`;
+        const btns = `<button class="sv-btn triage" onclick="triageSurveyIssue(${ai})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Triage</button><button class="sv-btn send" onclick="surveyShare()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Send</button>`;
         return `<div class="sv-issue"><div class="sv-issue-top"><div class="sv-issue-tx"><b>${a.issue}</b><span>${a.desc}</span></div><div class="sv-thumb sv-issue-img" onclick="openImg('${a.img}')"><img class="atm-img" src="${imgFor(a.img)}"><span class="sv-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div></div><div class="sv-issue-act">${a.action}</div><div class="sv-issue-btns">${btns}</div></div>`;
       }).join('') : '';
       const qa = `<h3 class="sv-h">${h.type}</h3>` + h.survey.map(s =>
@@ -1388,8 +1409,8 @@ body {
           <div class="tg-ctx"><div class="tg-meta"><button class="tg-atm">ATM&#8209;${it.atm}</button> · ${it.addr}</div><div class="tg-vendor">Routes to · ${tgDept.dept}</div></div>
         </div>
         <div class="tg-actions">
-          <button class="tg-btn excuse" onclick="triageDo('excuse')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Excuse</button>
-          <button class="tg-btn escalate" onclick="triageDo('escalate')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Escalate</button>
+          <button class="tg-btn excuse" onclick="triageDo('excuse')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Excuse</button>
+          <button class="tg-btn escalate" onclick="triageDo('escalate')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Escalate</button>
         </div>
         <textarea class="tg-comment" id="tg-comment" rows="2" placeholder="Add a comment (optional)…"></textarea>
         <button class="tg-skip" onclick="triageDo('skip')">Can't tell — skip for now</button>`;
@@ -1475,7 +1496,7 @@ body {
       if (dt) more += `<button class="${hasNext ? 'tg-backteams' : 'btn btn-primary tg-finish'}" onclick="openGroup('${esc(tgDept.dept)}','${esc(tgDtype)}')">Open the ${tgDept.dept} · ${tgDtype} queue (${dt.remaining})</button>`;
       document.getElementById('tg-stage').innerHTML =
         `<div class="tg-summary">
-          <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <h2>${verb}</h2>
           <div class="tg-summary-sub">${escd.length ? 'Send it to ' + tgDept.dept + ' — a pre-filled draft, editable recipient.' : 'Recorded on ATM-' + tgDeck[0].atm + '.'} Anything else to handle?</div>
           ${emailBtn}
@@ -1504,7 +1525,7 @@ body {
       const skipTally = skipN ? `<span><b>${skipN}</b> left open</span>` : '';
       document.getElementById('tg-stage').innerHTML =
         `<div class="tg-summary">
-          <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="tg-done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <h2>${label} reviewed</h2>
           <div class="tg-tally">${excTally}<span><b>${escN}</b> escalated</span>${skipTally}</div>
           <div class="tg-summary-sub">${escN ? 'Opens a pre-filled draft to ' + tgDept.email + ' (the default for this team) — change the recipient to your manager, a ' + tgDept.dept + ' rep, or anyone before you send. Nothing sends until you hit send.' : ''}${skipN ? (escN ? ' ' : '') + 'The ' + skipN + ' you skipped stay open for next time.' : ''}</div>
@@ -1548,8 +1569,9 @@ body {
       const pc = document.querySelector('.peek-count');
       if (pc) pc.innerHTML = `<b>${FLEET.length}</b> ATMs <i>· ${attn} need attention</i>`;
       updateReviewChip();
-      if (window.__noLeaflet || typeof L === 'undefined') buildFallback();
-      else { try { buildLeaflet(); } catch (e) { buildFallback(); } }
+      const hideSplash = () => { const s = document.getElementById('map-splash'); if (!s) return; s.classList.add('gone'); setTimeout(() => { s.style.display = 'none'; }, 500); };
+      if (window.__noLeaflet || typeof L === 'undefined') { buildFallback(); hideSplash(); }
+      else { try { buildLeaflet(); } catch (e) { buildFallback(); } setTimeout(hideSplash, 700); }
 
       /* deep-link each screen state (used by the Screens & Notes sheet) */
       const routes = {
