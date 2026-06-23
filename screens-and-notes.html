@@ -376,6 +376,7 @@
     }
   </script>
 
+
 <!-- ===== FIDELITY NOTES (merged in: one document) ===== -->
 <style id="fid-styles">
 .fid {
@@ -422,7 +423,7 @@
 .fid pre.css code {font-family:inherit;background:none;border:none;padding:0;color:inherit;font-size:inherit;display:block}
 .fid .csshint {font-size:13px;color:var(--muted);margin:2px 0 4px}
 </style>
-<div style="max-width:1080px;margin:64px auto 0;padding-top:8px;border-top:3px solid var(--line);font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--green)">Appendix · Fidelity Notes — the deliberate decisions + the full stylesheet</div>
+<div style="max-width:1080px;margin:64px auto 0;padding-top:8px;border-top:3px solid var(--line);font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--green)">Appendix · Fidelity Notes — deliberate decisions + the full stylesheet &amp; behavior</div>
 <div class="fid">
 <div class="wrap">
 
@@ -1349,6 +1350,722 @@ body.lb-open { overflow: hidden; }
   .screen { width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; box-shadow: none; }
 }
 </code></pre>
+  </div>
+
+
+  <!-- APPENDIX: full behavior / JS -->
+  <div class="sec" id="behavior">
+    <div class="sec-h">Appendix — the behavior <span class="n">app script (verbatim)</span></div>
+    <p class="csshint">The complete application logic from the prototype — view navigation, the photo lightbox, swipe-triage state machine, the institution switcher + per-fleet rendering, maps/share handoff. Photo data-URIs are inlined by the build and omitted here. <b>Source of truth — lift verbatim.</b> (Snapshot.)</p>
+    <pre class="css"><code>const IMG = /* photos inlined here by _build_standalone.py as data-URIs */ {};                 /* real per-component ATM photos, keyed (main, receipt, cardReader, monitor, keypad, fascia, feeNotice, general) */
+    const ATM = IMG.main;                 /* primary ATM photo — generic thumbnails (list, pins, history, capture) */
+    if (/[?&amp;]nomap/.test(location.search)) window.__noLeaflet = true; /* doc frames that don&#x27;t show the map skip the heavy 232-pin build */
+    const SLOTS = [
+      { nm:&#x27;Main&#x27;, key:&#x27;main&#x27;, pos:&#x27;center&#x27; }, { nm:&#x27;Receipt&#x27;, key:&#x27;receipt&#x27;, pos:&#x27;center&#x27; }, { nm:&#x27;Card Reader&#x27;, key:&#x27;cardReader&#x27;, pos:&#x27;center&#x27; },
+      { nm:&#x27;Monitor&#x27;, key:&#x27;monitor&#x27;, pos:&#x27;center&#x27; }, { nm:&#x27;Keypad&#x27;, key:&#x27;keypad&#x27;, pos:&#x27;center&#x27; }, { nm:&#x27;Fascia&#x27;, key:&#x27;fascia&#x27;, pos:&#x27;center&#x27; }, { nm:&#x27;Fee Notice&#x27;, key:&#x27;feeNotice&#x27;, pos:&#x27;center&#x27; },
+    ];
+    const slotImg = i =&gt; IMG[SLOTS[i].key] || ATM;   /* the real photo for a slot (each slot = a component view) */
+    const imgFor = k =&gt; (k &amp;&amp; IMG[k]) ? IMG[k] : ATM;
+
+    /* ---- HISTORY: real v2 structure — inspection visits (surveys), each with an Action Record + Q&amp;A ---- */
+    const HISTORY = [
+      { type:&#x27;Standard Evaluation&#x27;, icon:&#x27;eval&#x27;, date:&#x27;17 Jun 2026&#x27;, time:&#x27;8:59 PM&#x27;, outstanding:2, status:&#x27;Approved&#x27;, approvedBy:&#x27;Auto Approved&#x27;, tech:&#x27;Heath Apple&#x27;, thumb:&#x27;main&#x27;,
+        actions:[
+          { issue:&#x27;America First Credit Union — Braille&#x27;, desc:&#x27;Braille functionality decals are needed to replace the non-braille functionality decals on this ATM.&#x27;, action:&#x27;Issue reported in the website.&#x27;, img:&#x27;general&#x27;, dept:&#x27;America First CU&#x27;, type:&#x27;Braille&#x27; },
+          { issue:&#x27;Diebold Nixdorf — Receipt&#x27;, desc:&#x27;The Receipt Printer is not working and the ATM indicates it cannot print receipts.&#x27;, action:&#x27;Issue reported in the website.&#x27;, img:&#x27;receipt&#x27;, dept:&#x27;Diebold Nixdorf&#x27;, type:&#x27;Receipt&#x27; },
+        ],
+        survey:[
+          { q:&#x27;Is there a skimming device on the ATM?&#x27;, a:&#x27;No&#x27; },
+          { q:&#x27;Is the Receipt Printer working correctly?&#x27;, a:&#x27;No, ATM is unable to print receipt&#x27;, img:&#x27;receipt&#x27; },
+          { q:&#x27;Upon arrival, is there a spider or pest infestation in or on the ATM and its surrounding area?&#x27;, a:&#x27;No infestation present&#x27; },
+          { q:&#x27;What was the ATM cleanliness when you arrived?&#x27;, a:&#x27;Average&#x27; },
+          { q:&#x27;Rate the condition of ATM Fascia and Collar:&#x27;, a:&#x27;Good&#x27;, img:&#x27;fascia&#x27; },
+          { q:&#x27;Rate the condition of the ATM Case:&#x27;, a:&#x27;Good&#x27; },
+          { q:&#x27;Rate the condition of the ATM Branding Element:&#x27;, a:&#x27;Good&#x27; },
+          { q:&#x27;Does the audio jack work?&#x27;, a:&#x27;Yes, Voice Prompt Working&#x27;, img:&#x27;monitor&#x27; },
+        ] },
+      { type:&#x27;Braille Functionality Decal Survey&#x27;, icon:&#x27;braille&#x27;, date:&#x27;17 Jun 2026&#x27;, time:&#x27;8:59 PM&#x27;, outstanding:0, status:&#x27;Approved&#x27;, approvedBy:&#x27;Auto Approved&#x27;, tech:&#x27;Heath Apple&#x27;, thumb:&#x27;feeNotice&#x27;,
+        actions:[],
+        survey:[
+          { q:&#x27;Are braille functionality decals present?&#x27;, a:&#x27;No — non-braille decals currently in place&#x27;, img:&#x27;feeNotice&#x27; },
+          { q:&#x27;Is the braille legible and undamaged?&#x27;, a:&#x27;N/A&#x27; },
+          { q:&#x27;Does decal placement match the standard?&#x27;, a:&#x27;Yes&#x27; },
+        ] },
+      { type:&#x27;Standard Evaluation&#x27;, icon:&#x27;eval&#x27;, date:&#x27;12 May 2026&#x27;, time:&#x27;7:21 PM&#x27;, outstanding:2, status:&#x27;Approved&#x27;, approvedBy:&#x27;Auto Approved&#x27;, tech:&#x27;Heath Apple&#x27;, thumb:&#x27;main&#x27;,
+        actions:[
+          { issue:&#x27;Diebold Nixdorf — Receipt&#x27;, desc:&#x27;Receipt printer reported low / misfeed on arrival.&#x27;, action:&#x27;Issue reported in the website.&#x27;, img:&#x27;receipt&#x27;, dept:&#x27;Diebold Nixdorf&#x27;, type:&#x27;Receipt&#x27; },
+          { issue:&#x27;Facilities — Fascia&#x27;, desc:&#x27;Top-left brand decal lifting at the corner.&#x27;, action:&#x27;Issue reported in the website.&#x27;, img:&#x27;fascia&#x27;, dept:&#x27;Facilities&#x27;, type:&#x27;&#x27; },
+        ],
+        survey:[
+          { q:&#x27;Is there a skimming device on the ATM?&#x27;, a:&#x27;No&#x27; },
+          { q:&#x27;Is the Receipt Printer working correctly?&#x27;, a:&#x27;No, low paper / misfeed&#x27;, img:&#x27;receipt&#x27; },
+          { q:&#x27;What was the ATM cleanliness when you arrived?&#x27;, a:&#x27;Good&#x27; },
+          { q:&#x27;Rate the condition of ATM Fascia and Collar:&#x27;, a:&#x27;Fair&#x27;, img:&#x27;fascia&#x27; },
+          { q:&#x27;Does the audio jack work?&#x27;, a:&#x27;Yes, Voice Prompt Working&#x27;, img:&#x27;monitor&#x27; },
+        ] },
+    ];
+    /* this ATM&#x27;s outstanding issues (the Issues tab) — each taps to triage THAT one */
+    const ASSET_ISSUES = [
+      { type:&#x27;Receipt printer jam&#x27;, desc:&#x27;Paper feed misaligned at the receipt slot; out-of-paper light on.&#x27;, slot:1, dept:&#x27;Diebold Nixdorf&#x27;, dtype:&#x27;Receipt&#x27;, tag:&#x27;Diebold Nixdorf&#x27;, recur:&#x27;Recurring · 3rd&#x27; },
+      { type:&#x27;Keypad key sticking&#x27;, desc:&#x27;&quot;5&quot; key slow to release on the PIN pad. Possible debris under keycap.&#x27;, slot:4, dept:&#x27;America First CU&#x27;, dtype:&#x27;ADA&#x27;, tag:&#x27;America First CU&#x27; },
+      { type:&#x27;Fascia decal peeling&#x27;, desc:&#x27;Top-left brand decal lifting at the corner. Cosmetic — schedule on next route.&#x27;, slot:5, dept:&#x27;America First CU&#x27;, dtype:&#x27;ATM Condition&#x27;, tag:&#x27;Facilities&#x27; },
+    ];
+    function renderIssues() {
+      const el = document.getElementById(&#x27;p-issues&#x27;);
+      if (!el) return;
+      el.innerHTML = ASSET_ISSUES.map((it, i) =&gt;
+        `&lt;button class=&quot;ai&quot; onclick=&quot;openAtmIssue(${i})&quot;&gt;
+          &lt;span class=&quot;ai-thumb&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${slotImg(it.slot)}&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;ai-body&quot;&gt;&lt;span class=&quot;ai-type&quot;&gt;${it.type}&lt;/span&gt;&lt;span class=&quot;ai-desc&quot;&gt;${it.desc}&lt;/span&gt;&lt;span class=&quot;ai-tags&quot;&gt;${it.recur ? `&lt;span class=&quot;tag recur&quot;&gt;${it.recur}&lt;/span&gt;` : &#x27;&#x27;}&lt;span class=&quot;tag dept&quot;&gt;${it.tag}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+          &lt;svg class=&quot;ai-go&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;/&gt;&lt;/svg&gt;
+        &lt;/button&gt;`
+      ).join(&#x27;&#x27;);
+    }
+    /* other ATMs at the same physical site (co-located) — a selling point: &quot;we cover all of them&quot; */
+    const CO_LOCATED = [
+      { id:&#x27;4472&#x27;, label:&#x27;Walk-up · Lobby&#x27;, slot:6, issues:1 },
+      { id:&#x27;4473&#x27;, label:&#x27;Inside lane IVT&#x27;, slot:3, issues:0 },
+    ];
+    function tabBadge(el, n) { if (!el) return; if (n &gt; 0) { el.textContent = n; el.style.display = &#x27;&#x27;; } else { el.style.display = &#x27;none&#x27;; } }
+    function setTabBadges() {
+      tabBadge(document.getElementById(&#x27;tab-n-issues&#x27;), ASSET_ISSUES.length);                 /* # of issues */
+      tabBadge(document.getElementById(&#x27;tab-n-info&#x27;), CO_LOCATED.length ? CO_LOCATED.length + 1 : 0); /* total ATMs at this site (incl. this one) — only when others exist */
+    }
+    function renderColo() {
+      const el = document.getElementById(&#x27;colo-info&#x27;); if (!el) return;
+      if (!CO_LOCATED.length) { el.innerHTML = &#x27;&#x27;; return; }
+      const rows = CO_LOCATED.map(c =&gt; {
+        const badge = c.issues &gt; 0 ? `&lt;span class=&quot;colo-issue&quot;&gt;${c.issues}&lt;/span&gt;` : &#x27;&#x27;;
+        return `&lt;button class=&quot;colo-row&quot; onclick=&quot;toast(&#x27;Opening ATM-${c.id} …&#x27;)&quot;&gt;&lt;span class=&quot;colo-thumb&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${slotImg(c.slot)}&quot;&gt;${badge}&lt;/span&gt;&lt;span class=&quot;colo-tx&quot;&gt;&lt;span class=&quot;colo-id&quot;&gt;ATM-${c.id}&lt;/span&gt;&lt;span class=&quot;colo-label&quot;&gt;${c.label}&lt;/span&gt;&lt;/span&gt;&lt;svg class=&quot;ai-go&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;`;
+      }).join(&#x27;&#x27;);
+      el.innerHTML = `&lt;div class=&quot;colo-hd&quot;&gt;At this site &lt;span class=&quot;colo-n&quot;&gt;${CO_LOCATED.length + 1}&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;colo-sub&quot;&gt;${ASSET.loc} · ${CO_LOCATED.length} other ATM${CO_LOCATED.length &gt; 1 ? &#x27;s&#x27; : &#x27;&#x27;} here — tap to open&lt;/div&gt;${rows}&lt;div class=&quot;colo-div&quot;&gt;&lt;/div&gt;`;
+    }
+    const SURVEY_IC = {
+      eval: &#x27;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;2&quot; width=&quot;8&quot; height=&quot;4&quot; rx=&quot;1&quot;/&gt;&lt;path d=&quot;M9 13l2 2 4-4&quot;/&gt;&lt;/svg&gt;&#x27;,
+      braille: &#x27;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z&quot;/&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;3&quot;/&gt;&lt;/svg&gt;&#x27;,
+    };
+    function renderHistory() {
+      const el = document.getElementById(&#x27;history-list&#x27;) || document.getElementById(&#x27;p-history&#x27;);
+      if (!el) return;
+      el.innerHTML = HISTORY.map((h, i) =&gt; {
+        const badge = h.outstanding &gt; 0 ? `&lt;span class=&quot;hv-badge&quot;&gt;${h.outstanding}&lt;/span&gt;` : &#x27;&#x27;;
+        const count = h.outstanding &gt; 0 ? `&lt;span class=&quot;hv-c out&quot;&gt;${h.outstanding} open from this visit&lt;/span&gt;` : &#x27;&#x27;;
+        return `&lt;button class=&quot;hv&quot; onclick=&quot;openSurvey(${i})&quot;&gt;
+          &lt;span class=&quot;hv-ic&quot;&gt;${SURVEY_IC[h.icon] || SURVEY_IC.eval}&lt;/span&gt;
+          &lt;span class=&quot;hv-main&quot;&gt;&lt;span class=&quot;hv-type&quot;&gt;${h.type}&lt;/span&gt;&lt;span class=&quot;hv-when&quot;&gt;${h.date} · ${h.time}&lt;/span&gt;&lt;span class=&quot;hv-sub&quot;&gt;${h.status} · Tech ${h.tech}&lt;/span&gt;&lt;span class=&quot;hv-counts&quot;&gt;${count}&lt;/span&gt;&lt;/span&gt;
+          &lt;span class=&quot;hv-thumb&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${imgFor(h.thumb)}&quot;&gt;${badge}&lt;/span&gt;
+          &lt;svg class=&quot;hv-chev&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;/&gt;&lt;/svg&gt;
+        &lt;/button&gt;`;
+      }).join(&#x27;&#x27;);
+    }
+    function openSurvey(i) {
+      const h = HISTORY[i]; svOpen = i;
+      const actions = h.actions.length ? &#x27;&lt;h3 class=&quot;sv-h&quot;&gt;Action Record&lt;/h3&gt;&#x27; + h.actions.map((a, ai) =&gt; {
+        const btns = `&lt;button class=&quot;sv-btn triage&quot; onclick=&quot;triageSurveyIssue(${ai})&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;Triage&lt;/button&gt;&lt;button class=&quot;sv-btn send&quot; onclick=&quot;surveyShare()&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8&quot;/&gt;&lt;polyline points=&quot;16 6 12 2 8 6&quot;/&gt;&lt;line x1=&quot;12&quot; y1=&quot;2&quot; x2=&quot;12&quot; y2=&quot;15&quot;/&gt;&lt;/svg&gt;Send&lt;/button&gt;`;
+        return `&lt;div class=&quot;sv-issue&quot;&gt;&lt;div class=&quot;sv-issue-top&quot;&gt;&lt;div class=&quot;sv-issue-tx&quot;&gt;&lt;b&gt;${a.issue}&lt;/b&gt;&lt;span&gt;${a.desc}&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;sv-thumb sv-issue-img&quot; onclick=&quot;openImg(&#x27;${a.img}&#x27;)&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${imgFor(a.img)}&quot;&gt;&lt;span class=&quot;sv-zoom&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;15 3 21 3 21 9&quot;/&gt;&lt;polyline points=&quot;9 21 3 21 3 15&quot;/&gt;&lt;line x1=&quot;21&quot; y1=&quot;3&quot; x2=&quot;14&quot; y2=&quot;10&quot;/&gt;&lt;line x1=&quot;3&quot; y1=&quot;21&quot; x2=&quot;10&quot; y2=&quot;14&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;sv-issue-act&quot;&gt;${a.action}&lt;/div&gt;&lt;div class=&quot;sv-issue-btns&quot;&gt;${btns}&lt;/div&gt;&lt;/div&gt;`;
+      }).join(&#x27;&#x27;) : &#x27;&#x27;;
+      const qa = `&lt;h3 class=&quot;sv-h&quot;&gt;${h.type}&lt;/h3&gt;` + h.survey.map(s =&gt;
+        `&lt;div class=&quot;sv-qa&quot;&gt;&lt;div class=&quot;sv-q&quot;&gt;${s.q}&lt;/div&gt;&lt;div class=&quot;sv-arow&quot;&gt;&lt;div class=&quot;sv-a&quot;&gt;${s.a}&lt;/div&gt;${s.img ? `&lt;div class=&quot;sv-thumb sv-qimg&quot; onclick=&quot;openImg(&#x27;${s.img}&#x27;)&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${imgFor(s.img)}&quot;&gt;&lt;span class=&quot;sv-zoom&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;15 3 21 3 21 9&quot;/&gt;&lt;polyline points=&quot;9 21 3 21 3 15&quot;/&gt;&lt;line x1=&quot;21&quot; y1=&quot;3&quot; x2=&quot;14&quot; y2=&quot;10&quot;/&gt;&lt;line x1=&quot;3&quot; y1=&quot;21&quot; x2=&quot;10&quot; y2=&quot;14&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;/div&gt;` : &#x27;&#x27;}&lt;/div&gt;&lt;/div&gt;`
+      ).join(&#x27;&#x27;);
+      document.getElementById(&#x27;sv-atm&#x27;).textContent = &#x27;ATM-&#x27; + ASSET.id + &#x27; · &#x27; + ASSET.loc + &#x27;, &#x27; + ASSET.city;
+      document.getElementById(&#x27;sv-top-ttl&#x27;).textContent = h.type + &#x27; · &#x27; + h.date + &#x27; · &#x27; + h.tech;
+      const body = document.getElementById(&#x27;sv-body&#x27;);
+      body.innerHTML = actions + qa; body.scrollTop = 0;
+      document.getElementById(&#x27;survey-sheet&#x27;).classList.add(&#x27;show&#x27;);
+    }
+    function closeSurvey() { document.getElementById(&#x27;survey-sheet&#x27;).classList.remove(&#x27;show&#x27;); }
+    function openImg(key) { if (!key) return; const img = document.getElementById(&#x27;sv-lb-img&#x27;); img.src = imgFor(key); document.getElementById(&#x27;sv-lb&#x27;).classList.add(&#x27;show&#x27;); }
+    function closeImg(e) { if (e) e.stopPropagation(); document.getElementById(&#x27;sv-lb&#x27;).classList.remove(&#x27;show&#x27;); }
+    /* survey action buttons reuse the app&#x27;s real flows: Triage = Hot or Not for that issue; Send = the app&#x27;s share */
+    let svOpen = 0;
+    function triageSurveyIssue(ai) {
+      const a = HISTORY[svOpen] &amp;&amp; HISTORY[svOpen].actions[ai]; if (!a) return;
+      closeImg(); closeSurvey();
+      let slot = SLOTS.findIndex(s =&gt; s.key === a.img); if (slot &lt; 0) slot = 0;
+      triageOne({ atm: ASSET.id, addr: ASSET.loc + &#x27;, &#x27; + ASSET.city, type: a.type, slot: slot, dept: a.dept, dtype: a.type, atmIdx: -1 });
+    }
+    function surveyShare() { closeImg(); closeSurvey(); openSheet(&#x27;send&#x27;); }
+    /* deterministic scatter of N ATMs around each metro center → a fleet array */
+    function makeFleet(metros, startId) {
+      const streets = [&#x27;S State St&#x27;,&#x27;Main St&#x27;,&#x27;State Rte 89&#x27;,&#x27;Center St&#x27;,&#x27;E Highland Dr&#x27;,&#x27;Redwood Rd&#x27;,&#x27;W Market St&#x27;,&#x27;Commerce Way&#x27;,&#x27;N Mall Dr&#x27;,&#x27;S Frontage Rd&#x27;,&#x27;Union Blvd&#x27;,&#x27;Pioneer Pkwy&#x27;];
+      const out = []; let id = startId;
+      metros.forEach(m =&gt; {
+        for (let k = 0; k &lt; m.n; k++) {
+          const h1 = ((id * 9301 + 49297) % 233280) / 233280;
+          const h2 = ((id * 4099 + 150889) % 714025) / 714025;
+          const ang = h1 * Math.PI * 2, rad = Math.sqrt(h2) * m.r;
+          const lat = m.lat + rad * Math.sin(ang) * 0.78;
+          const lng = m.lng + rad * Math.cos(ang);
+          out.push({ id:String(id), loc:(100 + (id % 899)) + &#x27; &#x27; + streets[id % streets.length], city:m.city, lat, lng, issues:(id % 9 === 0 ? 2 : (id % 13 === 0 ? 1 : 0)), last:((id % 21) + 1) + &#x27;d&#x27;, crop:id % 7 });
+          id++;
+        }
+      });
+      return out;
+    }
+
+    const AF_FLEET = [
+      { id:&#x27;4471&#x27;, loc:&#x27;1450 S State St&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.7280, lng:-111.8882, issues:3, last:&#x27;8d&#x27;, crop:0 },
+      { id:&#x27;4490&#x27;, loc:&#x27;700 E 2100 S&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.7250, lng:-111.8650, issues:1, last:&#x27;3d&#x27;, crop:2 },
+      { id:&#x27;4512&#x27;, loc:&#x27;400 S Main St&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.7608, lng:-111.8910, issues:0, last:&#x27;2d&#x27;, crop:3 },
+      { id:&#x27;4533&#x27;, loc:&#x27;900 W North Temple&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.7700, lng:-111.9210, issues:2, last:&#x27;12d&#x27;, crop:1 },
+      { id:&#x27;4540&#x27;, loc:&#x27;3300 S Highland Dr&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.6980, lng:-111.8500, issues:0, last:&#x27;5d&#x27;, crop:6 },
+      { id:&#x27;4558&#x27;, loc:&#x27;2100 E Sugarhouse&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.7220, lng:-111.8290, issues:0, last:&#x27;1d&#x27;, crop:5 },
+      { id:&#x27;4571&#x27;, loc:&#x27;1300 E 500 S&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.7510, lng:-111.8560, issues:4, last:&#x27;15d&#x27;, crop:4 },
+      { id:&#x27;4588&#x27;, loc:&#x27;600 N Redwood Rd&#x27;, city:&#x27;Salt Lake City, UT&#x27;, lat:40.7790, lng:-111.9380, issues:0, last:&#x27;4d&#x27;, crop:0 },
+    ];
+    /* The map is a TERRITORY display: ATMs PILE UP where the customer is dense (home turf) and thin out
+       elsewhere — the pile-up of individual pins IS the &quot;look how much we own&quot; message. No clustering
+       (it would hide the very density that matters), no even spacing. America First&#x27;s real-ish western
+       footprint — Utah dominant, with outposts across NV/AZ/ID/NM. */
+    AF_FLEET.push(...makeFleet([
+      { city:&#x27;Salt Lake City, UT&#x27;, lat:40.760, lng:-111.890, n:58, r:0.060 },
+      { city:&#x27;Ogden, UT&#x27;,          lat:41.223, lng:-111.973, n:24, r:0.045 },
+      { city:&#x27;Provo, UT&#x27;,          lat:40.252, lng:-111.660, n:30, r:0.060 },
+      { city:&#x27;Logan, UT&#x27;,          lat:41.737, lng:-111.834, n:9,  r:0.030 },
+      { city:&#x27;St. George, UT&#x27;,     lat:37.096, lng:-113.575, n:11, r:0.040 },
+      { city:&#x27;Las Vegas, NV&#x27;,      lat:36.135, lng:-115.150, n:27, r:0.085 },
+      { city:&#x27;Reno, NV&#x27;,           lat:39.530, lng:-119.810, n:12, r:0.050 },
+      { city:&#x27;Phoenix, AZ&#x27;,        lat:33.450, lng:-112.070, n:25, r:0.090 },
+      { city:&#x27;Boise, ID&#x27;,          lat:43.610, lng:-116.200, n:16, r:0.060 },
+      { city:&#x27;Albuquerque, NM&#x27;,    lat:35.084, lng:-106.650, n:12, r:0.060 },
+    ], 4600));
+
+    /* Other institutions the StikkyData customer owns (e.g. NCR services many banks). Each is a DISTINCT
+       footprint so switching the chip visibly repopulates the map + list. Demonstration fleets — in
+       production each tenant&#x27;s real fleet loads behind the same switcher. */
+    const FLEETS = {
+      &#x27;America First&#x27;: AF_FLEET,
+      &#x27;Mountain America CU&#x27;: makeFleet([
+        { city:&#x27;Salt Lake City, UT&#x27;,   lat:40.760, lng:-111.890, n:40, r:0.060 },
+        { city:&#x27;West Valley City, UT&#x27;, lat:40.692, lng:-112.001, n:20, r:0.040 },
+        { city:&#x27;Provo, UT&#x27;,            lat:40.252, lng:-111.660, n:28, r:0.055 },
+        { city:&#x27;Sandy, UT&#x27;,            lat:40.582, lng:-111.859, n:16, r:0.035 },
+        { city:&#x27;Lehi, UT&#x27;,             lat:40.392, lng:-111.851, n:12, r:0.035 },
+        { city:&#x27;St. George, UT&#x27;,       lat:37.096, lng:-113.575, n:10, r:0.045 },
+      ], 7001),
+      &#x27;Zions Bank&#x27;: makeFleet([
+        { city:&#x27;Salt Lake City, UT&#x27;, lat:40.760, lng:-111.890, n:30, r:0.060 },
+        { city:&#x27;Boise, ID&#x27;,          lat:43.615, lng:-116.202, n:22, r:0.070 },
+        { city:&#x27;Idaho Falls, ID&#x27;,    lat:43.491, lng:-112.034, n:12, r:0.045 },
+        { city:&#x27;Las Vegas, NV&#x27;,      lat:36.135, lng:-115.150, n:16, r:0.080 },
+        { city:&#x27;Twin Falls, ID&#x27;,     lat:42.563, lng:-114.460, n:9,  r:0.040 },
+        { city:&#x27;Jackson, WY&#x27;,        lat:43.479, lng:-110.762, n:7,  r:0.030 },
+      ], 8001),
+      &#x27;Goldenwest CU&#x27;: makeFleet([
+        { city:&#x27;Ogden, UT&#x27;,          lat:41.223, lng:-111.973, n:30, r:0.050 },
+        { city:&#x27;Logan, UT&#x27;,          lat:41.737, lng:-111.834, n:12, r:0.035 },
+        { city:&#x27;Brigham City, UT&#x27;,   lat:41.510, lng:-112.015, n:8,  r:0.030 },
+        { city:&#x27;Salt Lake City, UT&#x27;, lat:40.760, lng:-111.890, n:11, r:0.045 },
+      ], 9001),
+    };
+    let FLEET = FLEETS[&#x27;America First&#x27;];
+    const ASSET = AF_FLEET[0];
+
+    /* ---- view navigation (cross-fade) ---- */
+    let curView = &#x27;map&#x27;, prevView = &#x27;map&#x27;;
+    function showView(name) {
+      if (name === curView) return;
+      prevView = curView; curView = name;
+      document.querySelectorAll(&#x27;.view&#x27;).forEach(v =&gt; v.classList.toggle(&#x27;active&#x27;, v.id === &#x27;view-&#x27; + name));
+      if (name === &#x27;map&#x27; &amp;&amp; window.__map) setTimeout(() =&gt; window.__map.invalidateSize(), 60);
+    }
+    function openAsset(from) { prevView = from || curView; showView(&#x27;asset&#x27;); }
+    function goBack() { showView(prevView === &#x27;asset&#x27; ? &#x27;map&#x27; : prevView); }
+
+    /* ---- real maps handoff ---- */
+    /* Directions → let the user pick Apple or Google Maps */
+    let mapsDest = { lat: ASSET.lat, lng: ASSET.lng };
+    function openMaps(lat, lng) { mapsDest = { lat, lng }; document.getElementById(&#x27;maps-overlay&#x27;).classList.add(&#x27;show&#x27;); document.getElementById(&#x27;sheet-maps&#x27;).classList.add(&#x27;show&#x27;); }
+    function directions() { openMaps(ASSET.lat, ASSET.lng); }
+    function closeMaps() { document.getElementById(&#x27;maps-overlay&#x27;).classList.remove(&#x27;show&#x27;); document.getElementById(&#x27;sheet-maps&#x27;).classList.remove(&#x27;show&#x27;); }
+    function openApple() { window.open(`https://maps.apple.com/?daddr=${mapsDest.lat},${mapsDest.lng}&amp;dirflg=d`, &#x27;_blank&#x27;); closeMaps(); }
+    function openGoogle() { window.open(`https://www.google.com/maps/dir/?api=1&amp;destination=${mapsDest.lat},${mapsDest.lng}`, &#x27;_blank&#x27;); closeMaps(); }
+
+    /* ---- images ---- */
+    function paintImages(root) { (root||document).querySelectorAll(&#x27;img.atm-img:not([src])&#x27;).forEach(i =&gt; { i.src = (i.dataset.img &amp;&amp; IMG[i.dataset.img]) ? IMG[i.dataset.img] : ATM; }); }
+
+    /* ---- LIST ---- */
+    function listCard(a) {
+      const flag = a.issues &gt; 0 ? `&lt;span class=&quot;zcard-flag issues&quot;&gt;${a.issues} open&lt;/span&gt;` : &#x27;&#x27;;
+      return `&lt;div class=&quot;zcard&quot; onclick=&quot;openAsset()&quot;&gt;
+        &lt;div class=&quot;zcard-photo&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${ATM}&quot; style=&quot;object-position:${SLOTS[a.crop].pos}&quot;&gt;${flag}&lt;/div&gt;
+        &lt;div class=&quot;zcard-body&quot;&gt;
+          &lt;div class=&quot;zcard-id&quot;&gt;ATM&amp;#8209;${a.id}&lt;/div&gt;
+          &lt;div class=&quot;zcard-loc&quot;&gt;${a.loc} · ${a.city}&lt;/div&gt;
+          &lt;div class=&quot;zcard-meta&quot;&gt;Serviced ${a.last} ago&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;`;
+    }
+    function renderList() {
+      const q = document.getElementById(&#x27;q&#x27;).value.trim().toLowerCase();
+      const rows = q ? FLEET.filter(a =&gt; a.id.includes(q) || a.loc.toLowerCase().includes(q)) : FLEET;
+      document.getElementById(&#x27;label&#x27;).textContent = q ? `${rows.length} result${rows.length===1?&#x27;&#x27;:&#x27;s&#x27;}` : &#x27;Recently viewed&#x27;;
+      document.getElementById(&#x27;list&#x27;).innerHTML = rows.map(listCard).join(&#x27;&#x27;) ||
+        &#x27;&lt;div style=&quot;text-align:center;color:var(--text-muted);padding:40px 16px;font-size:13px&quot;&gt;No ATMs match that search.&lt;/div&gt;&#x27;;
+    }
+    function renderPeek(q) {
+      q = (q || &#x27;&#x27;).trim().toLowerCase();
+      const rows = q ? FLEET.filter(a =&gt; a.id.includes(q) || a.loc.toLowerCase().includes(q)) : FLEET;
+      document.getElementById(&#x27;peek-list&#x27;).innerHTML = rows.map(listCard).join(&#x27;&#x27;) ||
+        &#x27;&lt;div style=&quot;text-align:center;color:var(--text-muted);padding:30px 16px;font-size:13px&quot;&gt;No ATMs match that search.&lt;/div&gt;&#x27;;
+    }
+
+    /* Zillow-style peek sheet: tap the handle to toggle, or drag it up/down to snap */
+    function initPeek() {
+      const peek = document.getElementById(&#x27;peek&#x27;), handle = document.getElementById(&#x27;peek-handle&#x27;);
+      let drag = null;
+      handle.addEventListener(&#x27;pointerdown&#x27;, e =&gt; { drag = { y: e.clientY, h: peek.getBoundingClientRect().height, moved: false }; peek.style.transition = &#x27;none&#x27;; });
+      window.addEventListener(&#x27;pointermove&#x27;, e =&gt; {
+        if (!drag) return;
+        const dy = drag.y - e.clientY; if (Math.abs(dy) &gt; 4) drag.moved = true;
+        const paneH = peek.parentElement.getBoundingClientRect().height;
+        peek.style.height = Math.max(88, Math.min(paneH - 14, drag.h + dy)) + &#x27;px&#x27;;
+      });
+      window.addEventListener(&#x27;pointerup&#x27;, () =&gt; {
+        if (!drag) return;
+        const paneH = peek.parentElement.getBoundingClientRect().height, h = peek.getBoundingClientRect().height;
+        peek.style.transition = &#x27;&#x27;;
+        if (!drag.moved) peek.classList.toggle(&#x27;expanded&#x27;);
+        else peek.classList.toggle(&#x27;expanded&#x27;, h &gt; paneH * 0.4);
+        peek.style.height = &#x27;&#x27;; drag = null;
+      });
+    }
+
+    /* ---- ASSET: slots / tabs / lightbox ---- */
+    let cur = 0;
+    function buildSlots() {
+      const el = document.getElementById(&#x27;slots&#x27;);
+      el.innerHTML = SLOTS.map((s,i) =&gt; `&lt;div class=&quot;slot${i===0?&#x27; active&#x27;:&#x27;&#x27;}&quot; onclick=&quot;selectSlot(${i})&quot;&gt;&lt;div class=&quot;thumb&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${slotImg(i)}&quot;&gt;&lt;/div&gt;&lt;div class=&quot;nm&quot;&gt;${s.nm}&lt;/div&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
+    }
+    function selectSlot(i) {
+      cur = i;
+      document.querySelectorAll(&#x27;#slots .slot&#x27;).forEach((el, idx) =&gt; el.classList.toggle(&#x27;active&#x27;, idx === i));
+      const s = SLOTS[i];
+      const hero = document.getElementById(&#x27;hero-img&#x27;);
+      hero.src = slotImg(i); hero.style.objectPosition = &#x27;center&#x27;; /* each slot = its real component photo, shown whole (horizontal) */
+      document.querySelector(&#x27;#view-asset .chip.count&#x27;).lastChild.nodeValue = ` ${i + 1} / 7`;
+      document.getElementById(&#x27;hero-slot&#x27;).textContent = s.nm + (s.nm === &#x27;Main&#x27; ? &#x27; view&#x27; : &#x27;&#x27;);
+    }
+    function setTab(btn) {
+      document.querySelectorAll(&#x27;#view-asset .tab&#x27;).forEach(t =&gt; t.classList.remove(&#x27;active&#x27;));
+      btn.classList.add(&#x27;active&#x27;);
+      const tab = btn.dataset.tab;
+      [&#x27;issues&#x27;,&#x27;history&#x27;,&#x27;info&#x27;].forEach(t =&gt; document.getElementById(&#x27;p-&#x27; + t).classList.toggle(&#x27;active&#x27;, t === tab));
+    }
+    function openLB() { syncLB(); document.getElementById(&#x27;lb&#x27;).classList.add(&#x27;show&#x27;); document.body.classList.add(&#x27;lb-open&#x27;); }
+    function closeLB(e) { if (e) e.stopPropagation(); document.getElementById(&#x27;lb&#x27;).classList.remove(&#x27;show&#x27;); document.getElementById(&#x27;lb-chrome&#x27;).classList.remove(&#x27;hide&#x27;); document.body.classList.remove(&#x27;lb-open&#x27;); }
+    function stepLB(d) { cur = (cur + d + SLOTS.length) % SLOTS.length; selectSlot(cur); syncLB(); }
+    function syncLB() {
+      const s = SLOTS[cur], img = document.getElementById(&#x27;lb-img&#x27;);
+      img.src = slotImg(cur); img.style.objectFit = &#x27;contain&#x27;; img.style.objectPosition = &#x27;center&#x27;; /* full horizontal component photo, letterboxed — bigger when the phone rotates */
+      document.getElementById(&#x27;lb-count&#x27;).textContent = `${cur + 1} of 7`;
+      document.getElementById(&#x27;lb-slotname&#x27;).textContent = s.nm + (s.nm === &#x27;Main&#x27; ? &#x27; view&#x27; : &#x27;&#x27;);
+      document.getElementById(&#x27;lb-atm&#x27;).textContent = &#x27;ATM-&#x27; + ASSET.id;
+      document.getElementById(&#x27;lb-addr&#x27;).textContent = ASSET.loc + &#x27;, &#x27; + ASSET.city;
+    }
+    function toggleChrome(e) { if (e.target.closest(&#x27;.lb-fab&#x27;)) return; document.getElementById(&#x27;lb-chrome&#x27;).classList.toggle(&#x27;hide&#x27;); }
+
+    /* &quot;Take a photo&quot; / &quot;Attach a photo&quot; = a transparent file input laid over the button (most reliable on iOS) */
+    document.querySelectorAll(&#x27;.cam-input&#x27;).forEach(inp =&gt; inp.addEventListener(&#x27;change&#x27;, e =&gt; {
+      const f = e.target.files &amp;&amp; e.target.files[0]; if (!f) return;
+      const img = document.getElementById(&#x27;take-photo-img&#x27;);
+      img.src = URL.createObjectURL(f);
+      img.style.objectFit = &#x27;cover&#x27;; img.style.objectPosition = &#x27;center&#x27;;
+      openSheet(&#x27;takephoto&#x27;);
+      e.target.value = &#x27;&#x27;; /* allow taking another shot next time */
+    }));
+
+    /* ---- sheets ---- */
+    function openSheet(which) { closeLB(); document.querySelectorAll(&#x27;.sheet&#x27;).forEach(s =&gt; s.classList.remove(&#x27;show&#x27;)); document.getElementById(&#x27;overlay&#x27;).classList.add(&#x27;show&#x27;); document.getElementById(&#x27;sheet-&#x27; + which).classList.add(&#x27;show&#x27;); }
+    function closeSheet() { document.getElementById(&#x27;overlay&#x27;).classList.remove(&#x27;show&#x27;); document.querySelectorAll(&#x27;.sheet&#x27;).forEach(s =&gt; s.classList.remove(&#x27;show&#x27;)); }
+    function nativeShare() {
+      const text = &#x27;This is from ATM #4471, 1450 S State St, Salt Lake City UT. Click here to see the latest info: https://stikkydata.com/a/4471&#x27;;
+      if (navigator.share) { navigator.share({ text }).catch(()=&gt;{}); }
+      else { toast(&#x27;Opening share sheet…&#x27;); }
+    }
+
+    /* ---- map ---- */
+    function pinHTML(a) {
+      return `&lt;div class=&quot;fpin&quot;&gt;&lt;svg width=&quot;28&quot; height=&quot;38&quot; viewBox=&quot;0 0 28 38&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&lt;rect x=&quot;13&quot; y=&quot;16.5&quot; width=&quot;2&quot; height=&quot;20&quot; rx=&quot;1&quot; fill=&quot;#5a6478&quot;/&gt;&lt;circle cx=&quot;14&quot; cy=&quot;12&quot; r=&quot;9.5&quot; fill=&quot;#57ab2e&quot;/&gt;&lt;circle cx=&quot;11&quot; cy=&quot;9&quot; r=&quot;2.5&quot; fill=&quot;#ffffff&quot; fill-opacity=&quot;0.32&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;`;
+    }
+    function cardHTML(a) {
+      const pill = a.issues &gt; 0 ? `&lt;span class=&quot;pc-pill issues&quot;&gt;${a.issues} open&lt;/span&gt;` : &#x27;&#x27;;
+      const dots = SLOTS.map((_,i)=&gt;`&lt;i class=&quot;${i===0?&#x27;on&#x27;:&#x27;&#x27;}&quot;&gt;&lt;/i&gt;`).join(&#x27;&#x27;);
+      return `&lt;div class=&quot;pcard&quot; data-cur=&quot;0&quot;&gt;
+        &lt;div class=&quot;pc-photo&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${ATM}&quot; style=&quot;object-position:${SLOTS[0].pos}&quot;&gt;
+          &lt;button class=&quot;pc-arrow l&quot; onclick=&quot;cardStep(event,-1)&quot;&gt;&amp;#8249;&lt;/button&gt;&lt;button class=&quot;pc-arrow r&quot; onclick=&quot;cardStep(event,1)&quot;&gt;&amp;#8250;&lt;/button&gt;
+          &lt;span class=&quot;pc-slot&quot;&gt;${SLOTS[0].nm}&lt;/span&gt;&lt;span class=&quot;pc-dots&quot;&gt;${dots}&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;pc-meta&quot;&gt;&lt;div class=&quot;pc-id&quot;&gt;ATM&amp;#8209;${a.id}&lt;/div&gt;&lt;div class=&quot;pc-loc&quot;&gt;${a.loc} · ${a.city}&lt;/div&gt;
+          &lt;div class=&quot;pc-status&quot;&gt;${pill}&lt;span class=&quot;pc-last&quot;&gt;Serviced ${a.last} ago&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;pc-btns&quot;&gt;&lt;button class=&quot;pc-btn show&quot; onclick=&quot;openAsset(&#x27;map&#x27;)&quot;&gt;Show me&lt;/button&gt;
+          &lt;button class=&quot;pc-btn go&quot; onclick=&quot;openMaps(${a.lat},${a.lng})&quot;&gt;Drive there&lt;/button&gt;&lt;/div&gt;
+      &lt;/div&gt;`;
+    }
+    function cardStep(e, d) {
+      e.stopPropagation();
+      const card = e.target.closest(&#x27;.pcard&#x27;);
+      let i = (+(card.dataset.cur) + d + SLOTS.length) % SLOTS.length; card.dataset.cur = i;
+      card.querySelector(&#x27;.pc-photo img&#x27;).style.objectPosition = SLOTS[i].pos;
+      card.querySelector(&#x27;.pc-slot&#x27;).textContent = SLOTS[i].nm;
+      card.querySelectorAll(&#x27;.pc-dots i&#x27;).forEach((el, idx) =&gt; el.classList.toggle(&#x27;on&#x27;, idx === i));
+    }
+    function locateMe() { toast(&#x27;Centering on your location…&#x27;); if (window.__map) window.__map.flyTo([40.7400,-111.8800], 13); }
+
+    function buildLeaflet() {
+      const map = L.map(&#x27;map&#x27;, { zoomControl: false, attributionControl: false }).setView([40.7400, -111.8800], 12);
+      window.__map = map;
+      L.tileLayer(&#x27;https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png&#x27;, { maxZoom: 19 }).addTo(map);
+      window.__fleetLayer = L.layerGroup().addTo(map);
+      L.marker([40.7330, -111.8700], { icon: L.divIcon({ html: &#x27;&lt;div class=&quot;pin-me&quot;&gt;&lt;/div&gt;&#x27;, className: &#x27;&#x27;, iconSize: [16,16], iconAnchor: [8,8] }) }).addTo(map);
+      paintFleet();
+    }
+    /* (re)draw the active fleet&#x27;s pins — called on first build and on every bank switch */
+    function paintFleet() {
+      const map = window.__map, layer = window.__fleetLayer;
+      if (!map || !layer) return;
+      layer.clearLayers();
+      const bounds = [];
+      FLEET.forEach(a =&gt; {
+        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: &#x27;&#x27;, iconSize: [28,38], iconAnchor: [14,37], popupAnchor: [0,-36] }) });
+        m.bindPopup(cardHTML(a), { className: &#x27;fleet-popup&#x27;, closeButton: false, minWidth: 214, maxWidth: 214 });
+        m.on(&#x27;popupopen&#x27;, e =&gt; { paintImages(e.popup.getElement()); if (e.target._icon) e.target._icon.classList.add(&#x27;pin-selected&#x27;); });
+        m.on(&#x27;popupclose&#x27;, e =&gt; { if (e.target._icon) e.target._icon.classList.remove(&#x27;pin-selected&#x27;); });
+        layer.addLayer(m);
+        bounds.push([a.lat, a.lng]);
+      });
+      if (bounds.length) map.fitBounds(bounds, { paddingTopLeft: [55, 55], paddingBottomRight: [55, 120] });
+      setTimeout(() =&gt; map.invalidateSize(), 120);
+    }
+    function buildFallback() {
+      document.getElementById(&#x27;map&#x27;).style.display = &#x27;none&#x27;;
+      const fb = document.getElementById(&#x27;fallback&#x27;); fb.style.display = &#x27;block&#x27;; fb.innerHTML = &#x27;&#x27;;
+      const oldCard = document.getElementById(&#x27;fbcard&#x27;); if (oldCard) oldCard.remove();
+      const spots = [[26,34],[58,28],[44,50],[20,62],[72,58],[64,74],[36,76],[80,40],[50,38],[30,46],[68,44],[40,64]];
+      FLEET.slice(0, spots.length).forEach((a, i) =&gt; {
+        const [x,y] = spots[i];
+        const el = document.createElement(&#x27;div&#x27;); el.className = &#x27;fb-pin&#x27;; el.style.left = x + &#x27;%&#x27;; el.style.top = y + &#x27;%&#x27;; el.innerHTML = pinHTML(a);
+        el.onclick = () =&gt; { document.querySelectorAll(&#x27;#fallback .fb-pin.pin-selected&#x27;).forEach(p =&gt; p.classList.remove(&#x27;pin-selected&#x27;)); el.classList.add(&#x27;pin-selected&#x27;); const old = document.getElementById(&#x27;fbcard&#x27;); if (old) old.remove(); const c = document.createElement(&#x27;div&#x27;); c.id=&#x27;fbcard&#x27;; c.style.cssText=&#x27;position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:31;&#x27;; c.innerHTML = cardHTML(a); document.querySelector(&#x27;#view-map .map-pane&#x27;).appendChild(c); paintImages(c); };
+        fb.appendChild(el);
+      });
+      const me = document.createElement(&#x27;div&#x27;); me.className=&#x27;fb-pin&#x27;; me.style.cssText=&#x27;left:50%;top:46%;transform:translate(-50%,-50%);&#x27;; me.innerHTML=&#x27;&lt;div class=&quot;pin-me&quot;&gt;&lt;/div&gt;&#x27;; fb.appendChild(me);
+    }
+
+    /* ---- toast ---- */
+    let toastT;
+    function toast(msg) { const t = document.getElementById(&#x27;toast&#x27;); t.textContent = msg; t.classList.add(&#x27;show&#x27;); clearTimeout(toastT); toastT = setTimeout(() =&gt; t.classList.remove(&#x27;show&#x27;), 1900); }
+
+    /* institution switcher — a StikkyData customer (e.g. NCR) often owns the fleets of MANY banks; pop between them */
+    const CUSTOMERS = [&#x27;America First&#x27;, &#x27;Mountain America CU&#x27;, &#x27;Zions Bank&#x27;, &#x27;Goldenwest CU&#x27;];
+    let custIdx = 0;
+    function renderCustMenu() {
+      document.getElementById(&#x27;cust-menu&#x27;).innerHTML =
+        &#x27;&lt;div class=&quot;cust-hd&quot;&gt;Your institutions&lt;/div&gt;&#x27; +
+        CUSTOMERS.map((c, i) =&gt;
+          `&lt;button class=&quot;cust-item${i === custIdx ? &#x27; on&#x27; : &#x27;&#x27;}&quot; onclick=&quot;pickCust(${i})&quot;&gt;&lt;span&gt;${c}&lt;/span&gt;${i === custIdx ? &#x27;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.4&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;&#x27; : &#x27;&#x27;}&lt;/button&gt;`
+        ).join(&#x27;&#x27;);
+    }
+    function toggleCust(e) {
+      e.stopPropagation();
+      const m = document.getElementById(&#x27;cust-menu&#x27;);
+      if (m.classList.contains(&#x27;show&#x27;)) { closeCust(); return; }
+      renderCustMenu();
+      const r = e.currentTarget.getBoundingClientRect();
+      const sr = document.querySelector(&#x27;.screen&#x27;).getBoundingClientRect();
+      m.style.top = (r.bottom - sr.top + 7) + &#x27;px&#x27;;
+      m.style.right = (sr.right - r.right) + &#x27;px&#x27;;
+      m.classList.add(&#x27;show&#x27;);
+      setTimeout(() =&gt; document.addEventListener(&#x27;click&#x27;, closeCust), 0);
+    }
+    function closeCust() { document.getElementById(&#x27;cust-menu&#x27;).classList.remove(&#x27;show&#x27;); document.removeEventListener(&#x27;click&#x27;, closeCust); }
+    function pickCust(i) {
+      closeCust();
+      if (i === custIdx) return;
+      custIdx = i;
+      document.querySelectorAll(&#x27;.cust-name&#x27;).forEach(el =&gt; el.textContent = CUSTOMERS[i]);
+      FLEET = FLEETS[CUSTOMERS[i]] || FLEETS[&#x27;America First&#x27;];
+      /* repopulate every fleet surface for the new institution */
+      renderList(); renderPeek();
+      const attn = FLEET.filter(a =&gt; a.issues &gt; 0).length;
+      const pc = document.querySelector(&#x27;.peek-count&#x27;);
+      if (pc) pc.innerHTML = `&lt;b&gt;${FLEET.length}&lt;/b&gt; ATMs &lt;i&gt;· ${attn} need attention&lt;/i&gt;`;
+      if (window.__map) paintFleet(); else buildFallback();
+      showView(&#x27;map&#x27;);
+      toast(CUSTOMERS[i] + &#x27; · &#x27; + FLEET.length + &#x27; ATMs&#x27;);
+    }
+
+    /* ===== TRIAGE — mirrors the StikkyData dashboard: outstanding action items grouped by DEPARTMENT → issue
+       type (each its own photo). You CLEAR ONE GROUP AT A TIME (e.g. Diebold › Monitor), never a mixed pile.
+       Per card: Excuse (dismiss as not-real) / Escalate (route to that dept) / Skip. Escalations batch within
+       the group, then open a pre-filled email to that department (e.g. Diebold) you send from your own mail.
+       Counts mirror the real dashboard (Diebold 58, America First 210, Facilities 15). ===== */
+    const DEPARTMENTS = [
+      { dept: &#x27;Diebold Nixdorf&#x27;, tag: &#x27;Vendor&#x27;, email: &#x27;vendor-support@americafirst.com&#x27;,
+        types: [ { type: &#x27;Monitor&#x27;, n: 45, slot: 3 }, { type: &#x27;Receipt&#x27;, n: 10, slot: 1 }, { type: &#x27;ATM Lighting&#x27;, n: 3, slot: 5 } ] },
+      { dept: &#x27;America First CU&#x27;, tag: &#x27;Internal&#x27;, email: &#x27;compliance@americafirst.com&#x27;,
+        types: [ { type: &#x27;ADA&#x27;, n: 145, slot: 6 }, { type: &#x27;ATM Condition&#x27;, n: 33, slot: 0 }, { type: &#x27;Braille&#x27;, n: 12, slot: 4 }, { type: &#x27;ATM Out of Service&#x27;, n: 4, slot: 0 } ] },
+      { dept: &#x27;Facilities&#x27;, tag: &#x27;Internal&#x27;, email: &#x27;facilities@americafirst.com&#x27;,
+        types: [ { type: &#x27;Drive-Up Lanes&#x27;, n: 15, slot: 0 } ] },
+    ];
+    DEPARTMENTS.forEach(d =&gt; d.types.forEach(t =&gt; { t.remaining = t.n; }));
+    function triageTotal() { return DEPARTMENTS.reduce((s, d) =&gt; s + d.types.reduce((a, t) =&gt; a + t.remaining, 0), 0); }
+    function updateReviewChip() { document.querySelectorAll(&#x27;.rc-n&#x27;).forEach(el =&gt; el.textContent = triageTotal()); }
+
+    let tgDept = null, tgTypeName = null, tgDeck = [], tgIdx = 0, tgLog = [], tgUndoT = null;
+    let tgSingle = false, tgSingleAtmIdx = -1, tgDtype = &#x27;&#x27;;   /* single-issue mode: triage ONE issue, then ask &quot;do more?&quot; */
+    const tgExpanded = new Set();
+    const ICN_X = &#x27;&lt;svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;line x1=&quot;18&quot; y1=&quot;6&quot; x2=&quot;6&quot; y2=&quot;18&quot;/&gt;&lt;line x1=&quot;6&quot; y1=&quot;6&quot; x2=&quot;18&quot; y2=&quot;18&quot;/&gt;&lt;/svg&gt;&#x27;;
+    const ICN_BACK = &#x27;&lt;svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;15 18 9 12 15 6&quot;/&gt;&lt;/svg&gt;&#x27;;
+    const ICN_CHEV = &#x27;&lt;svg class=&quot;tg-chev&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;/&gt;&lt;/svg&gt;&#x27;;
+    const esc = s =&gt; s.replace(/&#x27;/g, &quot;\&#x27;&quot;);
+
+    function openTriage() { tgSingle = false; renderLanding(); showView(&#x27;triage&#x27;); }
+    function closeTriage() { clearTimeout(tgUndoT); document.getElementById(&#x27;tg-undo&#x27;).classList.remove(&#x27;show&#x27;); updateReviewChip(); showView(&#x27;map&#x27;); }
+    function toggleDept(name) { tgExpanded.has(name) ? tgExpanded.delete(name) : tgExpanded.add(name); renderLanding(); }
+
+    /* Landing = accordion of teams. First look = collapsed team names; expand to launch the whole team or a single type. */
+    function renderLanding() {
+      tgDept = null; tgTypeName = null; document.getElementById(&#x27;tg-undo&#x27;).classList.remove(&#x27;show&#x27;);
+      document.getElementById(&#x27;tg-top&#x27;).innerHTML =
+        `&lt;button class=&quot;icon-btn&quot; aria-label=&quot;Done&quot; onclick=&quot;closeTriage()&quot;&gt;${ICN_X}&lt;/button&gt;&lt;div class=&quot;tg-ttl&quot;&gt;Review &lt;span class=&quot;tg-prog&quot;&gt;${triageTotal()} open&lt;/span&gt;&lt;/div&gt;`;
+      const groups = DEPARTMENTS.map(d =&gt; {
+        const open = d.types.reduce((a, t) =&gt; a + t.remaining, 0);
+        const isOpen = tgExpanded.has(d.dept);
+        let panel = &#x27;&#x27;;
+        if (isOpen) {
+          const live = d.types.filter(t =&gt; t.remaining &gt; 0);
+          const allBtn = live.length &gt; 1
+            ? `&lt;button class=&quot;tg-type-row all&quot; onclick=&quot;openGroup(&#x27;${esc(d.dept)}&#x27;, null)&quot;&gt;&lt;span class=&quot;tg-type-nm&quot;&gt;Triage all issues&lt;/span&gt;&lt;span class=&quot;tg-type-n&quot;&gt;${open}&lt;/span&gt;${ICN_CHEV}&lt;/button&gt;` : &#x27;&#x27;;
+          const rows = d.types.map(t =&gt; t.remaining === 0
+            ? `&lt;div class=&quot;tg-type-row done&quot;&gt;&lt;span class=&quot;tg-type-nm&quot;&gt;${t.type}&lt;/span&gt;&lt;span class=&quot;tg-type-clear&quot;&gt;Cleared&lt;/span&gt;&lt;/div&gt;`
+            : `&lt;button class=&quot;tg-type-row&quot; onclick=&quot;openGroup(&#x27;${esc(d.dept)}&#x27;,&#x27;${esc(t.type)}&#x27;)&quot;&gt;&lt;span class=&quot;tg-type-nm&quot;&gt;${t.type}&lt;/span&gt;&lt;span class=&quot;tg-type-n&quot;&gt;${t.remaining}&lt;/span&gt;${ICN_CHEV}&lt;/button&gt;`).join(&#x27;&#x27;);
+          panel = `&lt;div class=&quot;tg-types&quot;&gt;${allBtn}${rows}&lt;/div&gt;`;
+        }
+        return `&lt;div class=&quot;tg-dept${isOpen ? &#x27; open&#x27; : &#x27;&#x27;}&quot;&gt;&lt;button class=&quot;tg-dept-hd&quot; onclick=&quot;toggleDept(&#x27;${esc(d.dept)}&#x27;)&quot;&gt;&lt;span class=&quot;tg-dept-nm&quot;&gt;${d.dept}&lt;/span&gt;&lt;span class=&quot;tg-dept-tag&quot;&gt;${d.tag}&lt;/span&gt;&lt;span class=&quot;tg-dept-n&quot;&gt;${open} open&lt;/span&gt;&lt;svg class=&quot;tg-dept-chev&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;6 9 12 15 18 9&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;${panel}&lt;/div&gt;`;
+      }).join(&#x27;&#x27;);
+      document.getElementById(&#x27;tg-stage&#x27;).innerHTML = `&lt;div class=&quot;tg-hint&quot;&gt;Most flags are noise. Open a team, then clear it — Excuse the noise, Escalate the real ones, and email that team in one go.&lt;/div&gt;${groups}`;
+    }
+
+    /* typeName null = the whole team (all its issue types); otherwise just that type. */
+    function openGroup(deptName, typeName) {
+      tgSingle = false;
+      tgDept = DEPARTMENTS.find(d =&gt; d.dept === deptName);
+      tgTypeName = typeName;
+      tgDeck = []; tgIdx = 0; tgLog = [];
+      const types = typeName ? tgDept.types.filter(t =&gt; t.type === typeName) : tgDept.types;
+      let k = 0;
+      types.forEach(t =&gt; { for (let i = 0; i &lt; t.remaining; i++) {
+        const a = FLEET[(k * 7 + 3) % FLEET.length];
+        const np = (k % 4 === 0) ? 3 : (k % 4 === 2 ? 2 : 1); /* some issues carry 2-3 photos */
+        const photos = [t.slot]; for (let p = 1; p &lt; np; p++) photos.push((t.slot + p * 2) % SLOTS.length);
+        tgDeck.push({ atm: a.id, addr: a.loc + &#x27;, &#x27; + a.city, type: t.type, slot: t.slot, photos });
+        k++;
+      } });
+      renderGroup();
+    }
+
+    function renderGroup() {
+      if (tgIdx &gt;= tgDeck.length) { renderGroupSummary(); return; }
+      const it = tgDeck[tgIdx], label = tgTypeName || it.type, multi = it.photos.length &gt; 1;
+      document.getElementById(&#x27;tg-top&#x27;).innerHTML =
+        `&lt;button class=&quot;icon-btn&quot; aria-label=&quot;Back to teams&quot; onclick=&quot;renderLanding()&quot;&gt;${ICN_BACK}&lt;/button&gt;&lt;div class=&quot;tg-ttl&quot;&gt;${tgDept.dept} · ${label} &lt;span class=&quot;tg-prog&quot;&gt;${tgIdx + 1} of ${tgDeck.length}&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;tg-bar&quot;&gt;&lt;div class=&quot;tg-bar-fill&quot; style=&quot;width:${Math.round(tgIdx / tgDeck.length * 100)}%&quot;&gt;&lt;/div&gt;&lt;/div&gt;`;
+      const countBadge = multi ? `&lt;span class=&quot;tg-photo-count&quot;&gt;${it.photos.length}&lt;/span&gt;` : &#x27;&#x27;;
+      const dots = multi ? `&lt;div class=&quot;tg-dots&quot;&gt;${it.photos.map((_, k) =&gt; `&lt;i class=&quot;${k === 0 ? &#x27;on&#x27; : &#x27;&#x27;}&quot;&gt;&lt;/i&gt;`).join(&#x27;&#x27;)}&lt;/div&gt;` : &#x27;&#x27;;
+      document.getElementById(&#x27;tg-stage&#x27;).innerHTML =
+        `&lt;div class=&quot;tg-card&quot; id=&quot;tg-card&quot;&gt;
+          &lt;span class=&quot;tg-swipe-stamp excuse&quot;&gt;Excuse&lt;/span&gt;&lt;span class=&quot;tg-swipe-stamp escalate&quot;&gt;Escalate&lt;/span&gt;
+          &lt;div class=&quot;tg-photo&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${slotImg(it.photos[0])}&quot; style=&quot;object-position:center&quot;&gt;&lt;span class=&quot;tg-flag&quot;&gt;${it.type}&lt;/span&gt;${countBadge}&lt;/div&gt;
+          ${dots}
+          &lt;div class=&quot;tg-ctx&quot;&gt;&lt;div class=&quot;tg-meta&quot;&gt;&lt;button class=&quot;tg-atm&quot;&gt;ATM&amp;#8209;${it.atm}&lt;/button&gt; · ${it.addr}&lt;/div&gt;&lt;div class=&quot;tg-vendor&quot;&gt;Routes to · ${tgDept.dept}&lt;/div&gt;&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;tg-actions&quot;&gt;
+          &lt;button class=&quot;tg-btn excuse&quot; onclick=&quot;triageDo(&#x27;excuse&#x27;)&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;line x1=&quot;18&quot; y1=&quot;6&quot; x2=&quot;6&quot; y2=&quot;18&quot;/&gt;&lt;line x1=&quot;6&quot; y1=&quot;6&quot; x2=&quot;18&quot; y2=&quot;18&quot;/&gt;&lt;/svg&gt;Excuse&lt;/button&gt;
+          &lt;button class=&quot;tg-btn escalate&quot; onclick=&quot;triageDo(&#x27;escalate&#x27;)&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;Escalate&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;textarea class=&quot;tg-comment&quot; id=&quot;tg-comment&quot; rows=&quot;2&quot; placeholder=&quot;Add a comment (optional)…&quot;&gt;&lt;/textarea&gt;
+        &lt;button class=&quot;tg-skip&quot; onclick=&quot;triageDo(&#x27;skip&#x27;)&quot;&gt;Can&#x27;t tell — skip for now&lt;/button&gt;`;
+      wireSwipe(document.getElementById(&#x27;tg-card&#x27;));
+    }
+    /* swipe the card: left = Excuse, right = Escalate; a small drag that doesn&#x27;t cross the threshold
+       counts as a tap (opens the photo set if it landed on the photo or the ATM id). */
+    function wireSwipe(card) {
+      if (!card) return;
+      let sx = 0, sy = 0, dragging = false, moved = false, downT = null;
+      card.addEventListener(&#x27;pointerdown&#x27;, e =&gt; { sx = e.clientX; sy = e.clientY; dragging = true; moved = false; downT = e.target; card.style.transition = &#x27;none&#x27;; try { card.setPointerCapture(e.pointerId); } catch (_) {} });
+      card.addEventListener(&#x27;pointermove&#x27;, e =&gt; {
+        if (!dragging) return;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        if (Math.abs(dx) &gt; 6 || Math.abs(dy) &gt; 6) moved = true;
+        if (Math.abs(dx) &gt; Math.abs(dy)) { card.style.transform = `translateX(${dx}px) rotate(${dx * 0.03}deg)`; card.classList.toggle(&#x27;to-excuse&#x27;, dx &lt; -36); card.classList.toggle(&#x27;to-escalate&#x27;, dx &gt; 36); }
+      });
+      card.addEventListener(&#x27;pointerup&#x27;, e =&gt; {
+        if (!dragging) return; dragging = false;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        card.style.transition = &#x27;&#x27;; card.classList.remove(&#x27;to-excuse&#x27;, &#x27;to-escalate&#x27;);
+        if (Math.abs(dx) &gt; 92 &amp;&amp; Math.abs(dx) &gt; Math.abs(dy)) {
+          const act = dx &gt; 0 ? &#x27;escalate&#x27; : &#x27;excuse&#x27;;
+          card.style.transform = `translateX(${dx &gt; 0 ? 520 : -520}px) rotate(${dx &gt; 0 ? 18 : -18}deg)`; card.style.opacity = &#x27;0&#x27;;
+          setTimeout(() =&gt; triageDo(act), 140);
+        } else {
+          card.style.transform = &#x27;&#x27;;
+          if (!moved &amp;&amp; downT &amp;&amp; downT.closest &amp;&amp; (downT.closest(&#x27;.tg-photo&#x27;) || downT.closest(&#x27;.tg-atm&#x27;))) openTgPhotos();
+        }
+      });
+      card.addEventListener(&#x27;pointercancel&#x27;, () =&gt; { dragging = false; card.style.transition = &#x27;&#x27;; card.style.transform = &#x27;&#x27;; card.classList.remove(&#x27;to-excuse&#x27;, &#x27;to-escalate&#x27;); });
+    }
+    /* full photo set for the current issue (some issues carry multiple photos) */
+    let tgPhotos = [], tgPhotoIdx = 0;
+    function openTgPhotos() { const it = tgDeck[tgIdx]; if (!it) return; tgPhotos = it.photos; tgPhotoIdx = 0; renderTgLB(); document.getElementById(&#x27;tg-lb&#x27;).classList.add(&#x27;show&#x27;); }
+    function tgLBStep(d) { if (tgPhotos.length &lt; 2) return; tgPhotoIdx = (tgPhotoIdx + d + tgPhotos.length) % tgPhotos.length; renderTgLB(); }
+    function closeTgLB() { document.getElementById(&#x27;tg-lb&#x27;).classList.remove(&#x27;show&#x27;); }
+    function renderTgLB() { const img = document.getElementById(&#x27;tg-lb-img&#x27;); img.src = slotImg(tgPhotos[tgPhotoIdx]); img.style.objectFit = &#x27;contain&#x27;; img.style.objectPosition = &#x27;center&#x27;; document.getElementById(&#x27;tg-lb-count&#x27;).textContent = (tgPhotoIdx + 1) + &#x27; of &#x27; + tgPhotos.length; }
+
+    function triageDo(action) {
+      if (tgIdx &gt;= tgDeck.length) return;
+      const cEl = document.getElementById(&#x27;tg-comment&#x27;); const comment = cEl ? cEl.value.trim() : &#x27;&#x27;;
+      tgLog.push({ item: tgDeck[tgIdx], action, comment }); tgIdx++;
+      const u = document.getElementById(&#x27;tg-undo&#x27;); document.getElementById(&#x27;tg-undo-tx&#x27;).textContent = action === &#x27;excuse&#x27; ? &#x27;Excused&#x27; : action === &#x27;escalate&#x27; ? &#x27;Escalated&#x27; : &#x27;Skipped&#x27;;
+      u.classList.add(&#x27;show&#x27;); clearTimeout(tgUndoT); tgUndoT = setTimeout(() =&gt; u.classList.remove(&#x27;show&#x27;), 2200);
+      renderGroup();
+    }
+    function triageUndo() { if (!tgLog.length) return; tgLog.pop(); tgIdx = Math.max(0, tgIdx - 1); clearTimeout(tgUndoT); document.getElementById(&#x27;tg-undo&#x27;).classList.remove(&#x27;show&#x27;); renderGroup(); }
+
+    /* idempotent: a type&#x27;s remaining = its deck size minus what got excused/escalated (skipped stays open) */
+    function commitRemaining() {
+      [...new Set(tgDeck.map(d =&gt; d.type))].forEach(tn =&gt; {
+        const t = tgDept.types.find(x =&gt; x.type === tn); if (!t) return;
+        const deckN = tgDeck.filter(d =&gt; d.type === tn).length;
+        const cleared = tgLog.filter(l =&gt; (l.action === &#x27;excuse&#x27; || l.action === &#x27;escalate&#x27;) &amp;&amp; l.item.type === tn).length;
+        t.remaining = deckN - cleared;
+      });
+    }
+    /* single-issue triage: go straight to one issue&#x27;s screen, then ask &quot;do more?&quot; */
+    function triageOne(o) {
+      tgDept = DEPARTMENTS.find(d =&gt; d.dept === o.dept) || DEPARTMENTS[0];
+      tgTypeName = o.type; tgDtype = o.dtype || &#x27;&#x27;; tgSingle = true; tgSingleAtmIdx = (o.atmIdx == null ? -1 : o.atmIdx);
+      tgDeck = [{ atm: o.atm, addr: o.addr, type: o.type, slot: o.slot, photos: [o.slot] }];
+      tgIdx = 0; tgLog = [];
+      showView(&#x27;triage&#x27;); renderGroup();
+    }
+    function openAtmIssue(idx) {
+      const it = ASSET_ISSUES[idx];
+      triageOne({ atm: ASSET.id, addr: ASSET.loc + &#x27;, &#x27; + ASSET.city, type: it.type, slot: it.slot, dept: it.dept, dtype: it.dtype, atmIdx: idx });
+    }
+    function triageNextOnAtm() { if (tgSingleAtmIdx &gt;= 0 &amp;&amp; tgSingleAtmIdx + 1 &lt; ASSET_ISSUES.length) openAtmIssue(tgSingleAtmIdx + 1); }
+    function renderSingleDone() {
+      const last = tgLog[tgLog.length - 1] || { action: &#x27;excuse&#x27; };
+      const escd = tgLog.filter(l =&gt; l.action === &#x27;escalate&#x27;);
+      const verb = last.action === &#x27;escalate&#x27; ? &#x27;Escalated&#x27; : last.action === &#x27;skip&#x27; ? &#x27;Left open&#x27; : &#x27;Excused&#x27;;
+      document.getElementById(&#x27;tg-undo&#x27;).classList.remove(&#x27;show&#x27;);
+      document.getElementById(&#x27;tg-top&#x27;).innerHTML = `&lt;button class=&quot;icon-btn&quot; aria-label=&quot;Done&quot; onclick=&quot;closeTriage()&quot;&gt;${ICN_X}&lt;/button&gt;&lt;div class=&quot;tg-ttl&quot;&gt;${tgDept.dept} · ${tgTypeName}&lt;/div&gt;`;
+      const emailBtn = escd.length ? `&lt;button class=&quot;tg-email&quot; onclick=&quot;emailGroup()&quot;&gt;&lt;span class=&quot;tg-email-tx&quot;&gt;&lt;b&gt;Email ${tgDept.dept}&lt;/b&gt;&lt;span&gt;To: ${tgDept.email} · tap to change&lt;/span&gt;&lt;/span&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;rect x=&quot;2&quot; y=&quot;4&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;polyline points=&quot;22,6 12,13 2,6&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;` : &#x27;&#x27;;
+      const hasNext = tgSingleAtmIdx &gt;= 0 &amp;&amp; tgSingleAtmIdx + 1 &lt; ASSET_ISSUES.length;
+      const dt = tgDept.types.find(t =&gt; t.type === tgDtype &amp;&amp; t.remaining &gt; 0);
+      let more = &#x27;&#x27;;
+      if (hasNext) more += `&lt;button class=&quot;btn btn-primary tg-finish&quot; onclick=&quot;triageNextOnAtm()&quot;&gt;Next issue on this ATM &amp;rsaquo;&lt;/button&gt;`;
+      if (dt) more += `&lt;button class=&quot;${hasNext ? &#x27;tg-backteams&#x27; : &#x27;btn btn-primary tg-finish&#x27;}&quot; onclick=&quot;openGroup(&#x27;${esc(tgDept.dept)}&#x27;,&#x27;${esc(tgDtype)}&#x27;)&quot;&gt;Open the ${tgDept.dept} · ${tgDtype} queue (${dt.remaining})&lt;/button&gt;`;
+      document.getElementById(&#x27;tg-stage&#x27;).innerHTML =
+        `&lt;div class=&quot;tg-summary&quot;&gt;
+          &lt;div class=&quot;tg-done-ic&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;h2&gt;${verb}&lt;/h2&gt;
+          &lt;div class=&quot;tg-summary-sub&quot;&gt;${escd.length ? &#x27;Send it to &#x27; + tgDept.dept + &#x27; — a pre-filled draft, editable recipient.&#x27; : &#x27;Recorded on ATM-&#x27; + tgDeck[0].atm + &#x27;.&#x27;} Anything else to handle?&lt;/div&gt;
+          ${emailBtn}
+          ${more}
+          &lt;button class=&quot;tg-backteams&quot; onclick=&quot;closeTriage()&quot;&gt;Done&lt;/button&gt;
+        &lt;/div&gt;`;
+    }
+    function renderGroupSummary() {
+      if (tgSingle) { renderSingleDone(); return; }
+      commitRemaining();
+      const by = a =&gt; tgLog.filter(l =&gt; l.action === a).length;
+      const excN = by(&#x27;excuse&#x27;), escN = by(&#x27;escalate&#x27;), skipN = by(&#x27;skip&#x27;), label = tgTypeName || &#x27;All issues&#x27;;
+      document.getElementById(&#x27;tg-undo&#x27;).classList.remove(&#x27;show&#x27;);
+      document.getElementById(&#x27;tg-top&#x27;).innerHTML =
+        `&lt;button class=&quot;icon-btn&quot; aria-label=&quot;Back to teams&quot; onclick=&quot;renderLanding()&quot;&gt;${ICN_BACK}&lt;/button&gt;&lt;div class=&quot;tg-ttl&quot;&gt;${tgDept.dept} · ${label}&lt;/div&gt;`;
+      const emailBtn = escN
+        ? `&lt;button class=&quot;tg-email&quot; onclick=&quot;emailGroup()&quot;&gt;&lt;span class=&quot;tg-email-tx&quot;&gt;&lt;b&gt;Email ${escN} to ${tgDept.dept}&lt;/b&gt;&lt;span&gt;To: ${tgDept.email} · tap to change&lt;/span&gt;&lt;/span&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;rect x=&quot;2&quot; y=&quot;4&quot; width=&quot;20&quot; height=&quot;16&quot; rx=&quot;2&quot;/&gt;&lt;polyline points=&quot;22,6 12,13 2,6&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;`
+        : &#x27;&lt;div class=&quot;tg-noesc&quot;&gt;Nothing escalated this pass.&lt;/div&gt;&#x27;;
+      const next = tgTypeName ? tgDept.types.find(t =&gt; t.remaining &gt; 0 &amp;&amp; t.type !== tgTypeName) : null;
+      const nextBtn = next
+        ? `&lt;button class=&quot;btn btn-primary tg-finish&quot; onclick=&quot;openGroup(&#x27;${esc(tgDept.dept)}&#x27;,&#x27;${esc(next.type)}&#x27;)&quot;&gt;Next: ${next.type} (${next.remaining}) &amp;rsaquo;&lt;/button&gt;&lt;button class=&quot;tg-backteams&quot; onclick=&quot;renderLanding()&quot;&gt;Back to teams&lt;/button&gt;`
+        : `&lt;button class=&quot;btn btn-primary tg-finish&quot; onclick=&quot;renderLanding()&quot;&gt;Back to teams&lt;/button&gt;`;
+      const excTally = excN
+        ? `&lt;button class=&quot;tg-tally-btn&quot; onclick=&quot;renderExcusedReview()&quot;&gt;&lt;b&gt;${excN}&lt;/b&gt;excused&lt;span class=&quot;tg-review-link&quot;&gt;review&lt;/span&gt;&lt;/button&gt;`
+        : `&lt;span&gt;&lt;b&gt;0&lt;/b&gt; excused&lt;/span&gt;`;
+      const skipTally = skipN ? `&lt;span&gt;&lt;b&gt;${skipN}&lt;/b&gt; left open&lt;/span&gt;` : &#x27;&#x27;;
+      document.getElementById(&#x27;tg-stage&#x27;).innerHTML =
+        `&lt;div class=&quot;tg-summary&quot;&gt;
+          &lt;div class=&quot;tg-done-ic&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;h2&gt;${label} reviewed&lt;/h2&gt;
+          &lt;div class=&quot;tg-tally&quot;&gt;${excTally}&lt;span&gt;&lt;b&gt;${escN}&lt;/b&gt; escalated&lt;/span&gt;${skipTally}&lt;/div&gt;
+          &lt;div class=&quot;tg-summary-sub&quot;&gt;${escN ? &#x27;Opens a pre-filled draft to &#x27; + tgDept.email + &#x27; (the default for this team) — change the recipient to your manager, a &#x27; + tgDept.dept + &#x27; rep, or anyone before you send. Nothing sends until you hit send.&#x27; : &#x27;&#x27;}${skipN ? (escN ? &#x27; &#x27; : &#x27;&#x27;) + &#x27;The &#x27; + skipN + &#x27; you skipped stay open for next time.&#x27; : &#x27;&#x27;}&lt;/div&gt;
+          ${emailBtn}
+          ${nextBtn}
+        &lt;/div&gt;`;
+    }
+    /* &quot;review what I excused&quot; — the batch safety net for the trash run */
+    function renderExcusedReview() {
+      const excused = tgLog.map((l, i) =&gt; ({ l, i })).filter(x =&gt; x.l.action === &#x27;excuse&#x27;);
+      document.getElementById(&#x27;tg-top&#x27;).innerHTML =
+        `&lt;button class=&quot;icon-btn&quot; aria-label=&quot;Back&quot; onclick=&quot;renderGroupSummary()&quot;&gt;${ICN_BACK}&lt;/button&gt;&lt;div class=&quot;tg-ttl&quot;&gt;Excused &lt;span class=&quot;tg-prog&quot;&gt;${excused.length}&lt;/span&gt;&lt;/div&gt;`;
+      const rows = excused.map(x =&gt; `&lt;div class=&quot;tg-rev-row&quot;&gt;&lt;div class=&quot;tg-rev-thumb&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${ATM}&quot; style=&quot;object-position:${SLOTS[x.l.item.slot].pos}&quot;&gt;&lt;/div&gt;&lt;div class=&quot;tg-rev-tx&quot;&gt;&lt;b&gt;${x.l.item.type}&lt;/b&gt;&lt;span&gt;ATM&amp;#8209;${x.l.item.atm} · ${x.l.item.addr}&lt;/span&gt;${x.l.comment ? &#x27;&lt;span class=&quot;tg-rev-note&quot;&gt;“&#x27; + x.l.comment + &#x27;”&lt;/span&gt;&#x27; : &#x27;&#x27;}&lt;/div&gt;&lt;button class=&quot;tg-reopen&quot; onclick=&quot;reopenExcused(${x.i})&quot;&gt;Reopen&lt;/button&gt;&lt;/div&gt;`).join(&#x27;&#x27;) || &#x27;&lt;div class=&quot;tg-noesc&quot;&gt;Nothing excused.&lt;/div&gt;&#x27;;
+      document.getElementById(&#x27;tg-stage&#x27;).innerHTML = `&lt;div class=&quot;tg-rev-hint&quot;&gt;Tap Reopen to put one back as open.&lt;/div&gt;${rows}&lt;button class=&quot;btn btn-primary tg-finish&quot; onclick=&quot;renderGroupSummary()&quot;&gt;Done&lt;/button&gt;`;
+    }
+    function reopenExcused(logIdx) {
+      if (logIdx &lt; 0 || logIdx &gt;= tgLog.length) return;
+      tgLog.splice(logIdx, 1); commitRemaining(); renderExcusedReview();
+    }
+    function emailGroup() {
+      const escd = tgLog.filter(l =&gt; l.action === &#x27;escalate&#x27;);
+      if (!escd.length) return;
+      const subj = `ATM service — ${escd.length} unit${escd.length &gt; 1 ? &#x27;s&#x27; : &#x27;&#x27;} (America First CU)`;
+      const lines = escd.map(l =&gt; `• ATM-${l.item.atm} — ${l.item.type} — ${l.item.addr}${l.comment ? &#x27;
+   note: &#x27; + l.comment : &#x27;&#x27;}`).join(&#x27;
+&#x27;);
+      const body = `Hi ${tgDept.dept},
+
+Please schedule service for the following ATMs flagged in our latest review:
+
+${lines}
+
+Thank you,
+America First CU`;
+      window.location.href = `mailto:${tgDept.email}?subject=${encodeURIComponent(subj)}&amp;body=${encodeURIComponent(body)}`;
+    }
+
+    /* ---- init ---- */
+    window.addEventListener(&#x27;load&#x27;, () =&gt; {
+      buildSlots();
+      renderIssues();
+      renderColo();
+      setTabBadges();
+      renderHistory();
+      renderList();
+      renderPeek();
+      initPeek();
+      paintImages();
+      const attn = FLEET.filter(a =&gt; a.issues &gt; 0).length;
+      const pc = document.querySelector(&#x27;.peek-count&#x27;);
+      if (pc) pc.innerHTML = `&lt;b&gt;${FLEET.length}&lt;/b&gt; ATMs &lt;i&gt;· ${attn} need attention&lt;/i&gt;`;
+      updateReviewChip();
+      const hideSplash = () =&gt; { const s = document.getElementById(&#x27;map-splash&#x27;); if (!s) return; s.classList.add(&#x27;gone&#x27;); setTimeout(() =&gt; { s.style.display = &#x27;none&#x27;; }, 500); };
+      if (window.__noLeaflet || typeof L === &#x27;undefined&#x27;) { buildFallback(); hideSplash(); }
+      else { try { buildLeaflet(); } catch (e) { buildFallback(); } setTimeout(hideSplash, 700); }
+
+      /* deep-link each screen state (used by the Screens &amp; Notes sheet) */
+      const routes = {
+        map: () =&gt; showView(&#x27;map&#x27;),
+        list: () =&gt; showView(&#x27;list&#x27;),
+        asset: () =&gt; openAsset(&#x27;map&#x27;),
+        photo: () =&gt; { openAsset(&#x27;map&#x27;); openLB(); },
+        camera: () =&gt; { openAsset(&#x27;map&#x27;); document.getElementById(&#x27;take-photo-img&#x27;).src = ATM; openSheet(&#x27;takephoto&#x27;); },
+        send: () =&gt; { openAsset(&#x27;map&#x27;); openSheet(&#x27;sendchoice&#x27;); },
+        share: () =&gt; { openAsset(&#x27;map&#x27;); openSheet(&#x27;send&#x27;); },
+        directions: () =&gt; { openAsset(&#x27;map&#x27;); directions(); },
+        triage: () =&gt; openTriage(),
+      };
+      const r = routes[location.hash.slice(1)];
+      if (r) setTimeout(r, 250);
+    });</code></pre>
   </div>
 
   <footer>
