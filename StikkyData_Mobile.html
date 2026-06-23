@@ -622,6 +622,52 @@ body {
 .tg-noesc { font-size: 13px; color: var(--text-muted); margin: 6px 0 14px; }
 .tg-finish { width: 100%; margin-top: 8px; }
 
+/* History tab — inspection-visit list (the real v2 history structure) */
+.hv { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 12px; padding: 12px; margin-bottom: 10px; cursor: pointer; font-family: inherit; }
+.hv:active { background: var(--border-light); }
+.hv-ic { width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--pass-bg); color: var(--brand-green); }
+.hv-ic svg { width: 20px; height: 20px; }
+.hv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hv-type { font-size: 14px; font-weight: 700; color: var(--brand-green); }
+.hv-when { font-size: 12px; color: var(--text-secondary); }
+.hv-sub { font-size: 11.5px; color: var(--text-muted); }
+.hv-counts { margin-top: 5px; }
+.hv-c { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.hv-c.out { background: var(--late-bg); color: var(--late); }
+.hv-c.ok { background: var(--pass-bg); color: var(--pass); }
+.hv-thumb { width: 54px; height: 44px; border-radius: 8px; overflow: hidden; background: #0f172a; flex-shrink: 0; }
+.hv-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.hv-chev { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
+
+/* Survey detail overlay (a History entry's Action Record + Q&A) */
+.survey-sheet { position: absolute; inset: 0; background: var(--surface-bg); z-index: 95; display: none; flex-direction: column; }
+.survey-sheet.show { display: flex; }
+.sv-top { display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0)) 12px 8px; background: var(--surface-card); border-bottom: 1px solid var(--border-default); flex-shrink: 0; }
+.sv-ttl { font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.sv-ttl span { font-size: 11.5px; font-weight: 500; color: var(--text-muted); }
+.sv-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 14px 30px; }
+.sv-h { font-size: 14px; font-weight: 800; color: var(--brand-green); margin: 16px 2px 9px; }
+.sv-h:first-child { margin-top: 0; }
+.sv-issue { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 11px; padding: 12px; margin-bottom: 10px; }
+.sv-issue-top { display: flex; gap: 11px; }
+.sv-issue-tx { flex: 1; min-width: 0; }
+.sv-issue-tx b { font-size: 13.5px; font-weight: 700; color: var(--text-primary); display: block; margin-bottom: 3px; }
+.sv-issue-tx span { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; }
+.sv-issue-img { width: 72px; height: 58px; border-radius: 8px; overflow: hidden; background: #0f172a; flex-shrink: 0; }
+.sv-issue-img img { width: 100%; height: 100%; object-fit: cover; }
+.sv-issue-act { font-size: 11.5px; color: var(--text-muted); font-style: italic; margin: 9px 0; }
+.sv-issue-btns { display: flex; gap: 7px; }
+.sv-btn { flex: 1; padding: 8px; border: none; border-radius: 7px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #fff; cursor: pointer; }
+.sv-btn.repair { background: var(--brand-green); }
+.sv-btn.email { background: #2563eb; }
+.sv-btn.remove { background: var(--late); }
+.sv-qa { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 10px; padding: 11px 13px; margin-bottom: 8px; }
+.sv-q { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.sv-arow { display: flex; align-items: flex-start; gap: 10px; margin-top: 5px; }
+.sv-a { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.45; }
+.sv-qimg { width: 58px; height: 46px; border-radius: 7px; overflow: hidden; background: #0f172a; flex-shrink: 0; }
+.sv-qimg img { width: 100%; height: 100%; object-fit: cover; }
+
 /* On a real phone, drop the framed-mockup look and go edge-to-edge like the actual app. */
 @media (max-width: 440px) {
   body { padding: 0; background: #fff; align-items: stretch; min-height: 0; }
@@ -761,11 +807,7 @@ body {
           <div class="ai"><div class="ai-top"><div class="ai-thumb"><img class="atm-img" data-img="fascia"></div><div class="ai-body"><div class="ai-type">Fascia decal peeling</div><div class="ai-desc">Top-left brand decal lifting at the corner. Cosmetic — schedule on next route.</div><div class="ai-tags"><span class="tag dept">Facilities</span></div></div></div><div class="ai-verbs"><button class="verb email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>Email</button><button class="verb comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button><button class="verb remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>Remove</button></div></div>
         </div>
 
-        <div class="panel" id="p-history">
-          <div class="visit"><div class="visit-top"><span class="visit-type">Routine service</span><span class="visit-date">Apr 13, 2026</span></div><span class="badge fail">2 issues found</span><div class="visit-photos"><div class="vp"><img class="atm-img" style="object-position:50% 38%"></div><div class="vp"><img class="atm-img" style="object-position:78% 30%"></div><div class="vp"><img class="atm-img" style="object-position:30% 90%"></div></div></div>
-          <div class="visit"><div class="visit-top"><span class="visit-type">Routine service</span><span class="visit-date">Mar 02, 2026</span></div><span class="badge pass">Passed</span><div class="visit-photos"><div class="vp"><img class="atm-img" style="object-position:50% 38%"></div><div class="vp"><img class="atm-img" style="object-position:50% 8%"></div></div></div>
-          <div class="visit"><div class="visit-top"><span class="visit-type">Install verification</span><span class="visit-date">Jan 19, 2026</span></div><span class="badge pass">Passed</span><div class="visit-photos"><div class="vp"><img class="atm-img" style="object-position:50% 38%"></div></div></div>
-        </div>
+        <div class="panel" id="p-history"></div>
 
         <div class="panel" id="p-info">
           <div class="inforow"><span class="k">ATM ID</span><span class="v">ATM&#8209;4471</span></div>
@@ -788,6 +830,15 @@ body {
           <div class="lb-head"><div class="k">Photos</div><div class="c" id="lb-count">1 of 7</div></div>
           <div class="lb-slot" id="lb-slotname">Main view</div>
         </div>
+      </div>
+
+      <!-- SURVEY DETAIL (a History entry's Action Record + the survey Q&A) -->
+      <div class="survey-sheet" id="survey-sheet">
+        <header class="sv-top">
+          <button class="icon-btn" aria-label="Back" onclick="closeSurvey()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <div class="sv-ttl" id="sv-top-ttl"></div>
+        </header>
+        <div class="sv-scroll" id="sv-body"></div>
       </div>
 
       <!-- SHEETS -->
@@ -872,6 +923,77 @@ body {
       { nm:'Monitor', key:'monitor', pos:'center' }, { nm:'Keypad', key:'keypad', pos:'center' }, { nm:'Fascia', key:'fascia', pos:'center' }, { nm:'Fee Notice', key:'feeNotice', pos:'center' },
     ];
     const slotImg = i => IMG[SLOTS[i].key] || ATM;   /* the real photo for a slot (each slot = a component view) */
+    const imgFor = k => (k && IMG[k]) ? IMG[k] : ATM;
+
+    /* ---- HISTORY: real v2 structure — inspection visits (surveys), each with an Action Record + Q&A ---- */
+    const HISTORY = [
+      { type:'Standard Evaluation', icon:'eval', date:'17 Jun 2026', time:'8:59 PM', outstanding:2, status:'Approved', approvedBy:'Auto Approved', tech:'Heath Apple', thumb:'main',
+        actions:[
+          { issue:'America First Credit Union — Braille', desc:'Braille functionality decals are needed to replace the non-braille functionality decals on this ATM.', action:'Issue reported in the website.', img:'general', buttons:['Repair','Email','Remove'] },
+          { issue:'Diebold Nixdorf — Receipt', desc:'The Receipt Printer is not working and the ATM indicates it cannot print receipts.', action:'Issue reported in the website.', img:'receipt', buttons:['Email','Remove'] },
+        ],
+        survey:[
+          { q:'Is there a skimming device on the ATM?', a:'No' },
+          { q:'Is the Receipt Printer working correctly?', a:'No, ATM is unable to print receipt', img:'receipt' },
+          { q:'Upon arrival, is there a spider or pest infestation in or on the ATM and its surrounding area?', a:'No infestation present' },
+          { q:'What was the ATM cleanliness when you arrived?', a:'Average' },
+          { q:'Rate the condition of ATM Fascia and Collar:', a:'Good', img:'fascia' },
+          { q:'Rate the condition of the ATM Case:', a:'Good' },
+          { q:'Rate the condition of the ATM Branding Element:', a:'Good' },
+          { q:'Does the audio jack work?', a:'Yes, Voice Prompt Working', img:'monitor' },
+        ] },
+      { type:'Braille Functionality Decal Survey', icon:'braille', date:'17 Jun 2026', time:'8:59 PM', outstanding:0, status:'Approved', approvedBy:'Auto Approved', tech:'Heath Apple', thumb:'feeNotice',
+        actions:[],
+        survey:[
+          { q:'Are braille functionality decals present?', a:'No — non-braille decals currently in place', img:'feeNotice' },
+          { q:'Is the braille legible and undamaged?', a:'N/A' },
+          { q:'Does decal placement match the standard?', a:'Yes' },
+        ] },
+      { type:'Standard Evaluation', icon:'eval', date:'12 May 2026', time:'7:21 PM', outstanding:2, status:'Approved', approvedBy:'Auto Approved', tech:'Heath Apple', thumb:'main',
+        actions:[
+          { issue:'Diebold Nixdorf — Receipt', desc:'Receipt printer reported low / misfeed on arrival.', action:'Issue reported in the website.', img:'receipt', buttons:['Email','Remove'] },
+          { issue:'Facilities — Fascia', desc:'Top-left brand decal lifting at the corner.', action:'Issue reported in the website.', img:'fascia', buttons:['Repair','Email','Remove'] },
+        ],
+        survey:[
+          { q:'Is there a skimming device on the ATM?', a:'No' },
+          { q:'Is the Receipt Printer working correctly?', a:'No, low paper / misfeed', img:'receipt' },
+          { q:'What was the ATM cleanliness when you arrived?', a:'Good' },
+          { q:'Rate the condition of ATM Fascia and Collar:', a:'Fair', img:'fascia' },
+          { q:'Does the audio jack work?', a:'Yes, Voice Prompt Working', img:'monitor' },
+        ] },
+    ];
+    const SURVEY_IC = {
+      eval: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg>',
+      braille: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+    };
+    function renderHistory() {
+      const el = document.getElementById('history-list') || document.getElementById('p-history');
+      if (!el) return;
+      el.innerHTML = HISTORY.map((h, i) => {
+        const count = h.outstanding > 0 ? `<span class="hv-c out">${h.outstanding} outstanding</span>` : '<span class="hv-c ok">No actions found</span>';
+        return `<button class="hv" onclick="openSurvey(${i})">
+          <span class="hv-ic">${SURVEY_IC[h.icon] || SURVEY_IC.eval}</span>
+          <span class="hv-main"><span class="hv-type">${h.type}</span><span class="hv-when">${h.date} · ${h.time}</span><span class="hv-sub">${h.status} · Tech ${h.tech}</span><span class="hv-counts">${count}</span></span>
+          <span class="hv-thumb"><img class="atm-img" src="${imgFor(h.thumb)}"></span>
+          <svg class="hv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>`;
+      }).join('');
+    }
+    function openSurvey(i) {
+      const h = HISTORY[i];
+      const actions = h.actions.length ? '<h3 class="sv-h">Action Record</h3>' + h.actions.map(a => {
+        const btns = a.buttons.map(b => `<button class="sv-btn ${b.toLowerCase()}">${b}</button>`).join('');
+        return `<div class="sv-issue"><div class="sv-issue-top"><div class="sv-issue-tx"><b>${a.issue}</b><span>${a.desc}</span></div><div class="sv-issue-img"><img class="atm-img" src="${imgFor(a.img)}"></div></div><div class="sv-issue-act">${a.action}</div><div class="sv-issue-btns">${btns}</div></div>`;
+      }).join('') : '';
+      const qa = `<h3 class="sv-h">${h.type}</h3>` + h.survey.map(s =>
+        `<div class="sv-qa"><div class="sv-q">${s.q}</div><div class="sv-arow"><div class="sv-a">${s.a}</div>${s.img ? `<div class="sv-qimg"><img class="atm-img" src="${imgFor(s.img)}"></div>` : ''}</div></div>`
+      ).join('');
+      document.getElementById('sv-top-ttl').innerHTML = `${h.type}<span>${h.date} · ${h.time} · ${h.tech}</span>`;
+      const body = document.getElementById('sv-body');
+      body.innerHTML = actions + qa; body.scrollTop = 0;
+      document.getElementById('survey-sheet').classList.add('show');
+    }
+    function closeSurvey() { document.getElementById('survey-sheet').classList.remove('show'); }
     const FLEET = [
       { id:'4471', loc:'1450 S State St', city:'Salt Lake City, UT', lat:40.7280, lng:-111.8882, issues:3, last:'8d', crop:0 },
       { id:'4490', loc:'700 E 2100 S', city:'Salt Lake City, UT', lat:40.7250, lng:-111.8650, issues:1, last:'3d', crop:2 },
@@ -1291,6 +1413,7 @@ body {
     /* ---- init ---- */
     window.addEventListener('load', () => {
       buildSlots();
+      renderHistory();
       renderList();
       renderPeek();
       initPeek();
