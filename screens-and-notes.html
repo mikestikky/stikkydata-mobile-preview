@@ -262,6 +262,31 @@
       </div>
     </div>
 
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html?nomap=1" data-state="history" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">13</span>Asset → History <span class="tag render">render of v2</span></h2>
+        <div class="route">Asset → History tab</div>
+        <ul>
+          <li><b>Renders v2's real history</b> — the list of <b>inspection visits (surveys)</b> for this ATM, newest first. Each row: survey type (Standard Evaluation / Braille Functionality Decal Survey), date + time, the visit's thumbnail, the field <b>Tech</b>, status (<b>Approved</b>), and the <b>outstanding action count</b>.</li>
+          <li>This is existing v2 data laid out for a phone — desktop shows the same as a wide table with extra filters (Services / Outstanding / E-mails / Removed / Comments) and an Export; mobile keeps the list and the survey behind a tap.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="phone"><div class="phone-frame"><iframe src="StikkyData_Mobile.html?nomap=1" data-state="survey" onload="drive(this)"></iframe></div></div>
+      <div class="notes">
+        <h2><span class="num">14</span>History → Survey detail <span class="tag render">render of v2</span></h2>
+        <div class="route">History → a visit → View Survey</div>
+        <ul>
+          <li><b>Action Record</b> — the issues found on that visit (e.g. Braille decals, Receipt printer), each with its photo and the same action buttons as v2 (<b>Repair · Email · Remove</b>).</li>
+          <li><b>The survey itself</b> — every question, the tech's answer, and the photo where one was taken (skimming check, receipt printer, fascia/case condition, audio jack, etc.). Read-only on the customer's phone; the desktop has per-row edit.</li>
+          <li>Same data as the v2 desktop "View Survey" — just stacked into cards instead of wide tables.</li>
+        </ul>
+      </div>
+    </div>
+
     <div class="section">
       <h2 class="section-h">Design system <span class="section-sub">the rules that hold every screen together — build to these exactly</span></h2>
       <div class="ds-grid">
@@ -337,6 +362,8 @@
             share: () => { w.openAsset('map'); w.openSheet('send'); },
             directions: () => { w.openAsset('map'); w.directions(); },
             triage: () => w.openTriage(),
+            history: () => { w.openAsset('map'); const t = w.document.querySelector('#view-asset .tab[data-tab="history"]'); if (t) w.setTab(t); },
+            survey: () => { w.openAsset('map'); const t = w.document.querySelector('#view-asset .tab[data-tab="history"]'); if (t) w.setTab(t); w.openSurvey(0); },
             'triage-card': () => { w.openTriage(); w.openGroup('Diebold Nixdorf', 'Monitor'); },
             'triage-summary': () => { w.openTriage(); w.openGroup('Diebold Nixdorf', 'ATM Lighting'); w.triageDo('escalate'); w.triageDo('excuse'); w.triageDo('escalate'); },
             'triage-excused': () => { w.openTriage(); w.openGroup('Diebold Nixdorf', 'ATM Lighting'); w.triageDo('excuse'); w.triageDo('excuse'); w.triageDo('escalate'); w.renderExcusedReview(); },
