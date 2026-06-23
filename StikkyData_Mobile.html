@@ -667,6 +667,15 @@ body {
 .sv-a { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.45; }
 .sv-qimg { width: 58px; height: 46px; border-radius: 7px; overflow: hidden; background: #0f172a; flex-shrink: 0; }
 .sv-qimg img { width: 100%; height: 100%; object-fit: cover; }
+.sv-thumb { position: relative; cursor: pointer; }
+.sv-thumb .sv-zoom { position: absolute; right: 3px; bottom: 3px; width: 18px; height: 18px; border-radius: 5px; background: rgba(15,23,42,0.72); color: #fff; display: flex; align-items: center; justify-content: center; }
+.sv-thumb .sv-zoom svg { width: 11px; height: 11px; }
+.sv-thumb:active img { filter: brightness(0.9); }
+/* tapped survey photo, full size (horizontal, letterboxed) */
+.sv-lb { position: absolute; inset: 0; background: #000; z-index: 20; display: none; align-items: center; justify-content: center; }
+.sv-lb.show { display: flex; }
+.sv-lb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.sv-lb-close { position: absolute; top: calc(14px + env(safe-area-inset-top, 0)); right: 14px; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.18); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
 /* On a real phone, drop the framed-mockup look and go edge-to-edge like the actual app. */
 @media (max-width: 440px) {
@@ -839,6 +848,10 @@ body {
           <div class="sv-ttl" id="sv-top-ttl"></div>
         </header>
         <div class="sv-scroll" id="sv-body"></div>
+        <div class="sv-lb" id="sv-lb" onclick="closeImg()">
+          <img id="sv-lb-img" alt="Survey photo">
+          <button class="sv-lb-close" aria-label="Close" onclick="closeImg(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
       </div>
 
       <!-- SHEETS -->
@@ -983,10 +996,10 @@ body {
       const h = HISTORY[i];
       const actions = h.actions.length ? '<h3 class="sv-h">Action Record</h3>' + h.actions.map(a => {
         const btns = a.buttons.map(b => `<button class="sv-btn ${b.toLowerCase()}">${b}</button>`).join('');
-        return `<div class="sv-issue"><div class="sv-issue-top"><div class="sv-issue-tx"><b>${a.issue}</b><span>${a.desc}</span></div><div class="sv-issue-img"><img class="atm-img" src="${imgFor(a.img)}"></div></div><div class="sv-issue-act">${a.action}</div><div class="sv-issue-btns">${btns}</div></div>`;
+        return `<div class="sv-issue"><div class="sv-issue-top"><div class="sv-issue-tx"><b>${a.issue}</b><span>${a.desc}</span></div><div class="sv-thumb sv-issue-img" onclick="openImg('${a.img}')"><img class="atm-img" src="${imgFor(a.img)}"><span class="sv-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div></div><div class="sv-issue-act">${a.action}</div><div class="sv-issue-btns">${btns}</div></div>`;
       }).join('') : '';
       const qa = `<h3 class="sv-h">${h.type}</h3>` + h.survey.map(s =>
-        `<div class="sv-qa"><div class="sv-q">${s.q}</div><div class="sv-arow"><div class="sv-a">${s.a}</div>${s.img ? `<div class="sv-qimg"><img class="atm-img" src="${imgFor(s.img)}"></div>` : ''}</div></div>`
+        `<div class="sv-qa"><div class="sv-q">${s.q}</div><div class="sv-arow"><div class="sv-a">${s.a}</div>${s.img ? `<div class="sv-thumb sv-qimg" onclick="openImg('${s.img}')"><img class="atm-img" src="${imgFor(s.img)}"><span class="sv-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span></div>` : ''}</div></div>`
       ).join('');
       document.getElementById('sv-top-ttl').innerHTML = `${h.type}<span>${h.date} · ${h.time} · ${h.tech}</span>`;
       const body = document.getElementById('sv-body');
@@ -994,6 +1007,8 @@ body {
       document.getElementById('survey-sheet').classList.add('show');
     }
     function closeSurvey() { document.getElementById('survey-sheet').classList.remove('show'); }
+    function openImg(key) { if (!key) return; const img = document.getElementById('sv-lb-img'); img.src = imgFor(key); document.getElementById('sv-lb').classList.add('show'); }
+    function closeImg(e) { if (e) e.stopPropagation(); document.getElementById('sv-lb').classList.remove('show'); }
     const FLEET = [
       { id:'4471', loc:'1450 S State St', city:'Salt Lake City, UT', lat:40.7280, lng:-111.8882, issues:3, last:'8d', crop:0 },
       { id:'4490', loc:'700 E 2100 S', city:'Salt Lake City, UT', lat:40.7250, lng:-111.8650, issues:1, last:'3d', crop:2 },
