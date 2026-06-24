@@ -1079,6 +1079,25 @@ body.lb-open { overflow: hidden; }
 .fl-sec.quiet span:first-child { color: var(--text-muted); }
 .fl-tier3 { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; text-align: left; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 12px; padding: 13px 14px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
 .fl-tier3 svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--text-muted); }
+
+
+/* ===== ticket detail: field repair notes + status timeline ===== */
+.tk-top { display: flex; align-items: center; gap: 8px; }
+.tk-chev { width: 16px; height: 16px; color: var(--text-muted); margin-left: auto; flex-shrink: 0; transition: transform .2s ease; }
+.tk.open .tk-chev { transform: rotate(180deg); }
+.tk-detail { display: none; margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--border-light); }
+.tk.open .tk-detail { display: block; }
+.tk-tl { display: flex; flex-direction: column; margin-bottom: 11px; }
+.tk-tl-row { display: flex; align-items: flex-start; gap: 9px; position: relative; padding-bottom: 12px; }
+.tk-tl-row.last { padding-bottom: 0; }
+.tk-tl-row:not(.last)::before { content: &#x27;&#x27;; position: absolute; left: 4px; top: 10px; bottom: -2px; width: 1.5px; background: var(--border-default); }
+.tk-tl-dot { width: 9px; height: 9px; border-radius: 50%; background: #cbd5e1; flex-shrink: 0; margin-top: 3px; position: relative; z-index: 1; }
+.tk-tl-row.last .tk-tl-dot { background: #2563eb; }
+.tk-tl-s { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+.tk-tl-t { font-size: 11.5px; color: var(--text-muted); margin-left: auto; white-space: nowrap; padding-left: 8px; }
+.tk-notes { background: var(--surface-bg); border-radius: 9px; padding: 10px 12px; }
+.tk-notes-h { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #2563eb; margin-bottom: 5px; }
+.tk-notes p { font-size: 12.5px; color: var(--text-primary); line-height: 1.5; }
 </code></pre>
   </div>
 
@@ -1206,31 +1225,44 @@ body.lb-open { overflow: hidden; }
     function openFleet() { renderFleet(); showView(&#x27;fleet&#x27;); }
     const TICKETS = {
       active: [
-        { id:&#x27;NCR-IM-88412&#x27;, fault:&#x27;Cash dispenser fault \u2014 note jam at reject bin&#x27;, cat:&#x27;Cash dispenser&#x27;, pri:&#x27;P1&#x27;, priLabel:&#x27;Critical&#x27;, line:&#x27;First Line&#x27;, status:&#x27;Engineer en route&#x27;, stat:&#x27;enroute&#x27;, opened:&#x27;3h ago&#x27;, sla:&#x27;4h response&#x27;, ce:&#x27;CE J. Morales \u00b7 ETA 40 min&#x27;, via:&#x27;Auto-dispatched by text&#x27; },
-        { id:&#x27;NCR-IM-88455&#x27;, fault:&#x27;Receipt printer low paper / intermittent jam&#x27;, cat:&#x27;Receipt printer&#x27;, pri:&#x27;P3&#x27;, priLabel:&#x27;Medium&#x27;, line:&#x27;Second Line&#x27;, status:&#x27;Dispatched&#x27;, stat:&#x27;dispatched&#x27;, opened:&#x27;1d ago&#x27;, sla:&#x27;8h response&#x27;, ce:&#x27;Assigned \u00b7 scheduling visit&#x27;, via:&#x27;Logged from survey photo&#x27; },
+        { id:&#x27;NCR-IM-88412&#x27;, fault:&#x27;Cash dispenser fault — note jam at reject bin&#x27;, cat:&#x27;Cash dispenser&#x27;, pri:&#x27;P1&#x27;, priLabel:&#x27;Critical&#x27;, line:&#x27;First Line&#x27;, status:&#x27;Engineer en route&#x27;, stat:&#x27;enroute&#x27;, opened:&#x27;today 14:05&#x27;, sla:&#x27;48m to SLA&#x27;, ce:&#x27;CE J. Morales&#x27;,
+          tl:[{s:&#x27;Logged&#x27;,t:&#x27;14:05&#x27;},{s:&#x27;Auto-dispatched (text)&#x27;,t:&#x27;14:08&#x27;},{s:&#x27;CE accepted&#x27;,t:&#x27;14:22&#x27;},{s:&#x27;En route · ETA ~40 min&#x27;,t:&#x27;now&#x27;}],
+          notes:&#x27;Remote diagnostics flag a note-path jam at the reject bin. CE called the branch and is bringing dispenser spares. Lobby unit — coordinating access with the branch manager.&#x27; },
+        { id:&#x27;NCR-IM-88455&#x27;, fault:&#x27;Receipt printer low paper / intermittent jam&#x27;, cat:&#x27;Receipt printer&#x27;, pri:&#x27;P3&#x27;, priLabel:&#x27;Medium&#x27;, line:&#x27;Second Line&#x27;, status:&#x27;Dispatched&#x27;, stat:&#x27;dispatched&#x27;, opened:&#x27;yesterday&#x27;, sla:&#x27;8h response&#x27;, ce:&#x27;2nd-line · scheduling&#x27;,
+          tl:[{s:&#x27;Logged from survey photo&#x27;,t:&#x27;yesterday&#x27;},{s:&#x27;Triaged P3&#x27;,t:&#x27;yesterday&#x27;},{s:&#x27;Dispatched (2nd line)&#x27;,t:&#x27;today&#x27;}],
+          notes:&#x27;Flagged from a field survey photo showing low paper and a partial jam. Non-urgent — still dispensing cash. Second-line visit scheduled; bringing a printer module.&#x27; },
       ],
       past: [
-        { id:&#x27;NCR-IM-87901&#x27;, fault:&#x27;Card reader will not accept cards&#x27;, cat:&#x27;Card reader&#x27;, pri:&#x27;P2&#x27;, priLabel:&#x27;High&#x27;, line:&#x27;First Line&#x27;, status:&#x27;Closed&#x27;, stat:&#x27;closed&#x27;, closed:&#x27;9d ago&#x27;, res:&#x27;Replaced card reader assembly; tested 10 dips OK&#x27;, ce:&#x27;CE A. Whitlock&#x27; },
-        { id:&#x27;NCR-IM-87640&#x27;, fault:&#x27;EPP keypad key sticking&#x27;, cat:&#x27;Keypad / EPP&#x27;, pri:&#x27;P4&#x27;, priLabel:&#x27;Low&#x27;, line:&#x27;Second Line&#x27;, status:&#x27;Closed&#x27;, stat:&#x27;closed&#x27;, closed:&#x27;19d ago&#x27;, res:&#x27;Cleaned keypad, reseated keycap&#x27;, ce:&#x27;CE R. Diaz&#x27; },
-        { id:&#x27;NCR-IM-87102&#x27;, fault:&#x27;Comms down \u2014 terminal offline&#x27;, cat:&#x27;Network / comms&#x27;, pri:&#x27;P1&#x27;, priLabel:&#x27;Critical&#x27;, line:&#x27;First Line&#x27;, status:&#x27;Closed&#x27;, stat:&#x27;closed&#x27;, closed:&#x27;34d ago&#x27;, res:&#x27;Replaced modem; line restored&#x27;, ce:&#x27;CE J. Morales&#x27; },
+        { id:&#x27;NCR-IM-87901&#x27;, fault:&#x27;Card reader will not accept cards&#x27;, cat:&#x27;Card reader&#x27;, pri:&#x27;P2&#x27;, priLabel:&#x27;High&#x27;, line:&#x27;First Line&#x27;, status:&#x27;Closed&#x27;, stat:&#x27;closed&#x27;, closed:&#x27;9d ago&#x27;, ce:&#x27;CE A. Whitlock&#x27;,
+          tl:[{s:&#x27;Logged&#x27;,t:&#x27;9d ago 08:40&#x27;},{s:&#x27;Dispatched&#x27;,t:&#x27;09:05&#x27;},{s:&#x27;On site&#x27;,t:&#x27;11:20&#x27;},{s:&#x27;Resolved&#x27;,t:&#x27;12:15&#x27;}],
+          notes:&#x27;On site 11:20. Reader failing chip + mag on ~40% of dips. Cleaned heads — no change. Swapped the card reader assembly (P/N 009-0029388). Ran 10 test dips, all read clean. Cleared the error log. Lobby unit, surround undamaged. ~55 min on site.&#x27; },
+        { id:&#x27;NCR-IM-87640&#x27;, fault:&#x27;EPP keypad &quot;5&quot; key sticking&#x27;, cat:&#x27;Keypad / EPP&#x27;, pri:&#x27;P4&#x27;, priLabel:&#x27;Low&#x27;, line:&#x27;Second Line&#x27;, status:&#x27;Closed&#x27;, stat:&#x27;closed&#x27;, closed:&#x27;19d ago&#x27;, ce:&#x27;CE R. Diaz&#x27;,
+          tl:[{s:&#x27;Logged&#x27;,t:&#x27;21d ago&#x27;},{s:&#x27;Dispatched&#x27;,t:&#x27;20d ago&#x27;},{s:&#x27;On site&#x27;,t:&#x27;19d ago&#x27;},{s:&#x27;Resolved&#x27;,t:&#x27;19d ago&#x27;}],
+          notes:&#x27;EPP &quot;5&quot; key intermittent. Pulled the keypad bezel — debris under the keycap. Cleaned, reseated the keycap, tested all keys OK. No EPP tamper indication. ~30 min.&#x27; },
+        { id:&#x27;NCR-IM-87102&#x27;, fault:&#x27;Comms down — terminal offline&#x27;, cat:&#x27;Network / comms&#x27;, pri:&#x27;P1&#x27;, priLabel:&#x27;Critical&#x27;, line:&#x27;First Line&#x27;, status:&#x27;Closed&#x27;, stat:&#x27;closed&#x27;, closed:&#x27;34d ago&#x27;, ce:&#x27;CE J. Morales&#x27;,
+          tl:[{s:&#x27;Terminal offline&#x27;,t:&#x27;34d ago 02:14&#x27;},{s:&#x27;Auto-logged&#x27;,t:&#x27;02:16&#x27;},{s:&#x27;On site&#x27;,t:&#x27;08:30&#x27;},{s:&#x27;Resolved&#x27;,t:&#x27;09:48&#x27;}],
+          notes:&#x27;Terminal offline since 02:14. Power good, modem LED dark. Replaced the modem, re-established the line; back in service 09:48. 2nd comms event this quarter — recommend watch.&#x27; },
       ]
     };
     function renderTickets() {
       const el = document.getElementById(&#x27;p-tickets&#x27;); if (!el) return;
-      const card = (t, closed) =&gt;
-        `&lt;button class=&quot;tk&quot; onclick=&quot;toast(&#x27;${t.id} \u2014 open in NCR Incident Mgmt&#x27;)&quot;&gt;`
-        + `&lt;span class=&quot;tk-top&quot;&gt;&lt;span class=&quot;tk-stat ${t.stat}&quot;&gt;${t.status}&lt;/span&gt;&lt;span class=&quot;tk-pri ${t.pri}&quot;&gt;${t.pri} \u00b7 ${t.priLabel}&lt;/span&gt;&lt;/span&gt;`
-        + `&lt;span class=&quot;tk-fault&quot;&gt;${t.fault}&lt;/span&gt;`
-        + `&lt;span class=&quot;tk-meta&quot;&gt;${t.cat} \u00b7 ${t.line}&lt;/span&gt;`
-        + `&lt;span class=&quot;tk-foot&quot;&gt;&lt;span class=&quot;tk-id&quot;&gt;${t.id}&lt;/span&gt;&lt;span class=&quot;tk-when&quot;&gt;${closed ? &#x27;closed &#x27; + t.closed : &#x27;opened &#x27; + t.opened + &#x27; \u00b7 SLA &#x27; + t.sla}&lt;/span&gt;&lt;/span&gt;`
-        + (closed ? `&lt;span class=&quot;tk-res&quot;&gt;&lt;b&gt;Resolved:&lt;/b&gt; ${t.res} \u2014 ${t.ce}&lt;/span&gt;` : `&lt;span class=&quot;tk-ce&quot;&gt;${t.ce} \u00b7 ${t.via}&lt;/span&gt;`)
-        + `&lt;/button&gt;`;
+      const chev = &#x27;&lt;svg class=&quot;tk-chev&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;6 9 12 15 18 9&quot;/&gt;&lt;/svg&gt;&#x27;;
+      const timeline = k =&gt; (k.tl||[]).map((e,i,arr) =&gt; `&lt;div class=&quot;tk-tl-row${i===arr.length-1?&#x27; last&#x27;:&#x27;&#x27;}&quot;&gt;&lt;span class=&quot;tk-tl-dot&quot;&gt;&lt;/span&gt;&lt;span class=&quot;tk-tl-s&quot;&gt;${e.s}&lt;/span&gt;&lt;span class=&quot;tk-tl-t&quot;&gt;${e.t}&lt;/span&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
+      const card = (k, closed) =&gt;
+        `&lt;div class=&quot;tk${closed?&#x27;&#x27;:&#x27; live&#x27;}&quot; onclick=&quot;this.classList.toggle(&#x27;open&#x27;)&quot;&gt;`
+        + `&lt;div class=&quot;tk-top&quot;&gt;&lt;span class=&quot;tk-stat ${k.stat}&quot;&gt;${k.status}&lt;/span&gt;&lt;span class=&quot;tk-pri ${k.pri}&quot;&gt;${k.pri} · ${k.priLabel}&lt;/span&gt;${chev}&lt;/div&gt;`
+        + `&lt;div class=&quot;tk-fault&quot;&gt;${k.fault}&lt;/div&gt;`
+        + `&lt;div class=&quot;tk-meta&quot;&gt;${k.cat} · ${k.line}&lt;/div&gt;`
+        + `&lt;div class=&quot;tk-foot&quot;&gt;&lt;span class=&quot;tk-id&quot;&gt;${k.id}&lt;/span&gt;&lt;span class=&quot;tk-when&quot;&gt;${closed ? &#x27;closed &#x27; + k.closed : &#x27;opened &#x27; + k.opened + &#x27; · SLA &#x27; + k.sla}&lt;/span&gt;&lt;/div&gt;`
+        + `&lt;div class=&quot;tk-detail&quot;&gt;&lt;div class=&quot;tk-tl&quot;&gt;${timeline(k)}&lt;/div&gt;`
+        + `&lt;div class=&quot;tk-notes&quot;&gt;&lt;div class=&quot;tk-notes-h&quot;&gt;${closed ? &#x27;Field repair notes&#x27; : &#x27;Latest update&#x27;} · ${k.ce}&lt;/div&gt;&lt;p&gt;${k.notes}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;`
+        + `&lt;/div&gt;`;
       el.innerHTML =
-        `&lt;div class=&quot;tk-sec&quot;&gt;Open \u00b7 ${TICKETS.active.length}&lt;/div&gt;`
-        + TICKETS.active.map(t =&gt; card(t, false)).join(&#x27;&#x27;)
-        + `&lt;div class=&quot;tk-sec two&quot;&gt;History \u00b7 ${TICKETS.past.length} closed&lt;/div&gt;`
-        + TICKETS.past.map(t =&gt; card(t, true)).join(&#x27;&#x27;)
-        + `&lt;div class=&quot;tk-note&quot;&gt;Live from NCR Incident Management \u00b7 read-only feed&lt;/div&gt;`;
+        `&lt;div class=&quot;tk-sec&quot;&gt;Open · ${TICKETS.active.length}&lt;/div&gt;`
+        + TICKETS.active.map(k =&gt; card(k, false)).join(&#x27;&#x27;)
+        + `&lt;div class=&quot;tk-sec two&quot;&gt;Repair history · ${TICKETS.past.length} completed&lt;/div&gt;`
+        + TICKETS.past.map(k =&gt; card(k, true)).join(&#x27;&#x27;)
+        + `&lt;div class=&quot;tk-note&quot;&gt;Live from NCR Incident Management · tap a ticket for the CE&#x27;s field notes + timeline&lt;/div&gt;`;
     }
     function tabBadge(el, n) { if (!el) return; if (n &gt; 0) { el.textContent = n; el.style.display = &#x27;&#x27;; } else { el.style.display = &#x27;none&#x27;; } }
     function setTabBadges() {
