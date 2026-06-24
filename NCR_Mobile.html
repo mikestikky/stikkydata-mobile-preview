@@ -880,6 +880,19 @@ body.lb-open { overflow: hidden; }
 .tk-notes p { font-size: 12.5px; color: var(--text-primary); line-height: 1.5; }
 
 
+/* ===== unified History timeline (visits + repairs) ===== */
+.hist-filter { display: flex; gap: 7px; margin-bottom: 14px; }
+.hf-chip { padding: 6px 13px; border: 1px solid var(--border-default); background: transparent; border-radius: 20px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
+.hf-chip.on { background: var(--brand-green); border-color: var(--brand-green); color: #fff; }
+.tl-item { margin-bottom: 13px; }
+.tl-tag { display: inline-block; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 6px; margin-bottom: 6px; }
+.tl-tag.visit { background: var(--accent-light); color: var(--accent-dark); }
+.tl-tag.service { background: #dbeafe; color: #1d4ed8; }
+.tl-link { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; margin: 7px 0 0 6px; padding-left: 10px; border-left: 2px solid var(--border-default); }
+.tl-link.spawn { color: #1d4ed8; }
+.tl-link.ok { color: var(--brand-green); }
+
+
 /* ---- single-file additions ---- */
 .screen { position: relative; }
 .view { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; pointer-events: none;
@@ -1284,25 +1297,24 @@ body.lb-open { overflow: hidden; }
           notes:'Terminal offline since 02:14. Power good, modem LED dark. Replaced the modem, re-established the line; back in service 09:48. 2nd comms event this quarter — recommend watch.' },
       ]
     };
-    function renderTickets() {
-      const el = document.getElementById('p-tickets'); if (!el) return;
+    function ticketCardHTML(k, closed) {
       const chev = '<svg class="tk-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-      const timeline = k => (k.tl||[]).map((e,i,arr) => `<div class="tk-tl-row${i===arr.length-1?' last':''}"><span class="tk-tl-dot"></span><span class="tk-tl-s">${e.s}</span><span class="tk-tl-t">${e.t}</span></div>`).join('');
-      const card = (k, closed) =>
-        `<div class="tk${closed?'':' live'}" onclick="this.classList.toggle('open')">`
+      const timeline = (k.tl||[]).map((e,i,arr) => `<div class="tk-tl-row${i===arr.length-1?' last':''}"><span class="tk-tl-dot"></span><span class="tk-tl-s">${e.s}</span><span class="tk-tl-t">${e.t}</span></div>`).join('');
+      return `<div class="tk${closed?'':' live'}" onclick="this.classList.toggle('open')">`
         + `<div class="tk-top"><span class="tk-stat ${k.stat}">${k.status}</span><span class="tk-pri ${k.pri}">${k.pri} · ${k.priLabel}</span>${chev}</div>`
         + `<div class="tk-fault">${k.fault}</div>`
         + `<div class="tk-meta">${k.cat} · ${k.line}</div>`
         + `<div class="tk-foot"><span class="tk-id">${k.id}</span><span class="tk-when">${closed ? 'closed ' + k.closed : 'opened ' + k.opened + ' · SLA ' + k.sla}</span></div>`
-        + `<div class="tk-detail"><div class="tk-tl">${timeline(k)}</div>`
+        + `<div class="tk-detail"><div class="tk-tl">${timeline}</div>`
         + `<div class="tk-notes"><div class="tk-notes-h">${closed ? 'Field repair notes' : 'Latest update'} · ${k.ce}</div><p>${k.notes}</p></div></div>`
         + `</div>`;
+    }
+    function renderTickets() {
+      const el = document.getElementById('p-tickets'); if (!el) return;
       el.innerHTML =
         `<div class="tk-sec">Open · ${TICKETS.active.length}</div>`
-        + TICKETS.active.map(k => card(k, false)).join('')
-        + `<div class="tk-sec two">Repair history · ${TICKETS.past.length} completed</div>`
-        + TICKETS.past.map(k => card(k, true)).join('')
-        + `<div class="tk-note">Live from NCR Incident Management · tap a ticket for the CE's field notes + timeline</div>`;
+        + TICKETS.active.map(k => { const L = TK_LINK[k.id] || {}; const link = L.from ? `<div class="tl-link spawn">↳ raised from ${L.from}</div>` : ''; return `<div class="tl-item">${ticketCardHTML(k, false)}${link}</div>`; }).join('')
+        + `<div class="tk-note">Live from NCR Incident Management · resolved tickets move to the History timeline</div>`;
     }
     function tabBadge(el, n) { if (!el) return; if (n > 0) { el.textContent = n; el.style.display = ''; } else { el.style.display = 'none'; } }
     function setTabBadges() {
@@ -1323,18 +1335,41 @@ body.lb-open { overflow: hidden; }
       eval: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg>',
       braille: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
     };
+    function visitCardHTML(h, i) {
+      const badge = h.outstanding > 0 ? `<span class="hv-badge">${h.outstanding}</span>` : '';
+      const count = h.outstanding > 0 ? `<span class="hv-c out">${h.outstanding} open from this visit</span>` : '';
+      return `<button class="hv" onclick="openSurvey(${i})"><span class="hv-ic">${SURVEY_IC[h.icon] || SURVEY_IC.eval}</span>`
+        + `<span class="hv-main"><span class="hv-type">${h.type}</span><span class="hv-when">${h.date} · ${h.time}</span><span class="hv-sub">${h.status} · Tech ${h.tech}</span><span class="hv-counts">${count}</span></span>`
+        + `<span class="hv-thumb"><img class="atm-img" src="${imgFor(h.thumb)}">${badge}</span>`
+        + `<svg class="hv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+    }
+    /* ATM record = visits + closed repairs, interleaved by recency. Causal links show the field<->service thread. */
+    let histFilter = 'all';
+    const VISIT_DAYS = [7, 7, 43];
+    const TK_DAYS = { 'NCR-IM-88412':0, 'NCR-IM-88455':1, 'NCR-IM-87901':9, 'NCR-IM-87640':19, 'NCR-IM-87102':34 };
+    const VISIT_LINK = { 0: { spawned:{ id:'NCR-IM-88455', label:'receipt printer' }, confirmed:{ id:'NCR-IM-87901', label:'card-reader repair' } } };
+    const TK_LINK = { 'NCR-IM-88455':{ from:'survey · 17 Jun 2026' }, 'NCR-IM-87901':{ verifiedBy:'survey · 17 Jun 2026' } };
+    function setHistFilter(f) { histFilter = f; renderHistory(); }
     function renderHistory() {
-      const el = document.getElementById('history-list') || document.getElementById('p-history');
-      if (!el) return;
-      el.innerHTML = HISTORY.map((h, i) => {
-        const badge = h.outstanding > 0 ? `<span class="hv-badge">${h.outstanding}</span>` : '';
-        const count = h.outstanding > 0 ? `<span class="hv-c out">${h.outstanding} open from this visit</span>` : '';
-        return `<button class="hv" onclick="openSurvey(${i})">
-          <span class="hv-ic">${SURVEY_IC[h.icon] || SURVEY_IC.eval}</span>
-          <span class="hv-main"><span class="hv-type">${h.type}</span><span class="hv-when">${h.date} · ${h.time}</span><span class="hv-sub">${h.status} · Tech ${h.tech}</span><span class="hv-counts">${count}</span></span>
-          <span class="hv-thumb"><img class="atm-img" src="${imgFor(h.thumb)}">${badge}</span>
-          <svg class="hv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>`;
+      const el = document.getElementById('p-history'); if (!el) return;
+      const items = [];
+      HISTORY.forEach((h, i) => items.push({ days: VISIT_DAYS[i] != null ? VISIT_DAYS[i] : 99, kind:'visit', h, i }));
+      TICKETS.past.forEach(k => items.push({ days: TK_DAYS[k.id] != null ? TK_DAYS[k.id] : 60, kind:'ticket', k }));
+      items.sort((x, y) => x.days - y.days);
+      const labels = { all:'All', visits:'Visits', service:'Service' };
+      const shown = items.filter(it => histFilter === 'all' || (histFilter === 'visits' && it.kind === 'visit') || (histFilter === 'service' && it.kind === 'ticket'));
+      const bar = `<div class="hist-filter">` + ['all','visits','service'].map(f => `<button class="hf-chip${histFilter===f?' on':''}" onclick="setHistFilter('${f}')">${labels[f]}</button>`).join('') + `</div>`;
+      el.innerHTML = bar + shown.map(it => {
+        if (it.kind === 'visit') {
+          const L = VISIT_LINK[it.i] || {}; let links = '';
+          if (L.spawned) links += `<div class="tl-link spawn">→ opened ${L.spawned.id} · ${L.spawned.label}</div>`;
+          if (L.confirmed) links += `<div class="tl-link ok">✓ confirmed ${L.confirmed.id} · ${L.confirmed.label}</div>`;
+          return `<div class="tl-item"><div class="tl-tag visit">Survey visit</div>${visitCardHTML(it.h, it.i)}${links}</div>`;
+        } else {
+          const L = TK_LINK[it.k.id] || {}; let links = '';
+          if (L.verifiedBy) links += `<div class="tl-link ok">✓ verified at ${L.verifiedBy}</div>`;
+          return `<div class="tl-item"><div class="tl-tag service">Repair</div>${ticketCardHTML(it.k, true)}${links}</div>`;
+        }
       }).join('');
     }
     function openSurvey(i) {

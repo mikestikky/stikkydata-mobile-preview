@@ -1098,6 +1098,19 @@ body.lb-open { overflow: hidden; }
 .tk-notes { background: var(--surface-bg); border-radius: 9px; padding: 10px 12px; }
 .tk-notes-h { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #2563eb; margin-bottom: 5px; }
 .tk-notes p { font-size: 12.5px; color: var(--text-primary); line-height: 1.5; }
+
+
+/* ===== unified History timeline (visits + repairs) ===== */
+.hist-filter { display: flex; gap: 7px; margin-bottom: 14px; }
+.hf-chip { padding: 6px 13px; border: 1px solid var(--border-default); background: transparent; border-radius: 20px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
+.hf-chip.on { background: var(--brand-green); border-color: var(--brand-green); color: #fff; }
+.tl-item { margin-bottom: 13px; }
+.tl-tag { display: inline-block; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 6px; margin-bottom: 6px; }
+.tl-tag.visit { background: var(--accent-light); color: var(--accent-dark); }
+.tl-tag.service { background: #dbeafe; color: #1d4ed8; }
+.tl-link { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; margin: 7px 0 0 6px; padding-left: 10px; border-left: 2px solid var(--border-default); }
+.tl-link.spawn { color: #1d4ed8; }
+.tl-link.ok { color: var(--brand-green); }
 </code></pre>
   </div>
 
@@ -1244,25 +1257,24 @@ body.lb-open { overflow: hidden; }
           notes:&#x27;Terminal offline since 02:14. Power good, modem LED dark. Replaced the modem, re-established the line; back in service 09:48. 2nd comms event this quarter — recommend watch.&#x27; },
       ]
     };
-    function renderTickets() {
-      const el = document.getElementById(&#x27;p-tickets&#x27;); if (!el) return;
+    function ticketCardHTML(k, closed) {
       const chev = &#x27;&lt;svg class=&quot;tk-chev&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;6 9 12 15 18 9&quot;/&gt;&lt;/svg&gt;&#x27;;
-      const timeline = k =&gt; (k.tl||[]).map((e,i,arr) =&gt; `&lt;div class=&quot;tk-tl-row${i===arr.length-1?&#x27; last&#x27;:&#x27;&#x27;}&quot;&gt;&lt;span class=&quot;tk-tl-dot&quot;&gt;&lt;/span&gt;&lt;span class=&quot;tk-tl-s&quot;&gt;${e.s}&lt;/span&gt;&lt;span class=&quot;tk-tl-t&quot;&gt;${e.t}&lt;/span&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
-      const card = (k, closed) =&gt;
-        `&lt;div class=&quot;tk${closed?&#x27;&#x27;:&#x27; live&#x27;}&quot; onclick=&quot;this.classList.toggle(&#x27;open&#x27;)&quot;&gt;`
+      const timeline = (k.tl||[]).map((e,i,arr) =&gt; `&lt;div class=&quot;tk-tl-row${i===arr.length-1?&#x27; last&#x27;:&#x27;&#x27;}&quot;&gt;&lt;span class=&quot;tk-tl-dot&quot;&gt;&lt;/span&gt;&lt;span class=&quot;tk-tl-s&quot;&gt;${e.s}&lt;/span&gt;&lt;span class=&quot;tk-tl-t&quot;&gt;${e.t}&lt;/span&gt;&lt;/div&gt;`).join(&#x27;&#x27;);
+      return `&lt;div class=&quot;tk${closed?&#x27;&#x27;:&#x27; live&#x27;}&quot; onclick=&quot;this.classList.toggle(&#x27;open&#x27;)&quot;&gt;`
         + `&lt;div class=&quot;tk-top&quot;&gt;&lt;span class=&quot;tk-stat ${k.stat}&quot;&gt;${k.status}&lt;/span&gt;&lt;span class=&quot;tk-pri ${k.pri}&quot;&gt;${k.pri} · ${k.priLabel}&lt;/span&gt;${chev}&lt;/div&gt;`
         + `&lt;div class=&quot;tk-fault&quot;&gt;${k.fault}&lt;/div&gt;`
         + `&lt;div class=&quot;tk-meta&quot;&gt;${k.cat} · ${k.line}&lt;/div&gt;`
         + `&lt;div class=&quot;tk-foot&quot;&gt;&lt;span class=&quot;tk-id&quot;&gt;${k.id}&lt;/span&gt;&lt;span class=&quot;tk-when&quot;&gt;${closed ? &#x27;closed &#x27; + k.closed : &#x27;opened &#x27; + k.opened + &#x27; · SLA &#x27; + k.sla}&lt;/span&gt;&lt;/div&gt;`
-        + `&lt;div class=&quot;tk-detail&quot;&gt;&lt;div class=&quot;tk-tl&quot;&gt;${timeline(k)}&lt;/div&gt;`
+        + `&lt;div class=&quot;tk-detail&quot;&gt;&lt;div class=&quot;tk-tl&quot;&gt;${timeline}&lt;/div&gt;`
         + `&lt;div class=&quot;tk-notes&quot;&gt;&lt;div class=&quot;tk-notes-h&quot;&gt;${closed ? &#x27;Field repair notes&#x27; : &#x27;Latest update&#x27;} · ${k.ce}&lt;/div&gt;&lt;p&gt;${k.notes}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;`
         + `&lt;/div&gt;`;
+    }
+    function renderTickets() {
+      const el = document.getElementById(&#x27;p-tickets&#x27;); if (!el) return;
       el.innerHTML =
         `&lt;div class=&quot;tk-sec&quot;&gt;Open · ${TICKETS.active.length}&lt;/div&gt;`
-        + TICKETS.active.map(k =&gt; card(k, false)).join(&#x27;&#x27;)
-        + `&lt;div class=&quot;tk-sec two&quot;&gt;Repair history · ${TICKETS.past.length} completed&lt;/div&gt;`
-        + TICKETS.past.map(k =&gt; card(k, true)).join(&#x27;&#x27;)
-        + `&lt;div class=&quot;tk-note&quot;&gt;Live from NCR Incident Management · tap a ticket for the CE&#x27;s field notes + timeline&lt;/div&gt;`;
+        + TICKETS.active.map(k =&gt; { const L = TK_LINK[k.id] || {}; const link = L.from ? `&lt;div class=&quot;tl-link spawn&quot;&gt;↳ raised from ${L.from}&lt;/div&gt;` : &#x27;&#x27;; return `&lt;div class=&quot;tl-item&quot;&gt;${ticketCardHTML(k, false)}${link}&lt;/div&gt;`; }).join(&#x27;&#x27;)
+        + `&lt;div class=&quot;tk-note&quot;&gt;Live from NCR Incident Management · resolved tickets move to the History timeline&lt;/div&gt;`;
     }
     function tabBadge(el, n) { if (!el) return; if (n &gt; 0) { el.textContent = n; el.style.display = &#x27;&#x27;; } else { el.style.display = &#x27;none&#x27;; } }
     function setTabBadges() {
@@ -1283,18 +1295,41 @@ body.lb-open { overflow: hidden; }
       eval: &#x27;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2&quot;/&gt;&lt;rect x=&quot;8&quot; y=&quot;2&quot; width=&quot;8&quot; height=&quot;4&quot; rx=&quot;1&quot;/&gt;&lt;path d=&quot;M9 13l2 2 4-4&quot;/&gt;&lt;/svg&gt;&#x27;,
       braille: &#x27;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z&quot;/&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;3&quot;/&gt;&lt;/svg&gt;&#x27;,
     };
+    function visitCardHTML(h, i) {
+      const badge = h.outstanding &gt; 0 ? `&lt;span class=&quot;hv-badge&quot;&gt;${h.outstanding}&lt;/span&gt;` : &#x27;&#x27;;
+      const count = h.outstanding &gt; 0 ? `&lt;span class=&quot;hv-c out&quot;&gt;${h.outstanding} open from this visit&lt;/span&gt;` : &#x27;&#x27;;
+      return `&lt;button class=&quot;hv&quot; onclick=&quot;openSurvey(${i})&quot;&gt;&lt;span class=&quot;hv-ic&quot;&gt;${SURVEY_IC[h.icon] || SURVEY_IC.eval}&lt;/span&gt;`
+        + `&lt;span class=&quot;hv-main&quot;&gt;&lt;span class=&quot;hv-type&quot;&gt;${h.type}&lt;/span&gt;&lt;span class=&quot;hv-when&quot;&gt;${h.date} · ${h.time}&lt;/span&gt;&lt;span class=&quot;hv-sub&quot;&gt;${h.status} · Tech ${h.tech}&lt;/span&gt;&lt;span class=&quot;hv-counts&quot;&gt;${count}&lt;/span&gt;&lt;/span&gt;`
+        + `&lt;span class=&quot;hv-thumb&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${imgFor(h.thumb)}&quot;&gt;${badge}&lt;/span&gt;`
+        + `&lt;svg class=&quot;hv-chev&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;`;
+    }
+    /* ATM record = visits + closed repairs, interleaved by recency. Causal links show the field&lt;-&gt;service thread. */
+    let histFilter = &#x27;all&#x27;;
+    const VISIT_DAYS = [7, 7, 43];
+    const TK_DAYS = { &#x27;NCR-IM-88412&#x27;:0, &#x27;NCR-IM-88455&#x27;:1, &#x27;NCR-IM-87901&#x27;:9, &#x27;NCR-IM-87640&#x27;:19, &#x27;NCR-IM-87102&#x27;:34 };
+    const VISIT_LINK = { 0: { spawned:{ id:&#x27;NCR-IM-88455&#x27;, label:&#x27;receipt printer&#x27; }, confirmed:{ id:&#x27;NCR-IM-87901&#x27;, label:&#x27;card-reader repair&#x27; } } };
+    const TK_LINK = { &#x27;NCR-IM-88455&#x27;:{ from:&#x27;survey · 17 Jun 2026&#x27; }, &#x27;NCR-IM-87901&#x27;:{ verifiedBy:&#x27;survey · 17 Jun 2026&#x27; } };
+    function setHistFilter(f) { histFilter = f; renderHistory(); }
     function renderHistory() {
-      const el = document.getElementById(&#x27;history-list&#x27;) || document.getElementById(&#x27;p-history&#x27;);
-      if (!el) return;
-      el.innerHTML = HISTORY.map((h, i) =&gt; {
-        const badge = h.outstanding &gt; 0 ? `&lt;span class=&quot;hv-badge&quot;&gt;${h.outstanding}&lt;/span&gt;` : &#x27;&#x27;;
-        const count = h.outstanding &gt; 0 ? `&lt;span class=&quot;hv-c out&quot;&gt;${h.outstanding} open from this visit&lt;/span&gt;` : &#x27;&#x27;;
-        return `&lt;button class=&quot;hv&quot; onclick=&quot;openSurvey(${i})&quot;&gt;
-          &lt;span class=&quot;hv-ic&quot;&gt;${SURVEY_IC[h.icon] || SURVEY_IC.eval}&lt;/span&gt;
-          &lt;span class=&quot;hv-main&quot;&gt;&lt;span class=&quot;hv-type&quot;&gt;${h.type}&lt;/span&gt;&lt;span class=&quot;hv-when&quot;&gt;${h.date} · ${h.time}&lt;/span&gt;&lt;span class=&quot;hv-sub&quot;&gt;${h.status} · Tech ${h.tech}&lt;/span&gt;&lt;span class=&quot;hv-counts&quot;&gt;${count}&lt;/span&gt;&lt;/span&gt;
-          &lt;span class=&quot;hv-thumb&quot;&gt;&lt;img class=&quot;atm-img&quot; src=&quot;${imgFor(h.thumb)}&quot;&gt;${badge}&lt;/span&gt;
-          &lt;svg class=&quot;hv-chev&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;/&gt;&lt;/svg&gt;
-        &lt;/button&gt;`;
+      const el = document.getElementById(&#x27;p-history&#x27;); if (!el) return;
+      const items = [];
+      HISTORY.forEach((h, i) =&gt; items.push({ days: VISIT_DAYS[i] != null ? VISIT_DAYS[i] : 99, kind:&#x27;visit&#x27;, h, i }));
+      TICKETS.past.forEach(k =&gt; items.push({ days: TK_DAYS[k.id] != null ? TK_DAYS[k.id] : 60, kind:&#x27;ticket&#x27;, k }));
+      items.sort((x, y) =&gt; x.days - y.days);
+      const labels = { all:&#x27;All&#x27;, visits:&#x27;Visits&#x27;, service:&#x27;Service&#x27; };
+      const shown = items.filter(it =&gt; histFilter === &#x27;all&#x27; || (histFilter === &#x27;visits&#x27; &amp;&amp; it.kind === &#x27;visit&#x27;) || (histFilter === &#x27;service&#x27; &amp;&amp; it.kind === &#x27;ticket&#x27;));
+      const bar = `&lt;div class=&quot;hist-filter&quot;&gt;` + [&#x27;all&#x27;,&#x27;visits&#x27;,&#x27;service&#x27;].map(f =&gt; `&lt;button class=&quot;hf-chip${histFilter===f?&#x27; on&#x27;:&#x27;&#x27;}&quot; onclick=&quot;setHistFilter(&#x27;${f}&#x27;)&quot;&gt;${labels[f]}&lt;/button&gt;`).join(&#x27;&#x27;) + `&lt;/div&gt;`;
+      el.innerHTML = bar + shown.map(it =&gt; {
+        if (it.kind === &#x27;visit&#x27;) {
+          const L = VISIT_LINK[it.i] || {}; let links = &#x27;&#x27;;
+          if (L.spawned) links += `&lt;div class=&quot;tl-link spawn&quot;&gt;→ opened ${L.spawned.id} · ${L.spawned.label}&lt;/div&gt;`;
+          if (L.confirmed) links += `&lt;div class=&quot;tl-link ok&quot;&gt;✓ confirmed ${L.confirmed.id} · ${L.confirmed.label}&lt;/div&gt;`;
+          return `&lt;div class=&quot;tl-item&quot;&gt;&lt;div class=&quot;tl-tag visit&quot;&gt;Survey visit&lt;/div&gt;${visitCardHTML(it.h, it.i)}${links}&lt;/div&gt;`;
+        } else {
+          const L = TK_LINK[it.k.id] || {}; let links = &#x27;&#x27;;
+          if (L.verifiedBy) links += `&lt;div class=&quot;tl-link ok&quot;&gt;✓ verified at ${L.verifiedBy}&lt;/div&gt;`;
+          return `&lt;div class=&quot;tl-item&quot;&gt;&lt;div class=&quot;tl-tag service&quot;&gt;Repair&lt;/div&gt;${ticketCardHTML(it.k, true)}${links}&lt;/div&gt;`;
+        }
       }).join(&#x27;&#x27;);
     }
     function openSurvey(i) {
