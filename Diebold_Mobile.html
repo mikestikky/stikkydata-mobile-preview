@@ -1644,7 +1644,7 @@ body.lb-open { overflow: hidden; }
       layer.clearLayers();
       const bounds = [];
       FLEET.forEach(a => {
-        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [28,38], iconAnchor: [14,37], popupAnchor: [0,-36] }) });
+        const m = L.marker([a.lat, a.lng], { icon: L.divIcon({ html: pinHTML(a), className: '', iconSize: [28,38], iconAnchor: [14,37], popupAnchor: [0,-36] }), zIndexOffset: a.down ? 1000 : 0 });
         m.bindPopup(cardHTML(a), { className: 'fleet-popup', closeButton: false, minWidth: 214, maxWidth: 214 });
         m.on('popupopen', e => { paintImages(e.popup.getElement()); if (e.target._icon) e.target._icon.classList.add('pin-selected'); });
         m.on('popupclose', e => { if (e.target._icon) e.target._icon.classList.remove('pin-selected'); });
