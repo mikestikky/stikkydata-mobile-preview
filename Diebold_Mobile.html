@@ -1420,30 +1420,38 @@ body.lb-open { overflow: hidden; }
     }
 
     const AF_FLEET = [
-      { id:'4471', loc:'1450 S State St', city:'Salt Lake City, UT', lat:40.7280, lng:-111.8882, issues:3, last:'8d', crop:0, down:true },
-      { id:'4490', loc:'700 E 2100 S', city:'Salt Lake City, UT', lat:40.7250, lng:-111.8650, issues:1, last:'3d', crop:2, down:true },
-      { id:'4512', loc:'400 S Main St', city:'Salt Lake City, UT', lat:40.7608, lng:-111.8910, issues:0, last:'2d', crop:3 },
-      { id:'4533', loc:'900 W North Temple', city:'Salt Lake City, UT', lat:40.7700, lng:-111.9210, issues:2, last:'12d', crop:1 },
-      { id:'4540', loc:'3300 S Highland Dr', city:'Salt Lake City, UT', lat:40.6980, lng:-111.8500, issues:0, last:'5d', crop:6 },
-      { id:'4558', loc:'2100 E Sugarhouse', city:'Salt Lake City, UT', lat:40.7220, lng:-111.8290, issues:0, last:'1d', crop:5 },
+      /* Down ATMs — real SLC addresses */
+      { id:'4471', loc:'1450 S State St', city:'Salt Lake City, UT', lat:40.7482, lng:-111.8875, issues:3, last:'8d', crop:0, down:true },
+      { id:'4490', loc:'700 E 2100 S', city:'Salt Lake City, UT', lat:40.7195, lng:-111.8570, issues:1, last:'3d', crop:2, down:true },
       { id:'4571', loc:'1300 E 500 S', city:'Salt Lake City, UT', lat:40.7510, lng:-111.8560, issues:4, last:'15d', crop:4, down:true },
-      { id:'4588', loc:'600 N Redwood Rd', city:'Salt Lake City, UT', lat:40.7790, lng:-111.9380, issues:0, last:'4d', crop:0 },
+      /* SLC fleet health watch ATMs */
+      { id:'4512', loc:'760 S State St', city:'Salt Lake City, UT', lat:40.7558, lng:-111.8877, issues:0, last:'2d', crop:3 },
+      { id:'4533', loc:'5469 S Redwood Rd', city:'Taylorsville, UT', lat:40.6380, lng:-111.9387, issues:2, last:'12d', crop:1 },
+      { id:'4540', loc:'5675 W 6200 S', city:'West Valley City, UT', lat:40.6171, lng:-112.0020, issues:0, last:'5d', crop:6 },
+      { id:'4558', loc:'2250 S 1300 E', city:'Salt Lake City, UT', lat:40.7195, lng:-111.8563, issues:0, last:'1d', crop:5 },
+      { id:'4588', loc:'4001 S Highland Dr', city:'Salt Lake City, UT', lat:40.6878, lng:-111.8444, issues:0, last:'4d', crop:0 },
     ];
-    /* The map is a TERRITORY display: ATMs PILE UP where the customer is dense (home turf) and thin out
-       elsewhere — the pile-up of individual pins IS the "look how much we own" message. No clustering
-       (it would hide the very density that matters), no even spacing. America First's real-ish western
-       footprint — Utah dominant, with outposts across NV/AZ/ID/NM. */
+    /* Real AFCU footprint: Utah dominant (~94 branches), Las Vegas/Henderson (~18), Mesa AZ (5), Boise ID (2), Albuquerque NM (1) */
     AF_FLEET.push(...makeFleet([
-      { city:'Salt Lake City, UT', lat:40.760, lng:-111.890, n:58, r:0.060 },
-      { city:'Ogden, UT',          lat:41.223, lng:-111.973, n:24, r:0.045 },
-      { city:'Provo, UT',          lat:40.252, lng:-111.660, n:30, r:0.060 },
-      { city:'Logan, UT',          lat:41.737, lng:-111.834, n:9,  r:0.030 },
-      { city:'St. George, UT',     lat:37.096, lng:-113.575, n:11, r:0.040 },
-      { city:'Las Vegas, NV',      lat:36.135, lng:-115.150, n:27, r:0.085 },
-      { city:'Reno, NV',           lat:39.530, lng:-119.810, n:12, r:0.050 },
-      { city:'Phoenix, AZ',        lat:33.450, lng:-112.070, n:25, r:0.090 },
-      { city:'Boise, ID',          lat:43.610, lng:-116.200, n:16, r:0.060 },
-      { city:'Albuquerque, NM',    lat:35.084, lng:-106.650, n:12, r:0.060 },
+      { city:'Salt Lake City, UT',   lat:40.760, lng:-111.891, n:40, r:0.048 },
+      { city:'West Valley City, UT', lat:40.692, lng:-112.001, n:16, r:0.032 },
+      { city:'Taylorsville, UT',     lat:40.658, lng:-111.939, n:10, r:0.028 },
+      { city:'Sandy, UT',            lat:40.582, lng:-111.884, n:14, r:0.038 },
+      { city:'South Jordan, UT',     lat:40.562, lng:-111.929, n:8,  r:0.028 },
+      { city:'Ogden, UT',            lat:41.223, lng:-111.973, n:16, r:0.035 },
+      { city:'Roy, UT',              lat:41.163, lng:-112.015, n:8,  r:0.025 },
+      { city:'Layton, UT',           lat:41.060, lng:-111.971, n:10, r:0.032 },
+      { city:'Bountiful, UT',        lat:40.868, lng:-111.881, n:8,  r:0.028 },
+      { city:'Provo, UT',            lat:40.234, lng:-111.660, n:18, r:0.045 },
+      { city:'Orem, UT',             lat:40.297, lng:-111.694, n:10, r:0.028 },
+      { city:'Lehi, UT',             lat:40.392, lng:-111.851, n:8,  r:0.032 },
+      { city:'Logan, UT',            lat:41.737, lng:-111.834, n:8,  r:0.028 },
+      { city:'St. George, UT',       lat:37.096, lng:-113.575, n:8,  r:0.035 },
+      { city:'Las Vegas, NV',        lat:36.135, lng:-115.150, n:14, r:0.070 },
+      { city:'Henderson, NV',        lat:36.030, lng:-115.028, n:8,  r:0.038 },
+      { city:'Mesa, AZ',             lat:33.415, lng:-111.831, n:5,  r:0.035 },
+      { city:'Boise, ID',            lat:43.610, lng:-116.200, n:2,  r:0.020 },
+      { city:'Albuquerque, NM',      lat:35.084, lng:-106.650, n:1,  r:0.010 },
     ], 4600));
 
     /* Other institutions the Diebold customer owns (e.g. Diebold services many banks). Each is a DISTINCT
