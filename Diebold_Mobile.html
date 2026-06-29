@@ -1410,9 +1410,8 @@ body.lb-open { overflow: hidden; }
         for (let k = 0; k < m.n; k++) {
           const h1 = ((id * 9301 + 49297) % 233280) / 233280;
           const h2 = ((id * 4099 + 150889) % 714025) / 714025;
-          const ang = h1 * Math.PI * 2, rad = Math.sqrt(h2) * m.r;
-          const lat = m.lat + rad * Math.sin(ang) * 0.78;
-          const lng = m.lng + rad * Math.cos(ang);
+          const lat = m.lat + (h1 - 0.5) * 2 * m.r * 0.78;
+          const lng = m.lng + (h2 - 0.5) * 2 * m.r;
           out.push({ id:String(id), loc:(100 + (id % 899)) + ' ' + streets[id % streets.length], city:m.city, lat, lng, issues:(id % 9 === 0 ? 2 : (id % 13 === 0 ? 1 : 0)), last:((id % 21) + 1) + 'd', crop:id % 7 });
           id++;
         }
