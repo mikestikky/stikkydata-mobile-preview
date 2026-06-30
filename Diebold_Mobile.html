@@ -462,6 +462,27 @@ body.lb-open { overflow: hidden; }
 .fleet-popup .leaflet-popup-tip { background: var(--surface-card); }
 .fleet-popup .leaflet-popup-content { margin: 0; width: 214px !important; }
 .fleet-popup a.leaflet-popup-close-button { display: none; }
+/* down/degraded pin popup — colored status bar at top; tap to expand the ticket timeline inline on the flag */
+.pc-bar { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; text-align: left; cursor: pointer; padding: 8px 11px; font-family: inherit; color: #fff; }
+.pc-bar.down { background: #dc2626; }
+.pc-bar.degraded { background: #d97706; }
+.pc-bar-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+.pc-bar.down .pc-bar-dot { animation: pcPulse 1.6s ease-out infinite; }
+@keyframes pcPulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,.6); } 70% { box-shadow: 0 0 0 7px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
+.pc-bar-main { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.pc-bar-head { font-size: 12px; font-weight: 800; }
+.pc-bar-sub { font-size: 10.5px; font-weight: 600; opacity: .92; }
+.pc-bar-chev { width: 15px; height: 15px; margin-left: auto; flex-shrink: 0; transition: transform .2s ease; }
+.pcard.tl-open .pc-bar-chev { transform: rotate(180deg); }
+.pc-tl { display: none; padding: 9px 12px 5px; background: var(--surface-bg); }
+.pcard.tl-open .pc-tl { display: block; }
+.pc-tl-row { display: flex; align-items: flex-start; gap: 8px; position: relative; padding-bottom: 9px; }
+.pc-tl-row.last { padding-bottom: 2px; }
+.pc-tl-row:not(.last)::before { content: ''; position: absolute; left: 3.5px; top: 9px; bottom: -1px; width: 1.5px; background: var(--border-default); }
+.pc-tl-dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; flex-shrink: 0; margin-top: 3px; position: relative; z-index: 1; }
+.pc-tl-row.last .pc-tl-dot { background: #dc2626; }
+.pc-tl-s { font-size: 11.5px; font-weight: 600; color: var(--text-primary); line-height: 1.25; }
+.pc-tl-t { font-size: 10.5px; color: var(--text-muted); margin-left: auto; white-space: nowrap; padding-left: 6px; }
 .pcard { width: 214px; font-family: inherit; background: var(--surface-card); }
 .pcard .pc-photo { position: relative; width: 100%; aspect-ratio: 4/3; background: #0f172a; overflow: hidden; }
 .pcard .pc-photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -1745,10 +1766,24 @@ body.lb-open { overflow: hidden; }
       const ball = a.down ? '#dc2626' : '#57ab2e';
       return `<div class="fpin"><svg width="28" height="38" viewBox="0 0 28 38" xmlns="http://www.w3.org/2000/svg"><rect x="13" y="16.5" width="2" height="20" rx="1" fill="#5a6478"/><circle cx="14" cy="12" r="9.5" fill="${ball}"/><circle cx="11" cy="9" r="2.5" fill="#ffffff" fill-opacity="0.32"/></svg></div>`;
     }
+    const PIN_STATUS = {
+      '4471': { stat:'down', head:'Engineer en route · ETA ~40m', sub:'Down 3h 12m · updated just now',
+        tl:[{s:'Logged',t:'14:05'},{s:'Auto-dispatched (text)',t:'14:08'},{s:'CE accepted',t:'14:22'},{s:'En route · ETA ~40 min',t:'now'}] },
+      '4490': { stat:'down', head:'Dispatched · CE assigned', sub:'Down 1h 40m · updated 6m ago',
+        tl:[{s:'Terminal offline',t:'12:20'},{s:'Auto-logged',t:'12:22'},{s:'Triaged P1',t:'12:31'},{s:'Dispatched · CE assigned',t:'now'}] },
+      '4571': { stat:'degraded', head:'Dispatched · still dispensing', sub:'Degraded 6h · updated earlier today',
+        tl:[{s:'Logged from survey photo',t:'yesterday'},{s:'Triaged P3',t:'yesterday'},{s:'Dispatched (2nd line)',t:'today'}] },
+    };
     function cardHTML(a) {
       const pill = a.issues > 0 ? `<span class="pc-pill issues">${a.issues} open</span>` : '';
       const dots = SLOTS.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('');
-      return `<div class="pcard" data-cur="0">
+      const st = PIN_STATUS[a.id];
+      const bar = st
+        ? `<button class="pc-bar ${st.stat}" onclick="event.stopPropagation(); this.closest('.pcard').classList.toggle('tl-open')"><span class="pc-bar-dot"></span><span class="pc-bar-main"><span class="pc-bar-head">${st.head}</span><span class="pc-bar-sub">${st.sub}</span></span><svg class="pc-bar-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>`
+          + `<div class="pc-tl">` + st.tl.map((e,i,arr)=>`<div class="pc-tl-row${i===arr.length-1?' last':''}"><span class="pc-tl-dot"></span><span class="pc-tl-s">${e.s}</span><span class="pc-tl-t">${e.t}</span></div>`).join('') + `</div>`
+        : '';
+      return `<div class="pcard ${st?st.stat:''}" data-cur="0">
+        ${bar}
         <div class="pc-photo"><img class="atm-img" src="${ATM}" style="object-position:${SLOTS[0].pos}">
           <button class="pc-arrow l" onclick="cardStep(event,-1)">&#8249;</button><button class="pc-arrow r" onclick="cardStep(event,1)">&#8250;</button>
           <span class="pc-slot">${SLOTS[0].nm}</span><span class="pc-dots">${dots}</span></div>
